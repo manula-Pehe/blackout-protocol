@@ -10,16 +10,28 @@ namespace BlackoutProtocol.Player
         [SerializeField] private float interactionDistance = 3f;
         [SerializeField] private LayerMask interactionMask = ~0;
 
+        private IInteractable currentInteractable;
+
+        public string CurrentPrompt =>
+            currentInteractable?.Prompt ?? string.Empty;
+
+        private void Update()
+        {
+            FindCurrentInteractable();
+        }
+
         public void OnInteract(InputValue value)
         {
-            if (value.isPressed)
+            if (value.isPressed && currentInteractable != null)
             {
-                TryInteract();
+                currentInteractable.Interact(gameObject);
             }
         }
 
-        private void TryInteract()
+        private void FindCurrentInteractable()
         {
+            currentInteractable = null;
+
             Ray ray = new Ray(
                 playerCamera.transform.position,
                 playerCamera.transform.forward);
@@ -36,15 +48,8 @@ namespace BlackoutProtocol.Player
                 return;
             }
 
-            IInteractable interactable =
+            currentInteractable =
                 hit.collider.GetComponentInParent<IInteractable>();
-
-            if (interactable == null)
-            {
-                return;
-            }
-
-            interactable.Interact(gameObject);
         }
 
         private void OnValidate()
