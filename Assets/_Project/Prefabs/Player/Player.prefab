@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerLook
   playerCamera: {fileID: 7367870917923708270}
-  mouseSensitivity: 0.1
+  mouseSensitivity: 0.2
   minimumPitch: -85
   maximumPitch: 85
 --- !u!114 &2915399301034271861

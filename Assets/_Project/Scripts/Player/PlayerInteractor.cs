@@ -41,7 +41,7 @@ namespace BlackoutProtocol.Player
                 out RaycastHit hit,
                 interactionDistance,
                 interactionMask,
-                QueryTriggerInteraction.Ignore);
+                QueryTriggerInteraction.Collide);
 
             if (!foundObject)
             {

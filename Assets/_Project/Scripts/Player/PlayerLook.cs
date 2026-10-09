@@ -12,6 +12,7 @@ namespace BlackoutProtocol.Player
 
         private Vector2 lookInput;
         private float pitch;
+        private int lookFramesToIgnore;
 
         private void Start()
         {
@@ -33,6 +34,19 @@ namespace BlackoutProtocol.Player
                 LockCursor();
             }
 
+            if (Cursor.lockState != CursorLockMode.Locked)
+            {
+                lookInput = Vector2.zero;
+                return;
+            }
+
+            if (lookFramesToIgnore > 0)
+            {
+                lookFramesToIgnore--;
+                lookInput = Vector2.zero;
+                return;
+            }
+
             float yawChange = lookInput.x * mouseSensitivity;
             float pitchChange = lookInput.y * mouseSensitivity;
 
@@ -49,10 +63,12 @@ namespace BlackoutProtocol.Player
             lookInput = value.Get<Vector2>();
         }
 
-        private static void LockCursor()
+        private void LockCursor()
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            lookInput = Vector2.zero;
+            lookFramesToIgnore = 2;
         }
     }
 }
