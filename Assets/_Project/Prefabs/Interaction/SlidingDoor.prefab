@@ -260,4 +260,4 @@ MonoBehaviour:
   localOpenOffset: {x: 2.2, y: 0, z: 0}
   movementSpeed: 2
   arrivalDistance: 0.01
-  startsLocked: 0
+  startsLocked: 1
