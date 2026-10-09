@@ -207,7 +207,7 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: df70fa95-8a34-4494-b137-73ab6b9c7d37
+  m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &29428972
@@ -240,8 +240,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.FirstPersonController
   walkSpeed: 4
   sprintSpeed: 7
+  crouchSpeed: 2
   jumpHeight: 1.2
   gravity: -20
+  playerCamera: {fileID: 1901669032}
+  standingHeight: 2
+  crouchingHeight: 1.2
+  standingCameraHeight: 0.65
+  crouchingCameraHeight: 0.25
+  crouchTransitionSpeed: 12
 --- !u!1 &199350254
 GameObject:
   m_ObjectHideFlags: 0
