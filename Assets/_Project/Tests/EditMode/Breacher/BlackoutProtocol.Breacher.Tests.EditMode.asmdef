@@ -1,0 +1,21 @@
+{
+    "name": "BlackoutProtocol.Breacher.Tests.EditMode",
+    "rootNamespace": "BlackoutProtocol.AI.Breacher.Tests",
+    "references": [
+        "BlackoutProtocol.Breacher.Logic"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "name": "BlackoutProtocol.Breacher.Logic",
+    "rootNamespace": "BlackoutProtocol.AI.Breacher.Logic",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
