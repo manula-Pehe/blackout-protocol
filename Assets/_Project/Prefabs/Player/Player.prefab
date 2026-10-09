@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 1178806511814702385}
   - component: {fileID: 354389433490057053}
   - component: {fileID: 2915399301034271861}
+  - component: {fileID: 4104202066474978146}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -267,3 +268,20 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &4104202066474978146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95e95b130a91ef59292d66d9ac3965c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerInteractor
+  playerCamera: {fileID: 6067884629084238992}
+  interactionDistance: 3
+  interactionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
