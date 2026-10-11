@@ -84,11 +84,21 @@ namespace BlackoutProtocol.AI.Breacher.Logic
         public int CountMissing(WorldState requiredFacts)
         {
             ulong missing = requiredFacts.facts & ~facts;
+            return CountBits(missing);
+        }
+
+        public int CountSetFacts()
+        {
+            return CountBits(facts);
+        }
+
+        private static int CountBits(ulong value)
+        {
             int count = 0;
 
-            while (missing != 0UL)
+            while (value != 0UL)
             {
-                missing &= missing - 1UL;
+                value &= value - 1UL;
                 count++;
             }
 
