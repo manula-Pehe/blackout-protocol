@@ -40,6 +40,8 @@ namespace BlackoutProtocol.AI.Breacher
         private float attackTimer;
         private float nextReplanTime;
         private bool currentActionFailed;
+        private bool barricadeUnavailable;
+        private bool waitingForWorldChange;
         private string debugStatus = "Waiting to start";
         private Vector3 plannedPlayerPosition;
 
@@ -72,7 +74,8 @@ namespace BlackoutProtocol.AI.Breacher
             DetectMovedPlayer();
             executor.Tick();
 
-            if (executor.Status == PlanExecutionStatus.NeedsReplan &&
+            if (!waitingForWorldChange &&
+                executor.Status == PlanExecutionStatus.NeedsReplan &&
                 Time.time >= nextReplanTime)
             {
                 Debug.Log(
@@ -94,10 +97,12 @@ namespace BlackoutProtocol.AI.Breacher
             currentPlan = GoapPlanner.Plan(state, goal, actions);
             plannedPlayerPosition = player.position;
             executor.StartPlan(currentPlan, state);
+            waitingForWorldChange = false;
 
             if (!currentPlan.Succeeded)
             {
-                debugStatus = "No valid GOAP plan";
+                waitingForWorldChange = true;
+                debugStatus = "No valid GOAP plan - waiting safely";
                 Debug.LogWarning(debugStatus, this);
                 return;
             }
@@ -108,6 +113,15 @@ namespace BlackoutProtocol.AI.Breacher
         private List<GoapAction> CreateAvailableActions()
         {
             var actions = new List<GoapAction>();
+            float doorPathCost = GetMovementCost(
+                doorApproach.position,
+                moveToDoorCost);
+            float barricadePathCost = GetMovementCost(
+                barricadeApproach.position,
+                moveToBarricadeCost);
+            float playerPathCost = GetMovementCost(
+                player.position,
+                moveToPlayerCost);
 
             if (!door.IsOpen && !door.IsLocked)
             {
@@ -116,19 +130,19 @@ namespace BlackoutProtocol.AI.Breacher
                     WorldState.Empty,
                     WorldState.From(WorldFact.AtDoor),
                     LocationFacts,
-                    moveToDoorCost));
+                    doorPathCost));
 
                 actions.Add(new OpenDoorAction(openDoorCost));
             }
 
-            if (!barricade.IsCleared)
+            if (!barricade.IsCleared && !barricadeUnavailable)
             {
                 actions.Add(new MoveToAction(
                     "Barricade",
                     WorldState.Empty,
                     WorldState.From(WorldFact.AtBarricade),
                     LocationFacts,
-                    moveToBarricadeCost));
+                    barricadePathCost));
                 actions.Add(new PushBarricadeAction(pushBarricadeCost));
             }
 
@@ -139,9 +153,20 @@ namespace BlackoutProtocol.AI.Breacher
                     WorldFact.AtPlayer,
                     WorldFact.PlayerInRange),
                 LocationFacts,
-                moveToPlayerCost));
+                playerPathCost));
             actions.Add(new AttackAction(attackCost));
             return actions;
+        }
+
+        private float GetMovementCost(
+            Vector3 destination,
+            float fallbackCost)
+        {
+            return pathMover.TryCalculatePathCost(
+                    destination,
+                    out float pathCost)
+                ? Mathf.Max(0.1f, pathCost)
+                : fallbackCost;
         }
 
         private WorldState SenseWorldState()
@@ -262,6 +287,12 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is PushBarricadeAction)
             {
+                if (barricade.IsBlocked)
+                {
+                    barricadeUnavailable = true;
+                    return ActionExecutionStatus.Failed;
+                }
+
                 return barricade.IsCleared
                     ? ActionExecutionStatus.Succeeded
                     : ActionExecutionStatus.Running;
@@ -400,7 +431,11 @@ namespace BlackoutProtocol.AI.Breacher
 
             foreach (GoapAction action in currentPlan.Actions)
             {
-                text.Append("\n - ").Append(action.Name);
+                text.Append("\n - ")
+                    .Append(action.Name)
+                    .Append(" (")
+                    .Append(action.BaseCost.ToString("F1"))
+                    .Append(")");
             }
 
             text.Append("\nCost: ")

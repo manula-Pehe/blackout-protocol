@@ -35,6 +35,47 @@ namespace BlackoutProtocol.AI.Breacher
         public bool LastPathSucceeded { get; private set; }
         public float LastPathCost { get; private set; }
 
+        /// <summary>
+        /// Calculates a route cost without starting movement. GOAP uses this
+        /// to compare destinations using the same custom A* as execution.
+        /// </summary>
+        public bool TryCalculatePathCost(
+            Vector3 destination,
+            out float pathCost)
+        {
+            pathCost = float.PositiveInfinity;
+
+            if (!TrySamplePosition(transform.position, out Vector3 start) ||
+                !TrySamplePosition(destination, out Vector3 goal))
+            {
+                return false;
+            }
+
+            NavGraph graph = NavMeshGraphBuilder.Build();
+
+            if (graph.Nodes.Count == 0)
+            {
+                return false;
+            }
+
+            NavNode startNode = FindNearestNode(graph.Nodes, start);
+            NavNode goalNode = FindNearestNode(graph.Nodes, goal);
+            PathSearchResult result = PathSearch.FindWithAStar(
+                startNode,
+                goalNode,
+                maximumExpandedNodes);
+
+            if (!result.Succeeded)
+            {
+                return false;
+            }
+
+            pathCost = result.TotalCost +
+                Vector3.Distance(start, startNode.Position) +
+                Vector3.Distance(goalNode.Position, goal);
+            return true;
+        }
+
         private void Start()
         {
             if (moveToTestDestinationOnStart && testDestination != null)

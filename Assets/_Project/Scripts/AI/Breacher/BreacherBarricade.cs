@@ -19,6 +19,7 @@ namespace BlackoutProtocol.AI.Breacher
         private bool isMoving;
 
         public bool IsCleared { get; private set; }
+        public bool IsBlocked { get; private set; }
         public Vector3 Position => transform.position;
 
         private void Awake()
@@ -40,6 +41,24 @@ namespace BlackoutProtocol.AI.Breacher
                 barricadeBody.position,
                 clearedPosition,
                 pushSpeed * Time.fixedDeltaTime);
+
+            Vector3 movement = nextPosition - barricadeBody.position;
+
+            if (movement.sqrMagnitude > 0f &&
+                barricadeBody.SweepTest(
+                    movement.normalized,
+                    out _,
+                    movement.magnitude + 0.01f,
+                    QueryTriggerInteraction.Ignore))
+            {
+                isMoving = false;
+                IsBlocked = true;
+                Debug.LogWarning(
+                    $"{name} cannot be pushed further.",
+                    this);
+                return;
+            }
+
             barricadeBody.MovePosition(nextPosition);
 
             if (Vector3.Distance(nextPosition, clearedPosition) <=
@@ -56,6 +75,7 @@ namespace BlackoutProtocol.AI.Breacher
         {
             if (!IsCleared)
             {
+                IsBlocked = false;
                 isMoving = true;
             }
         }
