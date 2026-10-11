@@ -359,6 +359,27 @@ namespace BlackoutProtocol.AI.Breacher
             }
         }
 
+        [ContextMenu("Debug/Lock Door And Replan")]
+        private void LockDoorAndReplan()
+        {
+            if (door == null)
+            {
+                Debug.LogWarning("No door is assigned to the Breacher.", this);
+                return;
+            }
+
+            door.Lock();
+
+            if (executor != null)
+            {
+                executor.NotifyLevelChanged();
+            }
+
+            Debug.Log(
+                "Door locked during execution; Breacher requested a replan.",
+                this);
+        }
+
         private void UpdateDebugStatus()
         {
             if (executor == null)
