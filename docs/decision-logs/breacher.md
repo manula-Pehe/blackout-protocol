@@ -109,3 +109,54 @@ Bound the number of states expanded by the planner, with a default limit of 1024
 
 **Why:**  
 The limit gives predictable worst-case work and makes modelling failures visible to the caller, which can retain a safe behaviour or retry after the world state changes.
+
+## 2026-10-11 — Smooth the triangle-centre path after A*
+
+**Context:**  
+The NavMesh graph uses triangle centres as nodes. Following every centre produced a valid route but caused visible left-right zig-zag movement.
+
+**Options considered:**
+
+1. Follow every graph node exactly.
+2. Replace the custom search with `NavMeshAgent` pathfinding.
+3. Keep the custom A* route and remove unnecessary intermediate waypoints with NavMesh line-of-sight checks.
+
+**Decision:**  
+Run a line-of-sight smoothing pass over the A* result before movement.
+
+**Why:**  
+The custom A* still determines the valid route and provides the search evidence. Smoothing only skips graph nodes when a direct segment remains on walkable NavMesh, producing more natural movement without allowing shortcuts through walls.
+
+**Evidence:**  
+The debug output reports both the original graph-node count and the reduced smoothed-waypoint count, while cyan Gizmos show the resulting straightened route.
+
+## 2026-10-11 — Use runtime A* path lengths as GOAP movement costs
+
+**Context:**  
+Fixed movement costs made GOAP choices independent of the Breacher's actual location.
+
+**Options considered:**
+
+1. Keep designer-entered fixed movement costs.
+2. Use straight-line distance only.
+3. Query the custom A* without starting movement and use the returned route length.
+
+**Decision:**  
+Use custom A* route lengths for runtime movement-action costs, with Inspector values retained only as fallbacks when a route cannot currently be calculated.
+
+**Why:**  
+This lets GOAP choose between the door and barricade using the real navigable distance from the Breacher, including wall layout, rather than Euclidean distance or a hard-coded preference.
+
+**Evidence:**  
+Moving the Breacher closer to the door or barricade changed the displayed movement costs and selected plan. With equal interaction costs, the planner preferred the route with the cheaper A* approach.
+
+## 2026-10-11 — Remove failed obstacle options before replanning
+
+**Context:**  
+A barricade pushed against a wall must not leave the executor running forever or cause it to choose the same impossible action repeatedly.
+
+**Decision:**  
+Detect a blocked kinematic push with a Rigidbody sweep, fail the running action, temporarily mark that barricade unavailable, and request a new plan. If no route remains, stop and wait safely rather than continuously replanning.
+
+**Evidence:**  
+With the barricade blocked, the Breacher changed to the more expensive door route. With both the barricade blocked and the door locked, it reported no valid plan once and remained responsive without log spam.

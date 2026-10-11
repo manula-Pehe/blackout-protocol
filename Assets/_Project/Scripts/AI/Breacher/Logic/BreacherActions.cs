@@ -15,7 +15,10 @@ namespace BlackoutProtocol.AI.Breacher.Logic
                 locationFactsToRemove,
                 pathCost)
         {
+            DestinationName = destinationName;
         }
+
+        public string DestinationName { get; }
     }
 
     public sealed class OpenDoorAction : GoapAction
