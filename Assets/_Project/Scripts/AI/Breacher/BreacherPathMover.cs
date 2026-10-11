@@ -20,6 +20,7 @@ namespace BlackoutProtocol.AI.Breacher
         [Header("Pathfinding")]
         [SerializeField] private float navMeshSampleRadius = 2f;
         [SerializeField] private int maximumExpandedNodes = 4096;
+        [SerializeField] private bool smoothPath = true;
 
         [Header("Debug")]
         [SerializeField] private bool drawPath = true;
@@ -99,23 +100,71 @@ namespace BlackoutProtocol.AI.Breacher
                 return false;
             }
 
+            var rawWaypoints = new List<Vector3>();
+
             // The first node contains the Breacher, so subsequent nodes are
             // the useful route waypoints. The sampled goal is the final point.
             for (int index = 1; index < result.Path.Count; index++)
             {
-                waypoints.Add(result.Path[index].Position);
+                rawWaypoints.Add(result.Path[index].Position);
             }
 
-            waypoints.Add(goal);
+            rawWaypoints.Add(goal);
+
+            if (smoothPath)
+            {
+                BuildSmoothedPath(start, rawWaypoints);
+            }
+            else
+            {
+                waypoints.AddRange(rawWaypoints);
+            }
+
             waypointIndex = 0;
             IsMoving = true;
 
             Debug.Log(
                 $"Breacher A*: cost={result.TotalCost:F2}, " +
                 $"expanded={result.ExpandedNodeCount}, " +
-                $"waypoints={waypoints.Count}",
+                $"graphNodes={result.Path.Count}, " +
+                $"smoothedWaypoints={waypoints.Count}",
                 this);
             return true;
+        }
+
+        private void BuildSmoothedPath(
+            Vector3 start,
+            IReadOnlyList<Vector3> rawWaypoints)
+        {
+            Vector3 anchor = start;
+            int nextIndex = 0;
+
+            while (nextIndex < rawWaypoints.Count)
+            {
+                int furthestVisibleIndex = nextIndex;
+
+                // Pick the furthest later waypoint that can be reached by a
+                // straight walkable segment without crossing a NavMesh edge.
+                for (int candidate = rawWaypoints.Count - 1;
+                     candidate > nextIndex;
+                     candidate--)
+                {
+                    if (!NavMesh.Raycast(
+                            anchor,
+                            rawWaypoints[candidate],
+                            out _,
+                            NavMesh.AllAreas))
+                    {
+                        furthestVisibleIndex = candidate;
+                        break;
+                    }
+                }
+
+                Vector3 selected = rawWaypoints[furthestVisibleIndex];
+                waypoints.Add(selected);
+                anchor = selected;
+                nextIndex = furthestVisibleIndex + 1;
+            }
         }
 
         public void Stop()

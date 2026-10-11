@@ -16,12 +16,16 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private Transform player;
         [SerializeField] private Transform doorApproach;
         [SerializeField] private SlidingDoor door;
+        [SerializeField] private Transform barricadeApproach;
+        [SerializeField] private BreacherBarricade barricade;
 
         [Header("Action Costs")]
         [SerializeField] private float moveToDoorCost = 2f;
         [SerializeField] private float openDoorCost = 2f;
         [SerializeField] private float moveToPlayerCost = 4f;
         [SerializeField] private float attackCost = 1f;
+        [SerializeField] private float moveToBarricadeCost = 3f;
+        [SerializeField] private float pushBarricadeCost = 2f;
 
         [Header("Execution")]
         [SerializeField] private float attackRange = 1.4f;
@@ -105,7 +109,7 @@ namespace BlackoutProtocol.AI.Breacher
         {
             var actions = new List<GoapAction>();
 
-            if (!door.IsOpen)
+            if (!door.IsOpen && !door.IsLocked)
             {
                 actions.Add(new MoveToAction(
                     "Door",
@@ -114,10 +118,18 @@ namespace BlackoutProtocol.AI.Breacher
                     LocationFacts,
                     moveToDoorCost));
 
-                if (!door.IsLocked)
-                {
-                    actions.Add(new OpenDoorAction(openDoorCost));
-                }
+                actions.Add(new OpenDoorAction(openDoorCost));
+            }
+
+            if (!barricade.IsCleared)
+            {
+                actions.Add(new MoveToAction(
+                    "Barricade",
+                    WorldState.Empty,
+                    WorldState.From(WorldFact.AtBarricade),
+                    LocationFacts,
+                    moveToBarricadeCost));
+                actions.Add(new PushBarricadeAction(pushBarricadeCost));
             }
 
             actions.Add(new MoveToAction(
@@ -143,10 +155,24 @@ namespace BlackoutProtocol.AI.Breacher
                     .With(WorldFact.PathToPlayerOpen);
             }
 
+            if (barricade.IsCleared)
+            {
+                state = state
+                    .With(WorldFact.BarricadeCleared)
+                    .With(WorldFact.PathToPlayerOpen);
+            }
+
             if (HorizontalDistance(transform.position, doorApproach.position) <=
                 0.6f)
             {
                 state = state.With(WorldFact.AtDoor);
+            }
+
+            if (HorizontalDistance(
+                    transform.position,
+                    barricadeApproach.position) <= 0.6f)
+            {
+                state = state.With(WorldFact.AtBarricade);
             }
 
             if (HorizontalDistance(transform.position, player.position) <=
@@ -191,6 +217,12 @@ namespace BlackoutProtocol.AI.Breacher
                 return;
             }
 
+            if (action is PushBarricadeAction)
+            {
+                barricade.Push();
+                return;
+            }
+
             if (action is AttackAction)
             {
                 attackTimer = 0f;
@@ -224,6 +256,13 @@ namespace BlackoutProtocol.AI.Breacher
                 }
 
                 return door.IsOpen
+                    ? ActionExecutionStatus.Succeeded
+                    : ActionExecutionStatus.Running;
+            }
+
+            if (action is PushBarricadeAction)
+            {
+                return barricade.IsCleared
                     ? ActionExecutionStatus.Succeeded
                     : ActionExecutionStatus.Running;
             }
@@ -262,6 +301,10 @@ namespace BlackoutProtocol.AI.Breacher
                     destination = doorApproach.position;
                     return true;
 
+                case "Barricade":
+                    destination = barricadeApproach.position;
+                    return true;
+
                 case "Player":
                     Vector3 awayFromPlayer =
                         transform.position - player.position;
@@ -285,13 +328,17 @@ namespace BlackoutProtocol.AI.Breacher
 
         private bool ReferencesAreValid()
         {
-            if (player != null && doorApproach != null && door != null)
+            if (player != null &&
+                doorApproach != null &&
+                door != null &&
+                barricadeApproach != null &&
+                barricade != null)
             {
                 return true;
             }
 
             debugStatus =
-                "Missing Player, Door Approach, or Door reference";
+                "Missing Player, Door, Barricade, or approach reference";
             Debug.LogError(debugStatus, this);
             return false;
         }
@@ -373,6 +420,8 @@ namespace BlackoutProtocol.AI.Breacher
             openDoorCost = Mathf.Max(0.1f, openDoorCost);
             moveToPlayerCost = Mathf.Max(0.1f, moveToPlayerCost);
             attackCost = Mathf.Max(0.1f, attackCost);
+            moveToBarricadeCost = Mathf.Max(0.1f, moveToBarricadeCost);
+            pushBarricadeCost = Mathf.Max(0.1f, pushBarricadeCost);
             attackRange = Mathf.Max(0.1f, attackRange);
             attackDuration = Mathf.Max(0f, attackDuration);
             replanDelay = Mathf.Max(0.1f, replanDelay);
