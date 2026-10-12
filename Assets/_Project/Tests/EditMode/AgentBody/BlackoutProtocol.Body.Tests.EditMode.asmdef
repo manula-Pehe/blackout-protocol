@@ -1,0 +1,22 @@
+{
+    "name": "BlackoutProtocol.Body.Tests.EditMode",
+    "rootNamespace": "BlackoutProtocol.Body.Tests",
+    "references": [
+        "BlackoutProtocol.Core",
+        "BlackoutProtocol.Body"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}
