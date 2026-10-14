@@ -151,6 +151,9 @@ GameObject:
   - component: {fileID: 354389433490057053}
   - component: {fileID: 2915399301034271861}
   - component: {fileID: 4104202066474978146}
+  - component: {fileID: 50000000000000001}
+  - component: {fileID: 5200667766457679183}
+  - component: {fileID: 6753449929326629384}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -285,3 +288,58 @@ MonoBehaviour:
   interactionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &50000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9e6a40982524aec960c2a728ba2cf20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerWeapon
+  playerCamera: {fileID: 6067884629084238992}
+  damage: 25
+  range: 100
+  shotsPerSecond: 5
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 1920
+  magazineSize: 12
+  initialReserveAmmo: 60
+  reloadDuration: 1.5
+  currentAmmo: 12
+  reserveAmmo: 60
+  isReloading: 0
+--- !u!114 &5200667766457679183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89762c83f9f1ef9499c40561c5606ffe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerHealth
+  maxHealth: 100
+--- !u!114 &6753449929326629384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 041dfea6a265fa8489836a3cd476e5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerState
+  playerCamera: {fileID: 6067884629084238992}
+  aimRange: 100
+  aimMask:
+    serializedVersion: 2
+    m_Bits: 1920
