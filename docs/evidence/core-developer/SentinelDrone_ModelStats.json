@@ -1,0 +1,15 @@
+{
+  "source": "Assets/_Project/Models/Source/SentinelDrone.blend",
+  "mesh_objects": 53,
+  "triangles": 3692,
+  "quads": 1540,
+  "ngons_over_4_sides": 18,
+  "meshes_with_uv_maps": 53,
+  "dimensions_m": {
+    "x": 0.816895604133606,
+    "y": 0.6459181904792786,
+    "z": 0.32666806131601334
+  },
+  "uv_image": "SentinelDrone_UV_Layout.png",
+  "wireframe_image": "SentinelDrone_Wireframe.png"
+}
