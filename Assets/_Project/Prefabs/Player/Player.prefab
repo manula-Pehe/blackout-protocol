@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -154,6 +154,7 @@ GameObject:
   - component: {fileID: 50000000000000001}
   - component: {fileID: 5200667766457679183}
   - component: {fileID: 6753449929326629384}
+  - component: {fileID: 7319447025378960142}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -343,3 +344,15 @@ MonoBehaviour:
   aimMask:
     serializedVersion: 2
     m_Bits: 1920
+--- !u!114 &7319447025378960142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73cf4c969d6849e5b90d64ef7320e8bf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerCombatHud
