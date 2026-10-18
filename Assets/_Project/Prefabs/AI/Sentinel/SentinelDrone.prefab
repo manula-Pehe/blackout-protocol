@@ -271,6 +271,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 69b6f81c8469e8644bd69b7b1aa16f0b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5147780040458237764}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 69b6f81c8469e8644bd69b7b1aa16f0b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 731111111111111111}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 69b6f81c8469e8644bd69b7b1aa16f0b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 731111111111111112}
   m_SourcePrefab: {fileID: 100100000, guid: 69b6f81c8469e8644bd69b7b1aa16f0b, type: 3}
 --- !u!1 &1653761426375081396 stripped
 GameObject:
@@ -298,3 +304,55 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.80799997, y: 0.628, z: 0.345}
   m_Center: {x: -0.000000029802322, y: 0, z: 0.048499994}
+--- !u!114 &731111111111111111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653761426375081396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0693638627a0a084b9467e5a38c6967a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  hoverHeight: 2.2
+  walkSpeed: 2.2
+  runSpeed: 4.2
+  searchSpeed: 1.5
+  arrivalRadius: 0.25
+  hoverBobAmplitude: 0.04
+  hoverBobFrequency: 1.8
+  turnSpeed: 240
+  collisionRadius: 0.18
+  stuckTimeout: 2.5
+  minimumProgressDistance: 0.08
+--- !u!114 &731111111111111112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653761426375081396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2172db404e695a949ad57f5b7c16ff3d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  patrolRouteRoot: {fileID: 0}
+  fallbackPatrolRadius: 4
+  sensorOrigin: {fileID: 0}
+  sightRange: 18
+  fieldOfView: 105
+  perceptionInterval: 0.12
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  alertDuration: 0.55
+  observationDistance: 5.5
+  observationRefreshInterval: 1.1
+  playerPositionRefreshDistance: 1.4
+  predictionSeconds: 1.1
+  searchRadius: 3
+  searchDwell: 0.65
+  searchPointCount: 5
