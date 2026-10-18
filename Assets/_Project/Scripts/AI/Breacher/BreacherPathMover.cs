@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BlackoutProtocol.AI.Breacher.Logic;
+using BlackoutProtocol.Core;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,7 +10,7 @@ namespace BlackoutProtocol.AI.Breacher
     /// Moves the Breacher along paths produced by the custom A* search.
     /// NavMesh is sampled only for walkable geometry; NavMeshAgent is not used.
     /// </summary>
-    public sealed class BreacherPathMover : MonoBehaviour
+    public sealed class BreacherPathMover : MonoBehaviour, IPathfinder
     {
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 2.5f;
@@ -34,6 +35,66 @@ namespace BlackoutProtocol.AI.Breacher
         public bool HasReachedDestination { get; private set; }
         public bool LastPathSucceeded { get; private set; }
         public float LastPathCost { get; private set; }
+
+        /// <inheritdoc />
+        public bool TryFindPath(
+            Vector3 startPosition,
+            Vector3 goalPosition,
+            List<Vector3> result)
+        {
+            if (result == null)
+            {
+                throw new System.ArgumentNullException(nameof(result));
+            }
+
+            result.Clear();
+
+            if (!TrySamplePosition(startPosition, out Vector3 start) ||
+                !TrySamplePosition(goalPosition, out Vector3 goal))
+            {
+                return false;
+            }
+
+            NavGraph graph = NavMeshGraphBuilder.Build();
+
+            if (graph.Nodes.Count == 0)
+            {
+                return false;
+            }
+
+            NavNode startNode = FindNearestNode(graph.Nodes, start);
+            NavNode goalNode = FindNearestNode(graph.Nodes, goal);
+            PathSearchResult search = PathSearch.FindWithAStar(
+                startNode,
+                goalNode,
+                maximumExpandedNodes);
+
+            if (!search.Succeeded)
+            {
+                return false;
+            }
+
+            var rawWaypoints = new List<Vector3>();
+
+            for (int index = 1; index < search.Path.Count; index++)
+            {
+                rawWaypoints.Add(search.Path[index].Position);
+            }
+
+            rawWaypoints.Add(goal);
+            result.Add(start);
+
+            if (smoothPath)
+            {
+                BuildSmoothedPath(start, rawWaypoints, result);
+            }
+            else
+            {
+                result.AddRange(rawWaypoints);
+            }
+
+            return result.Count > 1;
+        }
 
         /// <summary>
         /// Calculates a route cost without starting movement. GOAP uses this
@@ -70,9 +131,27 @@ namespace BlackoutProtocol.AI.Breacher
                 return false;
             }
 
-            pathCost = result.TotalCost +
-                Vector3.Distance(start, startNode.Position) +
-                Vector3.Distance(goalNode.Position, goal);
+            var rawWaypoints = new List<Vector3>();
+
+            for (int index = 1; index < result.Path.Count; index++)
+            {
+                rawWaypoints.Add(result.Path[index].Position);
+            }
+
+            rawWaypoints.Add(goal);
+
+            var costWaypoints = new List<Vector3>();
+
+            if (smoothPath)
+            {
+                BuildSmoothedPath(start, rawWaypoints, costWaypoints);
+            }
+            else
+            {
+                costWaypoints.AddRange(rawWaypoints);
+            }
+
+            pathCost = CalculateWaypointLength(start, costWaypoints);
             return true;
         }
 
@@ -154,7 +233,7 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (smoothPath)
             {
-                BuildSmoothedPath(start, rawWaypoints);
+                BuildSmoothedPath(start, rawWaypoints, waypoints);
             }
             else
             {
@@ -175,7 +254,8 @@ namespace BlackoutProtocol.AI.Breacher
 
         private void BuildSmoothedPath(
             Vector3 start,
-            IReadOnlyList<Vector3> rawWaypoints)
+            IReadOnlyList<Vector3> rawWaypoints,
+            ICollection<Vector3> output)
         {
             Vector3 anchor = start;
             int nextIndex = 0;
@@ -202,10 +282,26 @@ namespace BlackoutProtocol.AI.Breacher
                 }
 
                 Vector3 selected = rawWaypoints[furthestVisibleIndex];
-                waypoints.Add(selected);
+                output.Add(selected);
                 anchor = selected;
                 nextIndex = furthestVisibleIndex + 1;
             }
+        }
+
+        private static float CalculateWaypointLength(
+            Vector3 start,
+            IReadOnlyList<Vector3> path)
+        {
+            float total = 0f;
+            Vector3 previous = start;
+
+            for (int index = 0; index < path.Count; index++)
+            {
+                total += Vector3.Distance(previous, path[index]);
+                previous = path[index];
+            }
+
+            return Mathf.Max(0.1f, total);
         }
 
         public void Stop()

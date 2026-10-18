@@ -160,3 +160,17 @@ Detect a blocked kinematic push with a Rigidbody sweep, fail the running action,
 
 **Evidence:**  
 With the barricade blocked, the Breacher changed to the more expensive door route. With both the barricade blocked and the door locked, it reported no valid plan once and remained responsive without log spam.
+
+## 2026-10-18 — Separate the Breacher brain from shared movement and world objects
+
+**Context:**  
+The sandbox prototype initially moved its Transform directly and referenced concrete door, barricade, and player-health components. The merged shared contracts provide stable boundaries for final integration.
+
+**Decision:**  
+Make the Breacher path component implement `IPathfinder`; send its smoothed custom A* waypoints to `IAgentBody` using `MoveCommand`; interact with the world through `IDoor`, `IPushable`, `IDamageable`, and `GameEvents.LevelChanged`.
+
+**Why:**  
+GOAP remains responsible only for decisions, the custom A* remains responsible for route selection, and the shared body owns collision-aware movement, gravity, turning, and animation requests. Other implementations can replace doors, pushables, health, or the body without changing the planner.
+
+**Evidence:**  
+The integrated Breacher successfully completed both the unlocked-door route and the locked-door barricade route. Door and barricade completion raised `LevelChanged`, Player movement caused replanning, and repeated `IDamageable` attacks stopped when the Player reported `IsDead`.
