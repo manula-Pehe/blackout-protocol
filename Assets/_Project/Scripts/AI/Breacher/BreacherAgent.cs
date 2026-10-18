@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 using BlackoutProtocol.AI.Breacher.Logic;
+using BlackoutProtocol.Body;
+using BlackoutProtocol.Core;
 using BlackoutProtocol.Interaction;
 using UnityEngine;
 
@@ -30,12 +32,16 @@ namespace BlackoutProtocol.AI.Breacher
         [Header("Execution")]
         [SerializeField] private float attackRange = 1.4f;
         [SerializeField] private float attackDuration = 0.6f;
+        [SerializeField] private float attackDamage = 25f;
         [SerializeField] private float replanDelay = 0.5f;
         [SerializeField] private float playerReplanDistance = 1.5f;
         [SerializeField] private bool showDebugPanel = true;
 
         private BreacherPathMover pathMover;
+        private AgentBody agentBody;
         private PlanExecutor executor;
+        private IDamageable playerDamageable;
+        private readonly List<Vector3> movementPath = new List<Vector3>();
         private GoapPlanResult currentPlan;
         private float attackTimer;
         private float nextReplanTime;
@@ -55,7 +61,31 @@ namespace BlackoutProtocol.AI.Breacher
         private void Awake()
         {
             pathMover = GetComponent<BreacherPathMover>();
+            agentBody = GetComponent<AgentBody>();
+            playerDamageable = player != null
+                ? player.GetComponentInParent<IDamageable>()
+                : null;
             executor = new PlanExecutor(this);
+        }
+
+        private void OnEnable()
+        {
+            GameEvents.LevelChanged += HandleLevelChanged;
+
+            if (agentBody != null)
+            {
+                agentBody.Stuck += HandleAgentStuck;
+            }
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.LevelChanged -= HandleLevelChanged;
+
+            if (agentBody != null)
+            {
+                agentBody.Stuck -= HandleAgentStuck;
+            }
         }
 
         private void Start()
@@ -123,6 +153,17 @@ namespace BlackoutProtocol.AI.Breacher
                 player.position,
                 moveToPlayerCost);
 
+            Debug.Log(
+                $"Breacher route inputs: " +
+                $"doorOpen={door.IsOpen}, " +
+                $"doorLocked={door.IsLocked}, " +
+                $"doorPath={doorPathCost:F1}, " +
+                $"barricadeCleared={barricade.IsCleared}, " +
+                $"barricadeUnavailable={barricadeUnavailable}, " +
+                $"barricadePath={barricadePathCost:F1}, " +
+                $"playerPath={playerPathCost:F1}",
+                this);
+
             if (!door.IsOpen && !door.IsLocked)
             {
                 actions.Add(new MoveToAction(
@@ -180,6 +221,11 @@ namespace BlackoutProtocol.AI.Breacher
                     .With(WorldFact.PathToPlayerOpen);
             }
 
+            if (playerDamageable != null && playerDamageable.IsDead)
+            {
+                state = state.With(WorldFact.PlayerDefeated);
+            }
+
             if (barricade.IsCleared)
             {
                 state = state
@@ -220,9 +266,23 @@ namespace BlackoutProtocol.AI.Breacher
                 if (!TryResolveDestination(
                         moveAction.DestinationName,
                         out Vector3 destination) ||
-                    !pathMover.MoveTo(destination))
+                    !pathMover.TryFindPath(
+                        agentBody.Position,
+                        destination,
+                        movementPath))
                 {
                     currentActionFailed = true;
+                }
+                else
+                {
+                    Transform lookTarget =
+                        moveAction.DestinationName == "Player"
+                            ? player
+                            : null;
+                    agentBody.Execute(new MoveCommand(
+                        movementPath,
+                        MoveStyle.Run,
+                        lookTarget));
                 }
 
                 return;
@@ -251,6 +311,7 @@ namespace BlackoutProtocol.AI.Breacher
             if (action is AttackAction)
             {
                 attackTimer = 0f;
+                agentBody.PlayAction(AgentAction.Attack);
             }
         }
 
@@ -263,14 +324,14 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is MoveToAction)
             {
-                if (!pathMover.LastPathSucceeded)
+                if (agentBody.HasArrived)
                 {
-                    return ActionExecutionStatus.Failed;
+                    return ActionExecutionStatus.Succeeded;
                 }
 
-                return pathMover.HasReachedDestination
-                    ? ActionExecutionStatus.Succeeded
-                    : ActionExecutionStatus.Running;
+                return agentBody.IsMoving
+                    ? ActionExecutionStatus.Running
+                    : ActionExecutionStatus.Failed;
             }
 
             if (action is OpenDoorAction)
@@ -300,6 +361,16 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is AttackAction)
             {
+                if (playerDamageable == null)
+                {
+                    return ActionExecutionStatus.Failed;
+                }
+
+                if (playerDamageable.IsDead)
+                {
+                    return ActionExecutionStatus.Succeeded;
+                }
+
                 attackTimer += Time.deltaTime;
 
                 if (attackTimer < attackDuration)
@@ -307,8 +378,25 @@ namespace BlackoutProtocol.AI.Breacher
                     return ActionExecutionStatus.Running;
                 }
 
-                Debug.Log("Breacher attacked the player.", this);
-                return ActionExecutionStatus.Succeeded;
+                attackTimer = 0f;
+                playerDamageable.TakeDamage(
+                    attackDamage,
+                    player.position + Vector3.up,
+                    gameObject);
+
+                Debug.Log(
+                    $"Breacher attacked the player for " +
+                    $"{attackDamage:F0} damage.",
+                    this);
+
+                if (playerDamageable.IsDead)
+                {
+                    Debug.Log("Breacher defeated the player.", this);
+                    return ActionExecutionStatus.Succeeded;
+                }
+
+                agentBody.PlayAction(AgentAction.Attack);
+                return ActionExecutionStatus.Running;
             }
 
             return ActionExecutionStatus.Failed;
@@ -318,7 +406,7 @@ namespace BlackoutProtocol.AI.Breacher
         {
             if (action is MoveToAction)
             {
-                pathMover.Stop();
+                agentBody.Stop();
             }
         }
 
@@ -359,7 +447,9 @@ namespace BlackoutProtocol.AI.Breacher
 
         private bool ReferencesAreValid()
         {
-            if (player != null &&
+            if (agentBody != null &&
+                playerDamageable != null &&
+                player != null &&
                 doorApproach != null &&
                 door != null &&
                 barricadeApproach != null &&
@@ -369,7 +459,7 @@ namespace BlackoutProtocol.AI.Breacher
             }
 
             debugStatus =
-                "Missing Player, Door, Barricade, or approach reference";
+                "Missing AgentBody, IDamageable Player, Door, Barricade, or approach reference";
             Debug.LogError(debugStatus, this);
             return false;
         }
@@ -387,6 +477,24 @@ namespace BlackoutProtocol.AI.Breacher
                 playerReplanDistance)
             {
                 executor.NotifyPlayerMoved();
+            }
+        }
+
+        private void HandleLevelChanged(Collider changedObject)
+        {
+            if (executor != null &&
+                executor.Status == PlanExecutionStatus.Running)
+            {
+                executor.NotifyLevelChanged();
+            }
+        }
+
+        private void HandleAgentStuck()
+        {
+            if (executor != null &&
+                executor.Status == PlanExecutionStatus.Running)
+            {
+                executor.NotifyAgentStuck();
             }
         }
 
@@ -480,6 +588,7 @@ namespace BlackoutProtocol.AI.Breacher
             pushBarricadeCost = Mathf.Max(0.1f, pushBarricadeCost);
             attackRange = Mathf.Max(0.1f, attackRange);
             attackDuration = Mathf.Max(0f, attackDuration);
+            attackDamage = Mathf.Max(0.1f, attackDamage);
             replanDelay = Mathf.Max(0.1f, replanDelay);
             playerReplanDistance = Mathf.Max(0.1f, playerReplanDistance);
         }

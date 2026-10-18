@@ -1,8 +1,9 @@
+using BlackoutProtocol.Core;
 using UnityEngine;
 
 namespace BlackoutProtocol.Interaction
 {
-    public sealed class SlidingDoor : MonoBehaviour, IInteractable
+    public sealed class SlidingDoor : MonoBehaviour, IInteractable, IDoor
     {
         [Header("Door Movement")]
         [SerializeField] private Rigidbody doorPanel;
@@ -18,6 +19,7 @@ namespace BlackoutProtocol.Interaction
         private Vector3 openPosition;
         private bool wantsToBeOpen;
         private bool isMoving;
+        private Collider levelCollider;
 
         public bool IsOpen { get; private set; }
         public bool IsLocked { get; private set; }
@@ -61,6 +63,7 @@ namespace BlackoutProtocol.Interaction
                 transform.TransformVector(localOpenOffset);
 
             IsLocked = startsLocked;
+            levelCollider = doorPanel.GetComponent<Collider>();
         }
 
         private void FixedUpdate()
@@ -87,7 +90,14 @@ namespace BlackoutProtocol.Interaction
             {
                 doorPanel.MovePosition(targetPosition);
                 isMoving = false;
+
+                bool stateChanged = IsOpen != wantsToBeOpen;
                 IsOpen = wantsToBeOpen;
+
+                if (stateChanged)
+                {
+                    GameEvents.RaiseLevelChanged(levelCollider);
+                }
             }
         }
 

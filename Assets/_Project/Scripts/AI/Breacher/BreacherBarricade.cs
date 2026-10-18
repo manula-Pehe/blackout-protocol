@@ -1,3 +1,4 @@
+using BlackoutProtocol.Core;
 using UnityEngine;
 
 namespace BlackoutProtocol.AI.Breacher
@@ -6,7 +7,7 @@ namespace BlackoutProtocol.AI.Breacher
     /// A kinematic obstacle the Breacher can push out of a route.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
-    public sealed class BreacherBarricade : MonoBehaviour
+    public sealed class BreacherBarricade : MonoBehaviour, IPushable
     {
         [Header("Push Movement")]
         [SerializeField] private Vector3 localPushOffset =
@@ -15,16 +16,19 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private float arrivalDistance = 0.02f;
 
         private Rigidbody barricadeBody;
+        private Collider levelCollider;
         private Vector3 clearedPosition;
         private bool isMoving;
 
         public bool IsCleared { get; private set; }
         public bool IsBlocked { get; private set; }
+        public bool CanPush => !IsCleared && !IsBlocked;
         public Vector3 Position => transform.position;
 
         private void Awake()
         {
             barricadeBody = GetComponent<Rigidbody>();
+            levelCollider = GetComponent<Collider>();
             barricadeBody.isKinematic = true;
             clearedPosition = barricadeBody.position +
                 transform.TransformVector(localPushOffset);
@@ -67,17 +71,29 @@ namespace BlackoutProtocol.AI.Breacher
                 barricadeBody.MovePosition(clearedPosition);
                 isMoving = false;
                 IsCleared = true;
+                GameEvents.RaiseLevelChanged(levelCollider);
             }
         }
 
         [ContextMenu("Debug/Push Barricade")]
         public void Push()
         {
-            if (!IsCleared)
+            Vector3 worldOffset =
+                transform.TransformVector(localPushOffset);
+            Push(worldOffset.normalized, worldOffset.magnitude);
+        }
+
+        public void Push(Vector3 direction, float force)
+        {
+            if (IsCleared || direction.sqrMagnitude < 0.001f || force <= 0f)
             {
-                IsBlocked = false;
-                isMoving = true;
+                return;
             }
+
+            IsBlocked = false;
+            clearedPosition = barricadeBody.position +
+                direction.normalized * force;
+            isMoving = true;
         }
 
         private void OnValidate()
