@@ -38,7 +38,10 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private bool showDebugPanel = true;
 
         private BreacherPathMover pathMover;
-        private AgentBody agentBody;
+        private IPathfinder pathfinder;
+        private IAgentBody agentBody;
+        private IDoor doorContract;
+        private IPushable pushableContract;
         private PlanExecutor executor;
         private IDamageable playerDamageable;
         private readonly List<Vector3> movementPath = new List<Vector3>();
@@ -61,7 +64,10 @@ namespace BlackoutProtocol.AI.Breacher
         private void Awake()
         {
             pathMover = GetComponent<BreacherPathMover>();
+            pathfinder = pathMover;
             agentBody = GetComponent<AgentBody>();
+            doorContract = door;
+            pushableContract = barricade;
             playerDamageable = player != null
                 ? player.GetComponentInParent<IDamageable>()
                 : null;
@@ -155,8 +161,8 @@ namespace BlackoutProtocol.AI.Breacher
 
             Debug.Log(
                 $"Breacher route inputs: " +
-                $"doorOpen={door.IsOpen}, " +
-                $"doorLocked={door.IsLocked}, " +
+                $"doorOpen={doorContract.IsOpen}, " +
+                $"doorLocked={doorContract.IsLocked}, " +
                 $"doorPath={doorPathCost:F1}, " +
                 $"barricadeCleared={barricade.IsCleared}, " +
                 $"barricadeUnavailable={barricadeUnavailable}, " +
@@ -164,7 +170,7 @@ namespace BlackoutProtocol.AI.Breacher
                 $"playerPath={playerPathCost:F1}",
                 this);
 
-            if (!door.IsOpen && !door.IsLocked)
+            if (!doorContract.IsOpen && !doorContract.IsLocked)
             {
                 actions.Add(new MoveToAction(
                     "Door",
@@ -214,7 +220,7 @@ namespace BlackoutProtocol.AI.Breacher
         {
             WorldState state = WorldState.Empty;
 
-            if (door.IsOpen)
+            if (doorContract.IsOpen)
             {
                 state = state
                     .With(WorldFact.DoorOpen)
@@ -266,7 +272,7 @@ namespace BlackoutProtocol.AI.Breacher
                 if (!TryResolveDestination(
                         moveAction.DestinationName,
                         out Vector3 destination) ||
-                    !pathMover.TryFindPath(
+                    !pathfinder.TryFindPath(
                         agentBody.Position,
                         destination,
                         movementPath))
@@ -290,13 +296,13 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is OpenDoorAction)
             {
-                if (door.IsLocked)
+                if (doorContract.IsLocked)
                 {
                     currentActionFailed = true;
                 }
                 else
                 {
-                    door.Open();
+                    doorContract.Open();
                 }
 
                 return;
@@ -304,7 +310,22 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is PushBarricadeAction)
             {
-                barricade.Push();
+                Vector3 pushOffset = player.position -
+                    pushableContract.Position;
+                pushOffset.y = 0f;
+
+                if (!pushableContract.CanPush ||
+                    pushOffset.sqrMagnitude < 0.001f)
+                {
+                    currentActionFailed = true;
+                }
+                else
+                {
+                    pushableContract.Push(
+                        pushOffset.normalized,
+                        pushBarricadeCost);
+                }
+
                 return;
             }
 
@@ -336,12 +357,12 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is OpenDoorAction)
             {
-                if (door.IsLocked)
+                if (doorContract.IsLocked)
                 {
                     return ActionExecutionStatus.Failed;
                 }
 
-                return door.IsOpen
+                return doorContract.IsOpen
                     ? ActionExecutionStatus.Succeeded
                     : ActionExecutionStatus.Running;
             }
@@ -447,7 +468,10 @@ namespace BlackoutProtocol.AI.Breacher
 
         private bool ReferencesAreValid()
         {
-            if (agentBody != null &&
+            if (pathfinder != null &&
+                agentBody != null &&
+                doorContract != null &&
+                pushableContract != null &&
                 playerDamageable != null &&
                 player != null &&
                 doorApproach != null &&
