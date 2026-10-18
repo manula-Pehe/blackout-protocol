@@ -38,6 +38,8 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private float attackDamage = 25f;
         [SerializeField] private float replanDelay = 0.5f;
         [SerializeField] private float playerReplanDistance = 1.5f;
+        [Tooltip("Multiplier applied to door and barricade action costs during an alarm.")]
+        [SerializeField] private float alarmObstacleCostMultiplier = 0.35f;
         [SerializeField] private bool showDebugPanel = true;
 
         private BreacherPathMover pathMover;
@@ -59,6 +61,7 @@ namespace BlackoutProtocol.AI.Breacher
         private Vector3 plannedPlayerPosition;
         private ReplanReason lastReplanReason = ReplanReason.None;
         private string currentGoalName = "Defeat Player";
+        private bool alarmActive;
 
         private static WorldState LocationFacts => WorldState.From(
             WorldFact.AtDoor,
@@ -84,6 +87,7 @@ namespace BlackoutProtocol.AI.Breacher
         private void OnEnable()
         {
             GameEvents.LevelChanged += HandleLevelChanged;
+            GameEvents.AlarmRaised += HandleAlarmRaised;
 
             if (agentBody != null)
             {
@@ -99,6 +103,7 @@ namespace BlackoutProtocol.AI.Breacher
         private void OnDisable()
         {
             GameEvents.LevelChanged -= HandleLevelChanged;
+            GameEvents.AlarmRaised -= HandleAlarmRaised;
 
             if (agentBody != null)
             {
@@ -185,6 +190,7 @@ namespace BlackoutProtocol.AI.Breacher
 
             Debug.Log(
                 $"Breacher route inputs: " +
+                $"alarm={alarmActive}, " +
                 $"doorOpen={doorContract.IsOpen}, " +
                 $"doorLocked={doorContract.IsLocked}, " +
                 $"doorPath={doorPathCost:F1}, " +
@@ -203,7 +209,8 @@ namespace BlackoutProtocol.AI.Breacher
                     LocationFacts,
                     doorPathCost));
 
-                actions.Add(new OpenDoorAction(openDoorCost));
+                actions.Add(new OpenDoorAction(ApplyAlarmUrgency(
+                    openDoorCost)));
             }
 
             if (!barricade.IsCleared && !barricadeUnavailable)
@@ -214,7 +221,8 @@ namespace BlackoutProtocol.AI.Breacher
                     WorldState.From(WorldFact.AtBarricade),
                     LocationFacts,
                     barricadePathCost));
-                actions.Add(new PushBarricadeAction(pushBarricadeCost));
+                actions.Add(new PushBarricadeAction(ApplyAlarmUrgency(
+                    pushBarricadeCost)));
             }
 
             actions.Add(new MoveToAction(
@@ -241,6 +249,13 @@ namespace BlackoutProtocol.AI.Breacher
                     out float pathCost)
                 ? Mathf.Max(0.1f, pathCost)
                 : fallbackCost;
+        }
+
+        private float ApplyAlarmUrgency(float normalCost)
+        {
+            return alarmActive
+                ? Mathf.Max(0.1f, normalCost * alarmObstacleCostMultiplier)
+                : normalCost;
         }
 
         private WorldState SenseWorldState()
@@ -611,6 +626,30 @@ namespace BlackoutProtocol.AI.Breacher
             }
         }
 
+        private void HandleAlarmRaised(Vector3 playerLastSeenPosition)
+        {
+            alarmActive = true;
+
+            if (executor != null)
+            {
+                executor.NotifyGoalChanged();
+            }
+
+            Debug.Log(
+                $"Breacher received alarm at {playerLastSeenPosition}; " +
+                "aggressive route costs enabled.",
+                this);
+        }
+
+        [ContextMenu("Debug/Raise Alarm")]
+        private void RaiseDebugAlarm()
+        {
+            if (player != null)
+            {
+                GameEvents.RaiseAlarm(player.position);
+            }
+        }
+
         [ContextMenu("Debug/Lock Door And Replan")]
         private void LockDoorAndReplan()
         {
@@ -652,6 +691,8 @@ namespace BlackoutProtocol.AI.Breacher
                 .Append(breacherHealth.CurrentHealth.ToString("F0"))
                 .Append('/')
                 .AppendLine(breacherHealth.MaximumHealth.ToString("F0"))
+                .Append("Alarm: ")
+                .AppendLine(alarmActive ? "ACTIVE" : "Inactive")
                 .Append("Status: ").AppendLine(executor.Status.ToString())
                 .Append("Replan: ").AppendLine(replanText);
 
@@ -753,7 +794,7 @@ namespace BlackoutProtocol.AI.Breacher
             int actionCount = currentPlan != null && currentPlan.Succeeded
                 ? currentPlan.Actions.Count
                 : 0;
-            float panelHeight = 165f + actionCount * 20f;
+            float panelHeight = 185f + actionCount * 20f;
 
             var style = new GUIStyle(GUI.skin.box)
             {
@@ -786,6 +827,10 @@ namespace BlackoutProtocol.AI.Breacher
             attackDamage = Mathf.Max(0.1f, attackDamage);
             replanDelay = Mathf.Max(0.1f, replanDelay);
             playerReplanDistance = Mathf.Max(0.1f, playerReplanDistance);
+            alarmObstacleCostMultiplier = Mathf.Clamp(
+                alarmObstacleCostMultiplier,
+                0.05f,
+                1f);
         }
     }
 }
