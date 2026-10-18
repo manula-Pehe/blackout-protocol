@@ -23,6 +23,10 @@ namespace BlackoutProtocol.Player
         [SerializeField] private float crouchingCameraHeight = 0.25f;
         [SerializeField] private float crouchTransitionSpeed = 12f;
 
+        [Header("Physics Interaction")]
+        [SerializeField] private float pushForce = 350f;
+        [SerializeField] private float maximumPushedObjectSpeed = 3f;
+
         private CharacterController characterController;
         private Vector2 moveInput;
         private float verticalVelocity;
@@ -157,6 +161,46 @@ namespace BlackoutProtocol.Player
                 crouchTransitionSpeed * Time.deltaTime);
 
             playerCamera.localPosition = cameraPosition;
+        }
+
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            Rigidbody hitBody = hit.rigidbody;
+
+            if (hitBody == null ||
+                hitBody.isKinematic ||
+                hit.moveDirection.y < -0.3f)
+            {
+                return;
+            }
+
+            Vector3 horizontalVelocity = hitBody.linearVelocity;
+            horizontalVelocity.y = 0f;
+
+            if (horizontalVelocity.magnitude >= maximumPushedObjectSpeed)
+            {
+                return;
+            }
+
+            Vector3 pushDirection = hit.moveDirection;
+            pushDirection.y = 0f;
+
+            if (pushDirection.sqrMagnitude < 0.001f)
+            {
+                return;
+            }
+
+            hitBody.AddForce(
+                pushDirection.normalized * pushForce,
+                ForceMode.Force);
+        }
+
+        private void OnValidate()
+        {
+            pushForce = Mathf.Max(0f, pushForce);
+            maximumPushedObjectSpeed = Mathf.Max(
+                0.1f,
+                maximumPushedObjectSpeed);
         }
     }
 }
