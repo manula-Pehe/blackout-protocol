@@ -32,6 +32,13 @@ namespace BlackoutProtocol.Body
         [Tooltip("Distance at which the final waypoint counts as reached.")]
         [SerializeField] private float arrivalRadius = 0.15f;
 
+        [Header("Stuck detection")]
+        [Tooltip("Seconds without useful progress before Stuck is raised.")]
+        [SerializeField] private float stuckTimeout = 2.5f;
+
+        [Tooltip("Minimum reduction in waypoint distance that counts as progress.")]
+        [SerializeField] private float minimumProgressDistance = 0.1f;
+
         [Header("Turning")]
         [Tooltip("If the next waypoint is further than this angle away, turn on the spot before walking.")]
         [SerializeField] private float turnInPlaceAngle = 100f;
@@ -47,6 +54,9 @@ namespace BlackoutProtocol.Body
         private Transform lookTarget;
         private float currentSpeed;
         private Vector3 lastMoveDirection;
+        private int trackedWaypointIndex = -1;
+        private float bestDistanceToWaypoint;
+        private float lastProgressTime;
 
         /// <inheritdoc />
         public event Action Arrived;
@@ -118,7 +128,10 @@ namespace BlackoutProtocol.Body
             if (follower.Advance(Position, waypointAcceptanceRadius, arrivalRadius))
             {
                 Arrive();
+                return;
             }
+
+            ResetProgressTracking();
         }
 
         /// <inheritdoc />
@@ -129,6 +142,7 @@ namespace BlackoutProtocol.Body
             HasArrived = false;
             style = MoveStyle.Idle;
             lookTarget = null;
+            trackedWaypointIndex = -1;
         }
 
         /// <inheritdoc />
@@ -168,6 +182,11 @@ namespace BlackoutProtocol.Body
             }
 
             motor.Move(lastMoveDirection * currentSpeed, deltaTime);
+
+            if (IsMoving)
+            {
+                DetectStuck();
+            }
         }
 
         private void UpdateRotation(Vector3 desiredDirection, ref float targetSpeed, float deltaTime)
@@ -204,6 +223,7 @@ namespace BlackoutProtocol.Body
         {
             IsMoving = false;
             HasArrived = true;
+            trackedWaypointIndex = -1;
 
             // Temporary hard stop at the destination; the arrive (slowing radius)
             // behaviour in the steering branch makes the approach smooth.
@@ -215,7 +235,66 @@ namespace BlackoutProtocol.Body
         /// <summary>Raises <see cref="Stuck"/>. Called by stuck detection (robustness branch).</summary>
         private void RaiseStuck()
         {
+            // Restart the timer before notifying listeners so an unhandled event
+            // cannot fire every frame. A listening brain normally stops or
+            // replaces the current move command while replanning.
+            ResetProgressTracking();
             Stuck?.Invoke();
+        }
+
+        private void DetectStuck()
+        {
+            if (follower.IsFinished)
+            {
+                return;
+            }
+
+            if (trackedWaypointIndex != follower.CurrentIndex)
+            {
+                ResetProgressTracking();
+                return;
+            }
+
+            float distanceToWaypoint = HorizontalDistance(
+                Position,
+                follower.CurrentWaypoint);
+
+            if (distanceToWaypoint <=
+                bestDistanceToWaypoint - minimumProgressDistance)
+            {
+                bestDistanceToWaypoint = distanceToWaypoint;
+                lastProgressTime = Time.time;
+                return;
+            }
+
+            if (Time.time - lastProgressTime >= stuckTimeout)
+            {
+                RaiseStuck();
+            }
+        }
+
+        private void ResetProgressTracking()
+        {
+            if (!IsMoving || follower.IsFinished)
+            {
+                trackedWaypointIndex = -1;
+                bestDistanceToWaypoint = 0f;
+                lastProgressTime = Time.time;
+                return;
+            }
+
+            trackedWaypointIndex = follower.CurrentIndex;
+            bestDistanceToWaypoint = HorizontalDistance(
+                Position,
+                follower.CurrentWaypoint);
+            lastProgressTime = Time.time;
+        }
+
+        private static float HorizontalDistance(Vector3 first, Vector3 second)
+        {
+            first.y = 0f;
+            second.y = 0f;
+            return Vector3.Distance(first, second);
         }
 
         private float SpeedFor(MoveStyle moveStyle)
@@ -228,6 +307,14 @@ namespace BlackoutProtocol.Body
                 case MoveStyle.Strafe: return strafeSpeed;
                 default: return 0f;
             }
+        }
+
+        private void OnValidate()
+        {
+            stuckTimeout = Mathf.Max(0.1f, stuckTimeout);
+            minimumProgressDistance = Mathf.Max(
+                0.001f,
+                minimumProgressDistance);
         }
 
         private void OnDrawGizmos()

@@ -53,6 +53,7 @@ namespace BlackoutProtocol.AI.Breacher
         private bool waitingForWorldChange;
         private string debugStatus = "Waiting to start";
         private Vector3 plannedPlayerPosition;
+        private ReplanReason lastReplanReason = ReplanReason.None;
 
         private static WorldState LocationFacts => WorldState.From(
             WorldFact.AtDoor,
@@ -114,6 +115,7 @@ namespace BlackoutProtocol.AI.Breacher
                 executor.Status == PlanExecutionStatus.NeedsReplan &&
                 Time.time >= nextReplanTime)
             {
+                lastReplanReason = executor.ReplanReason;
                 Debug.Log(
                     $"Breacher replanning: {executor.ReplanReason}",
                     this);
@@ -550,11 +552,79 @@ namespace BlackoutProtocol.AI.Breacher
                 return;
             }
 
-            string actionName = executor.CurrentAction?.Name ?? "None";
-            debugStatus =
-                $"Status: {executor.Status}\n" +
-                $"Action: {actionName}\n" +
-                $"Replan reason: {executor.ReplanReason}";
+            var text = new StringBuilder();
+            string replanText = executor.ReplanReason != ReplanReason.None
+                ? executor.ReplanReason.ToString()
+                : lastReplanReason == ReplanReason.None
+                    ? "None"
+                    : $"None (last: {lastReplanReason})";
+
+            text.AppendLine("BREACHER GOAP")
+                .AppendLine("Goal: Defeat Player")
+                .Append("Status: ").AppendLine(executor.Status.ToString())
+                .Append("Replan: ").AppendLine(replanText);
+
+            if (waitingForWorldChange)
+            {
+                text.AppendLine("Mode: Waiting for world change");
+            }
+
+            if (currentPlan == null)
+            {
+                text.Append("Plan: Not created");
+                debugStatus = text.ToString();
+                return;
+            }
+
+            text.Append("Search: ")
+                .Append(currentPlan.ExpandedStateCount)
+                .Append(" states, ")
+                .Append(currentPlan.ElapsedMilliseconds.ToString("F3"))
+                .AppendLine(" ms");
+
+            if (!currentPlan.Succeeded)
+            {
+                text.Append("Plan: NO VALID PLAN");
+                debugStatus = text.ToString();
+                return;
+            }
+
+            text.Append("Plan (total ")
+                .Append(currentPlan.TotalCost.ToString("F1"))
+                .AppendLine("):");
+
+            for (int index = 0; index < currentPlan.Actions.Count; index++)
+            {
+                string marker;
+
+                if (executor.Status == PlanExecutionStatus.Completed ||
+                    index < executor.CurrentActionIndex)
+                {
+                    marker = "[x]";
+                }
+                else if (index == executor.CurrentActionIndex)
+                {
+                    marker = executor.Status == PlanExecutionStatus.Running
+                        ? " > "
+                        : " ! ";
+                }
+                else
+                {
+                    marker = "[ ]";
+                }
+
+                GoapAction action = currentPlan.Actions[index];
+                text.Append(marker)
+                    .Append(' ')
+                    .Append(index + 1)
+                    .Append(". ")
+                    .Append(action.Name)
+                    .Append(" (")
+                    .Append(action.BaseCost.ToString("F1"))
+                    .AppendLine(")");
+            }
+
+            debugStatus = text.ToString().TrimEnd();
         }
 
         private string BuildPlanText()
@@ -589,6 +659,11 @@ namespace BlackoutProtocol.AI.Breacher
                 return;
             }
 
+            int actionCount = currentPlan != null && currentPlan.Succeeded
+                ? currentPlan.Actions.Count
+                : 0;
+            float panelHeight = 145f + actionCount * 20f;
+
             var style = new GUIStyle(GUI.skin.box)
             {
                 alignment = TextAnchor.UpperLeft,
@@ -597,7 +672,11 @@ namespace BlackoutProtocol.AI.Breacher
             };
 
             GUI.Box(
-                new Rect(12f, Screen.height - 105f, 360f, 90f),
+                new Rect(
+                    12f,
+                    Screen.height - panelHeight - 12f,
+                    440f,
+                    panelHeight),
                 debugStatus,
                 style);
         }
