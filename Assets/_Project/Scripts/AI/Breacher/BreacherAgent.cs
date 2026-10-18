@@ -12,6 +12,7 @@ namespace BlackoutProtocol.AI.Breacher
     /// Connects the pure GOAP planner and executor to the Unity scene.
     /// </summary>
     [RequireComponent(typeof(BreacherPathMover))]
+    [RequireComponent(typeof(BreacherHealth))]
     public sealed class BreacherAgent : MonoBehaviour, IGoapActionRunner
     {
         [Header("Scene Targets")]
@@ -20,6 +21,7 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private SlidingDoor door;
         [SerializeField] private Transform barricadeApproach;
         [SerializeField] private BreacherBarricade barricade;
+        [SerializeField] private Transform coverPoint;
 
         [Header("Action Costs")]
         [SerializeField] private float moveToDoorCost = 2f;
@@ -28,6 +30,7 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private float attackCost = 1f;
         [SerializeField] private float moveToBarricadeCost = 3f;
         [SerializeField] private float pushBarricadeCost = 2f;
+        [SerializeField] private float takeCoverCost = 2f;
 
         [Header("Execution")]
         [SerializeField] private float attackRange = 1.4f;
@@ -35,9 +38,12 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private float attackDamage = 25f;
         [SerializeField] private float replanDelay = 0.5f;
         [SerializeField] private float playerReplanDistance = 1.5f;
+        [Tooltip("Multiplier applied to door and barricade action costs during an alarm.")]
+        [SerializeField] private float alarmObstacleCostMultiplier = 0.35f;
         [SerializeField] private bool showDebugPanel = true;
 
         private BreacherPathMover pathMover;
+        private BreacherHealth breacherHealth;
         private IPathfinder pathfinder;
         private IAgentBody agentBody;
         private IDoor doorContract;
@@ -53,6 +59,9 @@ namespace BlackoutProtocol.AI.Breacher
         private bool waitingForWorldChange;
         private string debugStatus = "Waiting to start";
         private Vector3 plannedPlayerPosition;
+        private ReplanReason lastReplanReason = ReplanReason.None;
+        private string currentGoalName = "Defeat Player";
+        private bool alarmActive;
 
         private static WorldState LocationFacts => WorldState.From(
             WorldFact.AtDoor,
@@ -64,6 +73,7 @@ namespace BlackoutProtocol.AI.Breacher
         private void Awake()
         {
             pathMover = GetComponent<BreacherPathMover>();
+            breacherHealth = GetComponent<BreacherHealth>();
             pathfinder = pathMover;
             agentBody = GetComponent<AgentBody>();
             doorContract = door;
@@ -77,20 +87,32 @@ namespace BlackoutProtocol.AI.Breacher
         private void OnEnable()
         {
             GameEvents.LevelChanged += HandleLevelChanged;
+            GameEvents.AlarmRaised += HandleAlarmRaised;
 
             if (agentBody != null)
             {
                 agentBody.Stuck += HandleAgentStuck;
+            }
+
+            if (breacherHealth != null)
+            {
+                breacherHealth.StateChanged += HandleHealthStateChanged;
             }
         }
 
         private void OnDisable()
         {
             GameEvents.LevelChanged -= HandleLevelChanged;
+            GameEvents.AlarmRaised -= HandleAlarmRaised;
 
             if (agentBody != null)
             {
                 agentBody.Stuck -= HandleAgentStuck;
+            }
+
+            if (breacherHealth != null)
+            {
+                breacherHealth.StateChanged -= HandleHealthStateChanged;
             }
         }
 
@@ -114,6 +136,7 @@ namespace BlackoutProtocol.AI.Breacher
                 executor.Status == PlanExecutionStatus.NeedsReplan &&
                 Time.time >= nextReplanTime)
             {
+                lastReplanReason = executor.ReplanReason;
                 Debug.Log(
                     $"Breacher replanning: {executor.ReplanReason}",
                     this);
@@ -127,7 +150,13 @@ namespace BlackoutProtocol.AI.Breacher
         private void CreateAndStartPlan()
         {
             WorldState state = SenseWorldState();
-            WorldState goal = WorldState.From(WorldFact.PlayerDefeated);
+            bool recoverInCover = breacherHealth.IsLowHealth;
+            currentGoalName = recoverInCover
+                ? "Recover In Cover"
+                : "Defeat Player";
+            WorldState goal = recoverInCover
+                ? WorldState.From(WorldFact.InCover)
+                : WorldState.From(WorldFact.PlayerDefeated);
             List<GoapAction> actions = CreateAvailableActions();
 
             currentPlan = GoapPlanner.Plan(state, goal, actions);
@@ -161,6 +190,7 @@ namespace BlackoutProtocol.AI.Breacher
 
             Debug.Log(
                 $"Breacher route inputs: " +
+                $"alarm={alarmActive}, " +
                 $"doorOpen={doorContract.IsOpen}, " +
                 $"doorLocked={doorContract.IsLocked}, " +
                 $"doorPath={doorPathCost:F1}, " +
@@ -179,7 +209,8 @@ namespace BlackoutProtocol.AI.Breacher
                     LocationFacts,
                     doorPathCost));
 
-                actions.Add(new OpenDoorAction(openDoorCost));
+                actions.Add(new OpenDoorAction(ApplyAlarmUrgency(
+                    openDoorCost)));
             }
 
             if (!barricade.IsCleared && !barricadeUnavailable)
@@ -190,7 +221,8 @@ namespace BlackoutProtocol.AI.Breacher
                     WorldState.From(WorldFact.AtBarricade),
                     LocationFacts,
                     barricadePathCost));
-                actions.Add(new PushBarricadeAction(pushBarricadeCost));
+                actions.Add(new PushBarricadeAction(ApplyAlarmUrgency(
+                    pushBarricadeCost)));
             }
 
             actions.Add(new MoveToAction(
@@ -202,6 +234,9 @@ namespace BlackoutProtocol.AI.Breacher
                 LocationFacts,
                 playerPathCost));
             actions.Add(new AttackAction(attackCost));
+            actions.Add(new TakeCoverAction(GetMovementCost(
+                coverPoint.position,
+                takeCoverCost)));
             return actions;
         }
 
@@ -214,6 +249,13 @@ namespace BlackoutProtocol.AI.Breacher
                     out float pathCost)
                 ? Mathf.Max(0.1f, pathCost)
                 : fallbackCost;
+        }
+
+        private float ApplyAlarmUrgency(float normalCost)
+        {
+            return alarmActive
+                ? Mathf.Max(0.1f, normalCost * alarmObstacleCostMultiplier)
+                : normalCost;
         }
 
         private WorldState SenseWorldState()
@@ -237,6 +279,17 @@ namespace BlackoutProtocol.AI.Breacher
                 state = state
                     .With(WorldFact.BarricadeCleared)
                     .With(WorldFact.PathToPlayerOpen);
+            }
+
+            if (breacherHealth.IsLowHealth)
+            {
+                state = state.With(WorldFact.LowHealth);
+            }
+
+            if (HorizontalDistance(transform.position, coverPoint.position) <=
+                0.6f)
+            {
+                state = state.With(WorldFact.InCover);
             }
 
             if (HorizontalDistance(transform.position, doorApproach.position) <=
@@ -294,6 +347,26 @@ namespace BlackoutProtocol.AI.Breacher
                 return;
             }
 
+            if (action is TakeCoverAction)
+            {
+                if (!pathfinder.TryFindPath(
+                        agentBody.Position,
+                        coverPoint.position,
+                        movementPath))
+                {
+                    currentActionFailed = true;
+                }
+                else
+                {
+                    agentBody.Execute(new MoveCommand(
+                        movementPath,
+                        MoveStyle.Run,
+                        null));
+                }
+
+                return;
+            }
+
             if (action is OpenDoorAction)
             {
                 if (doorContract.IsLocked)
@@ -344,6 +417,18 @@ namespace BlackoutProtocol.AI.Breacher
             }
 
             if (action is MoveToAction)
+            {
+                if (agentBody.HasArrived)
+                {
+                    return ActionExecutionStatus.Succeeded;
+                }
+
+                return agentBody.IsMoving
+                    ? ActionExecutionStatus.Running
+                    : ActionExecutionStatus.Failed;
+            }
+
+            if (action is TakeCoverAction)
             {
                 if (agentBody.HasArrived)
                 {
@@ -425,7 +510,7 @@ namespace BlackoutProtocol.AI.Breacher
 
         public void Cancel(GoapAction action)
         {
-            if (action is MoveToAction)
+            if (action is MoveToAction || action is TakeCoverAction)
             {
                 agentBody.Stop();
             }
@@ -473,17 +558,19 @@ namespace BlackoutProtocol.AI.Breacher
                 doorContract != null &&
                 pushableContract != null &&
                 playerDamageable != null &&
+                breacherHealth != null &&
                 player != null &&
                 doorApproach != null &&
                 door != null &&
                 barricadeApproach != null &&
-                barricade != null)
+                barricade != null &&
+                coverPoint != null)
             {
                 return true;
             }
 
             debugStatus =
-                "Missing AgentBody, IDamageable Player, Door, Barricade, or approach reference";
+                "Missing AgentBody, health, Player, Door, Barricade, approach, or Cover Point reference";
             Debug.LogError(debugStatus, this);
             return false;
         }
@@ -522,6 +609,47 @@ namespace BlackoutProtocol.AI.Breacher
             }
         }
 
+        private void HandleHealthStateChanged()
+        {
+            if (breacherHealth.IsDead)
+            {
+                agentBody.Stop();
+                debugStatus = "Breacher defeated - execution stopped";
+                enabled = false;
+                Debug.Log("Breacher defeated; GOAP execution stopped.", this);
+                return;
+            }
+
+            if (executor != null)
+            {
+                executor.NotifyGoalChanged();
+            }
+        }
+
+        private void HandleAlarmRaised(Vector3 playerLastSeenPosition)
+        {
+            alarmActive = true;
+
+            if (executor != null)
+            {
+                executor.NotifyGoalChanged();
+            }
+
+            Debug.Log(
+                $"Breacher received alarm at {playerLastSeenPosition}; " +
+                "aggressive route costs enabled.",
+                this);
+        }
+
+        [ContextMenu("Debug/Raise Alarm")]
+        private void RaiseDebugAlarm()
+        {
+            if (player != null)
+            {
+                GameEvents.RaiseAlarm(player.position);
+            }
+        }
+
         [ContextMenu("Debug/Lock Door And Replan")]
         private void LockDoorAndReplan()
         {
@@ -550,11 +678,85 @@ namespace BlackoutProtocol.AI.Breacher
                 return;
             }
 
-            string actionName = executor.CurrentAction?.Name ?? "None";
-            debugStatus =
-                $"Status: {executor.Status}\n" +
-                $"Action: {actionName}\n" +
-                $"Replan reason: {executor.ReplanReason}";
+            var text = new StringBuilder();
+            string replanText = executor.ReplanReason != ReplanReason.None
+                ? executor.ReplanReason.ToString()
+                : lastReplanReason == ReplanReason.None
+                    ? "None"
+                    : $"None (last: {lastReplanReason})";
+
+            text.AppendLine("BREACHER GOAP")
+                .Append("Goal: ").AppendLine(currentGoalName)
+                .Append("Health: ")
+                .Append(breacherHealth.CurrentHealth.ToString("F0"))
+                .Append('/')
+                .AppendLine(breacherHealth.MaximumHealth.ToString("F0"))
+                .Append("Alarm: ")
+                .AppendLine(alarmActive ? "ACTIVE" : "Inactive")
+                .Append("Status: ").AppendLine(executor.Status.ToString())
+                .Append("Replan: ").AppendLine(replanText);
+
+            if (waitingForWorldChange)
+            {
+                text.AppendLine("Mode: Waiting for world change");
+            }
+
+            if (currentPlan == null)
+            {
+                text.Append("Plan: Not created");
+                debugStatus = text.ToString();
+                return;
+            }
+
+            text.Append("Search: ")
+                .Append(currentPlan.ExpandedStateCount)
+                .Append(" states, ")
+                .Append(currentPlan.ElapsedMilliseconds.ToString("F3"))
+                .AppendLine(" ms");
+
+            if (!currentPlan.Succeeded)
+            {
+                text.Append("Plan: NO VALID PLAN");
+                debugStatus = text.ToString();
+                return;
+            }
+
+            text.Append("Plan (total ")
+                .Append(currentPlan.TotalCost.ToString("F1"))
+                .AppendLine("):");
+
+            for (int index = 0; index < currentPlan.Actions.Count; index++)
+            {
+                string marker;
+
+                if (executor.Status == PlanExecutionStatus.Completed ||
+                    index < executor.CurrentActionIndex)
+                {
+                    marker = "[x]";
+                }
+                else if (index == executor.CurrentActionIndex)
+                {
+                    marker = executor.Status == PlanExecutionStatus.Running
+                        ? " > "
+                        : " ! ";
+                }
+                else
+                {
+                    marker = "[ ]";
+                }
+
+                GoapAction action = currentPlan.Actions[index];
+                text.Append(marker)
+                    .Append(' ')
+                    .Append(index + 1)
+                    .Append(". ")
+                    .Append(action.Name)
+                    .Append(" (")
+                    .Append(action.BaseCost.ToString("F1"))
+                    .AppendLine(")");
+            }
+
+            debugStatus = text.ToString().TrimEnd();
         }
 
         private string BuildPlanText()
@@ -589,6 +791,11 @@ namespace BlackoutProtocol.AI.Breacher
                 return;
             }
 
+            int actionCount = currentPlan != null && currentPlan.Succeeded
+                ? currentPlan.Actions.Count
+                : 0;
+            float panelHeight = 185f + actionCount * 20f;
+
             var style = new GUIStyle(GUI.skin.box)
             {
                 alignment = TextAnchor.UpperLeft,
@@ -597,7 +804,11 @@ namespace BlackoutProtocol.AI.Breacher
             };
 
             GUI.Box(
-                new Rect(12f, Screen.height - 105f, 360f, 90f),
+                new Rect(
+                    12f,
+                    Screen.height - panelHeight - 12f,
+                    440f,
+                    panelHeight),
                 debugStatus,
                 style);
         }
@@ -610,11 +821,16 @@ namespace BlackoutProtocol.AI.Breacher
             attackCost = Mathf.Max(0.1f, attackCost);
             moveToBarricadeCost = Mathf.Max(0.1f, moveToBarricadeCost);
             pushBarricadeCost = Mathf.Max(0.1f, pushBarricadeCost);
+            takeCoverCost = Mathf.Max(0.1f, takeCoverCost);
             attackRange = Mathf.Max(0.1f, attackRange);
             attackDuration = Mathf.Max(0f, attackDuration);
             attackDamage = Mathf.Max(0.1f, attackDamage);
             replanDelay = Mathf.Max(0.1f, replanDelay);
             playerReplanDistance = Mathf.Max(0.1f, playerReplanDistance);
+            alarmObstacleCostMultiplier = Mathf.Clamp(
+                alarmObstacleCostMultiplier,
+                0.05f,
+                1f);
         }
     }
 }
