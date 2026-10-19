@@ -2,7 +2,8 @@
     "name": "BlackoutProtocol.Hunter.Tests.EditMode",
     "rootNamespace": "BlackoutProtocol.AI.Hunter.Tests",
     "references": [
-        "BlackoutProtocol.Hunter.Logic"
+        "BlackoutProtocol.Hunter.Logic",
+        "BlackoutProtocol.Core"
     ],
     "includePlatforms": [
         "Editor"
