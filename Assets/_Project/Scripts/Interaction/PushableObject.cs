@@ -24,6 +24,10 @@ namespace BlackoutProtocol.Interaction
         [SerializeField, Min(0.01f)] private float settleDuration = 0.5f;
         [SerializeField, Min(0.001f)] private float meaningfulMovement = 0.05f;
 
+        [Header("Optional Audio")]
+        [SerializeField] private AudioSource scrapeAudioSource;
+        [SerializeField] private AudioClip scrapeClip;
+
         [Header("Debug")]
         [SerializeField] private bool logLevelChanges;
 
@@ -129,6 +133,28 @@ namespace BlackoutProtocol.Interaction
             {
                 movementInProgress = true;
 
+                GameEvents.RaiseNoise(new NoiseEvent(
+                    transform.position,
+                    NoiseLevels.Impact * 0.5f,
+                    NoiseType.Impact,
+                    Time.time,
+                    gameObject));
+
+                if (logLevelChanges)
+                {
+                    Debug.Log(
+                        $"{name} started moving: scrape noise range=" +
+                        $"{NoiseLevels.Impact * 0.5f:F0}m",
+                        this);
+                }
+
+                if (scrapeAudioSource != null && scrapeClip != null)
+                {
+                    scrapeAudioSource.clip = scrapeClip;
+                    scrapeAudioSource.loop = true;
+                    scrapeAudioSource.Play();
+                }
+
                 if (navMeshObstacle != null)
                 {
                     navMeshObstacle.carving = false;
@@ -141,6 +167,11 @@ namespace BlackoutProtocol.Interaction
             movementInProgress = false;
             stationaryTimer = 0f;
             body.Sleep();
+
+            if (scrapeAudioSource != null)
+            {
+                scrapeAudioSource.Stop();
+            }
 
             if (navMeshObstacle != null)
             {

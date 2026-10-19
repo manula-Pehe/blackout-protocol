@@ -31,7 +31,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7826270292642706713}
   m_Father: {fileID: 247175671322421364}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &6067884629084238992
@@ -103,7 +104,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -137,6 +138,37 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &3187117266531241082
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7826270292642706713}
+  m_Layer: 0
+  m_Name: HoldPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7826270292642706713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3187117266531241082}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.15, z: 1.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7367870917923708270}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4956171826781256253
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,6 +187,8 @@ GameObject:
   - component: {fileID: 5200667766457679183}
   - component: {fileID: 6753449929326629384}
   - component: {fileID: 7319447025378960142}
+  - component: {fileID: 7202324805917682372}
+  - component: {fileID: -4015930397573782367}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -226,6 +260,8 @@ MonoBehaviour:
   standingCameraHeight: 0.65
   crouchingCameraHeight: 0.25
   crouchTransitionSpeed: 12
+  pushForce: 45
+  maximumPushedObjectSpeed: 3
 --- !u!114 &354389433490057053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,5 +390,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73cf4c969d6849e5b90d64ef7320e8bf, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerCombatHud
+--- !u!114 &7202324805917682372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f49260eca7aa1494a8e1de248cb271dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.FootstepEmitter
+  walkingStepDistance: 1.8
+  runningStepDistance: 2.2
+  minimumMovingSpeed: 0.2
+  audioSource: {fileID: 0}
+  walkingClip: {fileID: 0}
+  runningClip: {fileID: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  groundRayDistance: 2
+  logNoiseEvents: 0
+--- !u!114 &-4015930397573782367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87b9e858c2c6fe93d8fb6a5f7132ca2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerHold
+  holdPoint: {fileID: 7826270292642706713}
+  throwImpulse: 12
