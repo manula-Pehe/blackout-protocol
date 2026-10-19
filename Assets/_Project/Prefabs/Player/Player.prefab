@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6067884629084238992}
   - component: {fileID: 6288223256674831191}
   - component: {fileID: 3826297022380401689}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,7 +147,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7826270292642706713}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HoldPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 7319447025378960142}
   - component: {fileID: 7202324805917682372}
   - component: {fileID: -4015930397573782367}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -324,7 +324,7 @@ MonoBehaviour:
   interactionDistance: 3
   interactionMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
 --- !u!114 &50000000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -412,7 +412,7 @@ MonoBehaviour:
   runningClip: {fileID: 0}
   groundMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1024
   groundRayDistance: 2
   logNoiseEvents: 0
 --- !u!114 &-4015930397573782367

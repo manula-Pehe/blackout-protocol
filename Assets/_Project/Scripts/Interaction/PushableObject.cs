@@ -57,8 +57,7 @@ namespace BlackoutProtocol.Interaction
             body.linearDamping = linearDamping;
             body.angularDamping = angularDamping;
             body.interpolation = RigidbodyInterpolation.Interpolate;
-            body.collisionDetectionMode =
-                CollisionDetectionMode.ContinuousSpeculative;
+            body.collisionDetectionMode = CollisionDetectionMode.Discrete;
             body.constraints |= RigidbodyConstraints.FreezeRotationX |
                 RigidbodyConstraints.FreezeRotationZ;
 

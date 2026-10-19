@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2999247921584838392}
   m_Layer: 0
   m_Name: ThrowableCanister
-  m_TagString: Untagged
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -100,7 +100,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6102200183446856606}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: ff5e86d111e16af23b528b1149d49bab, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

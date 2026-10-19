@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5784374953133007549}
   m_Layer: 0
   m_Name: PushableCrate
-  m_TagString: Untagged
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -101,7 +101,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7657008513349702781}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: b7b1838e6d6404e2db47f3ec50d9b87f, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

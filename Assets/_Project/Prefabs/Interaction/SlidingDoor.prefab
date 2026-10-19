@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 4057344272768474326}
   m_Layer: 0
   m_Name: SlidingDoor
-  m_TagString: Untagged
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -261,3 +261,7 @@ MonoBehaviour:
   movementSpeed: 2
   arrivalDistance: 0.01
   startsLocked: 1
+  audioSource: {fileID: 0}
+  openingClip: {fileID: 0}
+  closingClip: {fileID: 0}
+  logNoiseEvents: 0
