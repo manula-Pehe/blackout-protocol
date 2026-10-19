@@ -21,6 +21,28 @@ EditMode tests cover all five selected actions, low-trust noise, hysteresis, det
 
 ---
 
+## 2026-10-19 — Triangle-centroid navigation with Hunter-owned A* and UCS
+
+**Context:**
+The Hunter needs explainable paths over the baked NavMesh without delegating search or movement to `NavMeshAgent`. The Core `IPathfinder` contract requires world-space waypoints.
+
+**Decision:**
+Use one graph node per valid NavMesh triangle centroid. Two nodes connect only if their triangles share a complete edge (vertices matched to 1 mm in all three axes) and `NavMesh.Raycast` finds no obstruction between centroids. The edge cost is 3D Euclidean centroid distance. Reject non-finite nodes, invalid triangles and edges cheaper than their geometric distance. Non-manifold edges do not acquire extra links. Build once on first request; a future owner calls `InvalidateGraph()` after rebaking or changing the NavMesh.
+
+A* uses `h(n) = 3D distance(n, goal)` and `f(n) = g(n) + h(n)`. This is admissible and consistent while every nonnegative edge cost is at least the same geometric distance. UCS runs identical search with `h = 0`. A binary min-heap orders by `f`, then `h`, node ID and insertion order. Stale entries are discarded; equal-cost routes keep the first discovered parent. Metrics expose graph-route cost, nodes expanded and elapsed milliseconds. Elapsed time is diagnostic and not deterministic. The world route adds sampled start/goal around the graph centroids; graph cost excludes those short endpoint legs.
+
+**Why:**
+The search and triangulation-to-graph conversion remain pure C# in the Hunter logic assembly. Only `HunterNavMeshPathfinder` touches Unity's NavMesh API and implements Core `IPathfinder`. This differs from Breacher's linear open list and per-search graph build. It also allows EditMode tests to compare A* and UCS on exactly the same weighted graph.
+
+**Evidence:**
+Unity 6000.3.25f1 EditMode test run: 69/69 passed, including 10 new Hunter navigation tests and the pre-existing Hunter utility and sound-memory tests. The runtime adapter has no baked-scene integration test yet.
+
+**Limitations:**
+Triangle-center paths are valid but not necessarily shortest world-space routes; there is no funnel smoothing. The nearest visible centroid anchors may not be ideal on overlapping/stacked NavMeshes. The adapter needs an explicit invalidation after rebakes and does not respond to dynamic obstacles unless the baked navigation data changes. A search limit can return failure on a very large graph. No movement, brain, sound propagation or prefab integration is included.
+Endpoint anchoring scans graph nodes linearly, and off-mesh links are not represented.
+
+---
+
 ## 2026-10-19 — Bounded sound memory with location-specific impact habituation
 
 **Context:**
