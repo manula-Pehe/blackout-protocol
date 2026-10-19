@@ -1,0 +1,21 @@
+{
+    "name": "BlackoutProtocol.Hunter.Tests.EditMode",
+    "rootNamespace": "BlackoutProtocol.AI.Hunter.Tests",
+    "references": [
+        "BlackoutProtocol.Hunter.Logic"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}
