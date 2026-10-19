@@ -412,7 +412,7 @@ MonoBehaviour:
   runningClip: {fileID: 0}
   groundMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1024
   groundRayDistance: 2
   logNoiseEvents: 0
 --- !u!114 &-4015930397573782367
