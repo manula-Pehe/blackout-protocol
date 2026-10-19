@@ -21,6 +21,10 @@ namespace BlackoutProtocol.Player
         [SerializeField] private AudioClip walkingClip;
         [SerializeField] private AudioClip runningClip;
 
+        [Header("Surface Detection")]
+        [SerializeField] private LayerMask groundMask = ~0;
+        [SerializeField, Min(0.1f)] private float groundRayDistance = 2f;
+
         [Header("Debug")]
         [SerializeField] private bool logNoiseEvents;
 
@@ -88,6 +92,14 @@ namespace BlackoutProtocol.Player
                 ? NoiseLevels.RunningFootstep
                 : NoiseLevels.WalkingFootstep;
             AudioClip clip = running ? runningClip : walkingClip;
+            string surfaceName = "Default";
+
+            if (TryGetSurface(out FootstepSurface surface))
+            {
+                loudness *= surface.NoiseMultiplier;
+                surfaceName = surface.SurfaceName;
+                clip = surface.GetClip(running) ?? clip;
+            }
 
             GameEvents.RaiseNoise(new NoiseEvent(
                 transform.position,
@@ -105,9 +117,29 @@ namespace BlackoutProtocol.Player
             {
                 Debug.Log(
                     $"Footstep noise: {(running ? "Running" : "Walking")}, " +
-                    $"range={loudness:F0}m",
+                    $"surface={surfaceName}, range={loudness:F1}m",
                     this);
             }
+        }
+
+        private bool TryGetSurface(out FootstepSurface surface)
+        {
+            Vector3 rayOrigin = transform.position + Vector3.up * 0.2f;
+
+            if (Physics.Raycast(
+                    rayOrigin,
+                    Vector3.down,
+                    out RaycastHit hit,
+                    groundRayDistance,
+                    groundMask,
+                    QueryTriggerInteraction.Ignore))
+            {
+                surface = hit.collider.GetComponentInParent<FootstepSurface>();
+                return surface != null;
+            }
+
+            surface = null;
+            return false;
         }
 
         private void OnValidate()
@@ -115,6 +147,7 @@ namespace BlackoutProtocol.Player
             walkingStepDistance = Mathf.Max(0.1f, walkingStepDistance);
             runningStepDistance = Mathf.Max(0.1f, runningStepDistance);
             minimumMovingSpeed = Mathf.Max(0f, minimumMovingSpeed);
+            groundRayDistance = Mathf.Max(0.1f, groundRayDistance);
         }
     }
 }

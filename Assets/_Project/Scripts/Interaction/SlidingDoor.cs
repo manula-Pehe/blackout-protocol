@@ -15,6 +15,14 @@ namespace BlackoutProtocol.Interaction
         [Header("Door State")]
         [SerializeField] private bool startsLocked;
 
+        [Header("Optional Audio")]
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] private AudioClip openingClip;
+        [SerializeField] private AudioClip closingClip;
+
+        [Header("Debug")]
+        [SerializeField] private bool logNoiseEvents;
+
         private Vector3 closedPosition;
         private Vector3 openPosition;
         private bool wantsToBeOpen;
@@ -126,14 +134,49 @@ namespace BlackoutProtocol.Interaction
                 return;
             }
 
+            if (wantsToBeOpen && (isMoving || IsOpen))
+            {
+                return;
+            }
+
             wantsToBeOpen = true;
-            isMoving = true;
+            BeginMovement(openingClip, "opening");
         }
 
         public void Close()
         {
+            if (!wantsToBeOpen && (isMoving || !IsOpen))
+            {
+                return;
+            }
+
             wantsToBeOpen = false;
+            BeginMovement(closingClip, "closing");
+        }
+
+        private void BeginMovement(AudioClip clip, string movementName)
+        {
             isMoving = true;
+
+            GameEvents.RaiseNoise(new NoiseEvent(
+                transform.position,
+                NoiseLevels.Door,
+                NoiseType.Door,
+                Time.time,
+                gameObject));
+
+            if (audioSource != null && clip != null)
+            {
+                audioSource.PlayOneShot(clip);
+            }
+
+            if (logNoiseEvents)
+            {
+                Debug.Log(
+                    $"{name} {movementName}: door noise range=" +
+                    $"{NoiseLevels.Door:F0}m",
+                    this);
+            }
         }
 
         public void Lock()
