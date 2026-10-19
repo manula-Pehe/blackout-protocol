@@ -70,7 +70,15 @@ namespace BlackoutProtocol.AI.Sentinel
             hsm = new SentinelHsm();
             if (sensorOrigin == null)
             {
-                sensorOrigin = transform.Find("Camera_Aim_Pivot");
+                Transform[] childTransforms = GetComponentsInChildren<Transform>(true);
+                for (int i = 0; i < childTransforms.Length; i++)
+                {
+                    if (childTransforms[i].name == "Camera_Aim_Pivot")
+                    {
+                        sensorOrigin = childTransforms[i];
+                        break;
+                    }
+                }
                 if (sensorOrigin == null)
                 {
                     sensorOrigin = transform;

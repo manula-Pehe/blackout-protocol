@@ -13,6 +13,10 @@ namespace BlackoutProtocol.AI.Sentinel
     [DisallowMultipleComponent]
     public sealed class SentinelDroneBody : MonoBehaviour, IAgentBody
     {
+        // The imported drone's rotor layout is authored in local XY with its nose on -Y.
+        // This maps the rotor plane to Unity's horizontal XZ plane and the nose to +Z.
+        private static readonly Quaternion ModelAxisCorrection = Quaternion.Euler(-90f, 0f, 0f);
+
         [SerializeField, Min(0.1f)] private float hoverHeight = 2.2f;
         [SerializeField, Min(0.1f)] private float walkSpeed = 2.2f;
         [SerializeField, Min(0.1f)] private float runSpeed = 4.2f;
@@ -21,6 +25,10 @@ namespace BlackoutProtocol.AI.Sentinel
         [SerializeField, Min(0f)] private float hoverBobAmplitude = 0.04f;
         [SerializeField, Min(0.1f)] private float hoverBobFrequency = 1.8f;
         [SerializeField, Min(0.1f)] private float turnSpeed = 240f;
+        [Header("Flight tilt")]
+        [SerializeField, Range(0f, 25f)] private float maximumPitch = 12f;
+        [SerializeField, Range(0f, 25f)] private float maximumRoll = 10f;
+        [SerializeField, Min(1f)] private float tiltResponse = 75f;
         [SerializeField, Min(0.01f)] private float collisionRadius = 0.18f;
         [SerializeField, Min(0.1f)] private float stuckTimeout = 2.5f;
         [SerializeField, Min(0.01f)] private float minimumProgressDistance = 0.08f;
@@ -30,8 +38,14 @@ namespace BlackoutProtocol.AI.Sentinel
         private int waypointIndex;
         private MoveStyle style = MoveStyle.Idle;
         private Transform lookTarget;
+        private Transform visualTiltPivot;
         private float bestDistanceToWaypoint;
         private float lastProgressTime;
+
+        private void Awake()
+        {
+            CreateVisualTiltPivot();
+        }
 
         /// <inheritdoc />
         public event Action Arrived;
@@ -166,12 +180,69 @@ namespace BlackoutProtocol.AI.Sentinel
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * deltaTime);
             }
 
+            UpdateFlightTilt(desiredDirection, deltaTime);
+
             Velocity = (transform.position - before) / deltaTime;
 
             if (IsMoving)
             {
                 DetectStuck();
             }
+        }
+
+        private void CreateVisualTiltPivot()
+        {
+            Transform existingPivot = transform.Find("Visual Tilt Pivot");
+            if (existingPivot != null)
+            {
+                visualTiltPivot = existingPivot;
+                return;
+            }
+
+            var pivotObject = new GameObject("Visual Tilt Pivot");
+            visualTiltPivot = pivotObject.transform;
+            visualTiltPivot.SetParent(transform, false);
+            visualTiltPivot.localPosition = Vector3.zero;
+            visualTiltPivot.localRotation = Quaternion.identity;
+            visualTiltPivot.localScale = Vector3.one;
+
+            var modelParts = new List<Transform>(transform.childCount);
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+                if (child != visualTiltPivot)
+                {
+                    modelParts.Add(child);
+                }
+            }
+
+            for (int i = 0; i < modelParts.Count; i++)
+            {
+                modelParts[i].SetParent(visualTiltPivot, true);
+            }
+        }
+
+        private void UpdateFlightTilt(Vector3 movementDirection, float deltaTime)
+        {
+            if (visualTiltPivot == null)
+            {
+                return;
+            }
+
+            float pitch = 0f;
+            float roll = 0f;
+            if (IsMoving && movementDirection.sqrMagnitude > 0.0001f)
+            {
+                Vector3 direction = movementDirection.normalized;
+                pitch = Vector3.Dot(direction, transform.forward) * maximumPitch;
+                roll = -Vector3.Dot(direction, transform.right) * maximumRoll;
+            }
+
+            Quaternion levelOrBanked = Quaternion.Euler(pitch, 0f, roll) * ModelAxisCorrection;
+            visualTiltPivot.localRotation = Quaternion.RotateTowards(
+                visualTiltPivot.localRotation,
+                levelOrBanked,
+                tiltResponse * deltaTime);
         }
 
         private Vector3 GetHoverTarget()
