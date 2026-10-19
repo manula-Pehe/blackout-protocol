@@ -65,9 +65,17 @@ namespace BlackoutProtocol.AI.Sentinel.Testing
 
             yield return new WaitForSeconds(0.4f);
             Vector3 hiddenPosition = new Vector3(4f, 1f, 0f);
-            Vector3 sensor = sentinel.transform.Find("Camera_Aim_Pivot") != null
-                ? sentinel.transform.Find("Camera_Aim_Pivot").position
-                : sentinel.transform.position;
+            Transform sensorOrigin = null;
+            Transform[] sentinelParts = sentinel.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < sentinelParts.Length; i++)
+            {
+                if (sentinelParts[i].name == "Camera_Aim_Pivot")
+                {
+                    sensorOrigin = sentinelParts[i];
+                    break;
+                }
+            }
+            Vector3 sensor = sensorOrigin != null ? sensorOrigin.position : sentinel.transform.position;
             Vector3 sightVector = hiddenPosition - sensor;
             bool wallBlocksSight = false;
             RaycastHit[] lineHits = Physics.RaycastAll(sensor, sightVector.normalized, sightVector.magnitude,
