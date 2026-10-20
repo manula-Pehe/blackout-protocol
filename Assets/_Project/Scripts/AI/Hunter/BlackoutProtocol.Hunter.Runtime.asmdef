@@ -1,0 +1,13 @@
+{
+    "name": "BlackoutProtocol.Hunter.Runtime",
+    "rootNamespace": "BlackoutProtocol.AI.Hunter",
+    "references": [
+        "BlackoutProtocol.Hunter.Logic",
+        "BlackoutProtocol.Core",
+        "BlackoutProtocol.Body",
+        "Unity.AI.Navigation",
+        "Unity.InputSystem"
+    ],
+    "autoReferenced": true,
+    "noEngineReferences": false
+}
