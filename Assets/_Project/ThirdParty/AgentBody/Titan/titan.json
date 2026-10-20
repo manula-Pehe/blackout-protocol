@@ -1,0 +1,35 @@
+{
+  "id": "titan",
+  "title": "Titan",
+  "vertices": 32176,
+  "faces": 32126,
+  "triangles": 63965,
+  "dimensions_m": [
+    1.081774,
+    0.542955,
+    1.85
+  ],
+  "source_dimensions_m": [
+    1.108959,
+    0.556599,
+    1.89649
+  ],
+  "height_m": 1.85,
+  "materials": 1,
+  "mixamo_ready": true,
+  "rigged": false,
+  "schema_version": 1,
+  "description": "A massive battle unit with oversized armor volumes for heavy enemies and boss encounters.",
+  "texture_resolution": [
+    2048,
+    2048
+  ],
+  "textures": [
+    "basecolor",
+    "normal",
+    "roughness",
+    "metallic"
+  ],
+  "source_format": "FBX",
+  "rigging_upload_format": "OBJ + MTL in ZIP"
+}
