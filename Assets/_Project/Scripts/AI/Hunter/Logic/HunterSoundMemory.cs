@@ -153,8 +153,18 @@ namespace BlackoutProtocol.AI.Hunter.Logic
         /// </summary>
         public bool TryGetMostRelevant(double now, out HunterRememberedNoise result)
         {
+            return TryGetMostRelevant(now, -1d, out result);
+        }
+
+        /// <summary>
+        /// Finds the most relevant observation strictly newer than a resolved trail.
+        /// This prevents an older, louder resolved sound from hiding a new quieter one.
+        /// The original overload continues to evaluate all observations.
+        /// </summary>
+        public bool TryGetMostRelevant(double now, double afterTime, out HunterRememberedNoise result)
+        {
             result = default;
-            if (!IsValidTime(now))
+            if (!IsValidTime(now) || double.IsNaN(afterTime) || double.IsInfinity(afterTime))
             {
                 return false;
             }
@@ -165,7 +175,7 @@ namespace BlackoutProtocol.AI.Hunter.Logic
             for (int i = 0; i < count; i++)
             {
                 HunterNoiseObservation observation = observations[i];
-                if (observation.Time > now)
+                if (observation.Time > now || observation.Time <= afterTime)
                 {
                     continue;
                 }
