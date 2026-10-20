@@ -13,15 +13,21 @@ namespace BlackoutProtocol.Player
         private static readonly Color PanelColor = new Color(0.025f, 0.055f, 0.075f, 0.88f);
         private static readonly Color AccentColor = new Color(0.12f, 0.82f, 0.94f, 1f);
         private static readonly Color LabelColor = new Color(0.06f, 0.62f, 0.7f, 1f);
-        private static readonly Color HealthColor = new Color(0.22f, 0.86f, 0.68f, 1f);
+        private static readonly Color HealthColor = new Color(0.16f, 0.8f, 0.62f, 1f);
         private static readonly Color WarningColor = new Color(1f, 0.62f, 0.2f, 1f);
+        private static readonly Color CriticalHealthColor = new Color(1f, 0.24f, 0.2f, 1f);
         private static readonly Color CrosshairColor = new Color(0.025f, 0.3f, 0.36f, 1f);
+        private const int HealthSegmentCount = 14;
 
         private PlayerHealth playerHealth;
         private PlayerWeapon playerWeapon;
         private Texture2D whiteTexture;
+        private Texture2D circleTexture;
         private Sprite whiteSprite;
-        private Image healthFill;
+        private Sprite circleSprite;
+        private Image healthGaugeFill;
+        private Image[] healthSegments;
+        private Text healthPercentText;
         private Text healthText;
         private Text healthValueText;
         private Text ammoText;
@@ -87,6 +93,16 @@ namespace BlackoutProtocol.Player
             {
                 Destroy(whiteTexture);
             }
+
+            if (circleSprite != null)
+            {
+                Destroy(circleSprite);
+            }
+
+            if (circleTexture != null)
+            {
+                Destroy(circleTexture);
+            }
         }
 
         private void Update()
@@ -120,6 +136,27 @@ namespace BlackoutProtocol.Player
             whiteSprite.name = "Player HUD White Sprite";
             whiteSprite.hideFlags = HideFlags.HideAndDontSave;
 
+            circleTexture = new Texture2D(64, 64, TextureFormat.RGBA32, false)
+            {
+                name = "Player HUD Circle",
+                hideFlags = HideFlags.HideAndDontSave,
+                filterMode = FilterMode.Bilinear
+            };
+            for (int y = 0; y < circleTexture.height; y++)
+            {
+                for (int x = 0; x < circleTexture.width; x++)
+                {
+                    float dx = (x + 0.5f - circleTexture.width * 0.5f) / (circleTexture.width * 0.5f);
+                    float dy = (y + 0.5f - circleTexture.height * 0.5f) / (circleTexture.height * 0.5f);
+                    circleTexture.SetPixel(x, y, dx * dx + dy * dy <= 1f ? Color.white : Color.clear);
+                }
+            }
+            circleTexture.Apply();
+            circleSprite = Sprite.Create(circleTexture, new Rect(0f, 0f, 64f, 64f),
+                new Vector2(0.5f, 0.5f), 64f);
+            circleSprite.name = "Player HUD Circle Sprite";
+            circleSprite.hideFlags = HideFlags.HideAndDontSave;
+
             Canvas canvas = canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 10;
@@ -134,46 +171,91 @@ namespace BlackoutProtocol.Player
 
             RectTransform healthPanel = CreateRect("Health Panel", canvasObject.transform,
                 new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(330f, 86f), new Vector2(34f, -34f));
+                new Vector2(390f, 100f), new Vector2(34f, -34f));
             AddImage(healthPanel.gameObject, PanelColor);
 
-            RectTransform statusAccent = CreateRect("Status Accent", healthPanel,
-                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
-                new Vector2(3f, 52f), new Vector2(10f, 0f));
-            AddImage(statusAccent.gameObject, AccentColor);
+            RectTransform gaugeBack = CreateRect("Health Gauge Back", healthPanel,
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(78f, 78f), new Vector2(50f, 0f));
+            AddImage(gaugeBack.gameObject, new Color(AccentColor.r, AccentColor.g,
+                AccentColor.b, 0.16f)).sprite = circleSprite;
+
+            RectTransform gaugeFillRect = CreateRect("Health Gauge Fill", healthPanel,
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(78f, 78f), new Vector2(50f, 0f));
+            healthGaugeFill = AddImage(gaugeFillRect.gameObject, HealthColor);
+            healthGaugeFill.sprite = circleSprite;
+            healthGaugeFill.type = Image.Type.Filled;
+            healthGaugeFill.fillMethod = Image.FillMethod.Radial360;
+            healthGaugeFill.fillOrigin = (int)Image.Origin360.Top;
+            healthGaugeFill.fillClockwise = true;
+
+            for (int tick = 0; tick < 32; tick++)
+            {
+                float angle = tick * (360f / 32f);
+                float radians = angle * Mathf.Deg2Rad;
+                bool majorTick = tick % 4 == 0;
+                RectTransform tickRect = CreateRect($"Health Gauge Tick {tick + 1}", healthPanel,
+                    new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f),
+                    majorTick ? new Vector2(2f, 5f) : new Vector2(1.5f, 3f),
+                    new Vector2(50f + Mathf.Sin(radians) * 42f,
+                        Mathf.Cos(radians) * 42f));
+                tickRect.localRotation = Quaternion.Euler(0f, 0f, -angle);
+                AddImage(tickRect.gameObject, majorTick
+                    ? new Color(AccentColor.r, AccentColor.g, AccentColor.b, 0.82f)
+                    : new Color(AccentColor.r, AccentColor.g, AccentColor.b, 0.42f));
+            }
+
+            RectTransform gaugeInner = CreateRect("Health Gauge Inner", healthPanel,
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(64f, 64f), new Vector2(50f, 0f));
+            AddImage(gaugeInner.gameObject, PanelColor).sprite = circleSprite;
+
+            RectTransform gaugeDivider = CreateRect("Health Gauge Divider", healthPanel,
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(1.5f, 58f), new Vector2(100f, 0f));
+            AddImage(gaugeDivider.gameObject, new Color(AccentColor.r, AccentColor.g,
+                AccentColor.b, 0.34f));
+
+            healthPercentText = CreateText("Health Percentage", healthPanel, font, 18,
+                TextAnchor.MiddleCenter, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(50f, 0f), new Vector2(58f, 26f));
+            healthPercentText.fontStyle = FontStyle.Bold;
 
             healthText = CreateText("Health Label", healthPanel, font, 18,
-                TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0.58f, 1f),
-                new Vector2(19f, -20f), new Vector2(-18f, 32f));
+                TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(102f, -10f), new Vector2(150f, 28f));
+            RectTransform healthLabelRect = healthText.rectTransform;
+            healthLabelRect.pivot = new Vector2(0f, 1f);
+            healthLabelRect.anchoredPosition = new Vector2(102f, -10f);
             healthText.text = "HEALTH";
             healthText.color = LabelColor;
+            healthText.fontStyle = FontStyle.Bold;
 
             healthValueText = CreateText("Health Value", healthPanel, font, 18,
-                TextAnchor.MiddleRight, new Vector2(0.58f, 1f), new Vector2(1f, 1f),
-                new Vector2(-14f, -20f), new Vector2(-8f, 32f));
+                TextAnchor.MiddleRight, new Vector2(1f, 1f), new Vector2(1f, 1f),
+                new Vector2(-18f, -10f), new Vector2(112f, 28f));
+            RectTransform healthValueRect = healthValueText.rectTransform;
+            healthValueRect.pivot = new Vector2(1f, 1f);
+            healthValueRect.anchoredPosition = new Vector2(-18f, -10f);
 
             RectTransform healthTrack = CreateRect("Health Track", healthPanel,
-                new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(-32f, 16f), new Vector2(0f, 14f));
-            AddImage(healthTrack.gameObject, new Color(0.08f, 0.14f, 0.17f, 1f));
-
-            RectTransform fillRect = CreateRect("Health Fill", healthTrack,
-                Vector2.zero, Vector2.one, new Vector2(0f, 0.5f),
-                Vector2.zero, Vector2.zero);
-            healthFill = AddImage(fillRect.gameObject, HealthColor);
-            healthFill.type = Image.Type.Filled;
-            healthFill.fillMethod = Image.FillMethod.Horizontal;
-            healthFill.fillOrigin = (int)Image.OriginHorizontal.Left;
-            healthFill.raycastTarget = false;
-
-            for (int segment = 1; segment < 8; segment++)
+                new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(260f, 18f), new Vector2(102f, -58f));
+            AddImage(healthTrack.gameObject, new Color(0.025f, 0.09f, 0.11f, 1f));
+            healthSegments = new Image[HealthSegmentCount];
+            const float segmentInset = 2f;
+            const float segmentGap = 2.5f;
+            float segmentWidth = (260f - segmentInset * 2f - segmentGap * (HealthSegmentCount - 1))
+                / HealthSegmentCount;
+            for (int segment = 0; segment < HealthSegmentCount; segment++)
             {
-                float normalizedPosition = segment / 8f;
-                RectTransform divider = CreateRect($"Health Segment {segment}", healthTrack,
-                    new Vector2(normalizedPosition, 0f),
-                    new Vector2(normalizedPosition, 1f), new Vector2(0.5f, 0.5f),
-                    new Vector2(3f, -4f), Vector2.zero);
-                AddImage(divider.gameObject, PanelColor);
+                RectTransform segmentRect = CreateRect($"Health Segment {segment + 1}", healthTrack,
+                    new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                    new Vector2(segmentWidth, 10f),
+                    new Vector2(segmentInset + segment * (segmentWidth + segmentGap), 0f));
+                healthSegments[segment] = AddImage(segmentRect.gameObject,
+                    new Color(AccentColor.r, AccentColor.g, AccentColor.b, 0.14f));
             }
 
             RectTransform ammoPanel = CreateRect("Ammo Panel", canvasObject.transform,
@@ -245,12 +327,32 @@ namespace BlackoutProtocol.Player
 
         private void RefreshHealth(float current, float maximum)
         {
-            if (healthFill != null)
+            float normalizedHealth = maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f;
+            Color healthTint = normalizedHealth <= 0.25f
+                ? CriticalHealthColor
+                : normalizedHealth <= 0.5f ? WarningColor : HealthColor;
+
+            if (healthGaugeFill != null)
             {
-                healthFill.fillAmount = maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f;
-                healthFill.color = current / Mathf.Max(1f, maximum) <= 0.25f
-                    ? WarningColor
-                    : HealthColor;
+                healthGaugeFill.fillAmount = normalizedHealth;
+                healthGaugeFill.color = healthTint;
+            }
+
+            if (healthSegments != null)
+            {
+                int litSegments = Mathf.CeilToInt(normalizedHealth * healthSegments.Length);
+                for (int i = 0; i < healthSegments.Length; i++)
+                {
+                    healthSegments[i].color = i < litSegments
+                        ? healthTint
+                        : new Color(AccentColor.r, AccentColor.g, AccentColor.b, 0.14f);
+                }
+            }
+
+            if (healthPercentText != null)
+            {
+                healthPercentText.text = $"{Mathf.RoundToInt(normalizedHealth * 100f)}%";
+                healthPercentText.color = healthTint;
             }
 
             if (healthValueText != null)
