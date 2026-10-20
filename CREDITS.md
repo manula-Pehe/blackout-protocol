@@ -10,6 +10,7 @@ Every downloaded asset used in the project must be listed here, in the same comm
 
 ## Custom assets (made by the team from scratch)
 
-| Model | File | Role |
+| Asset | File | Role |
 |---|---|---|
 | _to be added_ | `Assets/_Project/Models/Source/...` | Core Developer |
+| Procedural plasma shot, reload and empty-magazine sounds | `Assets/_Project/Scripts/Player/PlayerCombatFeedback.cs` | Core Developer |

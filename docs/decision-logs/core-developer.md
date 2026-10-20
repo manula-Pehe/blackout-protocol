@@ -24,3 +24,13 @@
 **Why:** The variants stay recognizable as the same security-robot family while their colour and size make their roles easy to tell apart.
 
 **Evidence:** `docs/evidence/core-developer/enemy-visual-variants.md` and `Assets/_Project/Scenes/Sandbox/Ashen/EnemyVisualVariantsCheck.unity`.
+
+## 2026-10-21 — Add pooled combat feedback
+
+**Context:** The player shooting sandbox needed visible and audible feedback for firing, impacts, reloading, and an empty magazine.
+
+**Decision:** Emit muzzle flashes and impact sparks from pre-created particle systems, use a brief point light, and apply camera recoil through `PlayerLook` without changing its saved aim pitch. Generate the plasma shot, reload, and empty-magazine sounds procedurally at startup, with no downloaded audio assets.
+
+**Why:** Pooling avoids creating particle systems for individual shots. Procedural sound clips keep the feedback self-contained and avoid adding uncredited third-party audio.
+
+**Evidence:** `docs/evidence/core-developer/combat-feedback.md` and `Assets/_Project/Scenes/Sandbox/Ashen/PlayerShootingTest.unity`.
