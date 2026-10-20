@@ -43,6 +43,21 @@ namespace BlackoutProtocol.Player
         /// <summary>Raised after magazine or reserve ammunition changes.</summary>
         public event Action<int, int, int> AmmoChanged;
 
+        /// <summary>Raised when a live round is fired.</summary>
+        public event Action ShotFired;
+
+        /// <summary>Raised at the world surface hit by a fired round.</summary>
+        public event Action<Vector3, Vector3> ShotHit;
+
+        /// <summary>Raised when the weapon is triggered with an empty magazine.</summary>
+        public event Action EmptyShot;
+
+        /// <summary>Raised when a reload begins.</summary>
+        public event Action ReloadStarted;
+
+        /// <summary>Raised after a reload has completed.</summary>
+        public event Action ReloadCompleted;
+
         public int MagazineSize => magazineSize;
         public int CurrentAmmo => currentAmmo;
         public int ReserveAmmo => reserveAmmo;
@@ -146,12 +161,14 @@ namespace BlackoutProtocol.Player
 
             if (currentAmmo <= 0)
             {
+                EmptyShot?.Invoke();
                 RaiseSoftNoise();
                 return;
             }
 
             currentAmmo--;
             AmmoChanged?.Invoke(currentAmmo, reserveAmmo, magazineSize);
+            ShotFired?.Invoke();
 
             Ray ray = playerCamera.ViewportPointToRay(
                 new Vector3(0.5f, 0.5f, 0f));
@@ -163,6 +180,8 @@ namespace BlackoutProtocol.Player
                     hitMask,
                     QueryTriggerInteraction.Ignore))
             {
+                ShotHit?.Invoke(hit.point, hit.normal);
+
                 IDamageable damageable =
                     hit.collider.GetComponentInParent<IDamageable>();
 
@@ -188,6 +207,7 @@ namespace BlackoutProtocol.Player
 
             isReloading = true;
             reloadCompletesAt = Time.time + reloadDuration;
+            ReloadStarted?.Invoke();
 
             if (playerState == null)
             {
@@ -206,6 +226,7 @@ namespace BlackoutProtocol.Player
             isReloading = false;
             playerState?.SetReloading(false);
             AmmoChanged?.Invoke(currentAmmo, reserveAmmo, magazineSize);
+            ReloadCompleted?.Invoke();
         }
 
         private void RaiseSoftNoise()
