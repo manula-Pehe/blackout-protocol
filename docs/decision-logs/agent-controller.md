@@ -162,3 +162,737 @@ No new assets, metadata, assemblies or scene modifications are needed.
 **Limits:** A Stop does not prevent an enabled brain from issuing a *new* command on its next tick, and cannot retract an event already being delivered. There are no queued movement-completion callbacks in this body. Pathfinders still own route validity; an unreachable physical route with a solid collider produces Stuck, not a fabricated shortcut or body-level replan. Static/dynamic NavMesh configuration, collider clearance, full GOAP obstacle gameplay and subjective visual feel remain the appropriate team/manual checks. No new visual sandbox session is claimed for this increment; automated runtime movement was executed and the first increment's user-verified appearance/settings are retained.
 
 **Manual verification:** Open AgentBodySandbox and press Play. While accelerating or just before final arrival, use WaypointRouteDriver's **Stop** context menu; expect an immediate safety halt, no arrival/ping-pong restart from that cancelled command, and no continued drift. Use **Send Route** to resume. Repeat during a turn and observe the existing limited yaw and arrival slowing. For real blockage, place a solid cube across the route in Play Mode; use a debugger breakpoint on RaiseStuck or the focused test to count a single continuous-episode notification. Move it away and issue a new route; expect recovery, not an instant cruise-speed launch from rest. In HunterNoiseSandbox, issue a distant alarm then a stronger nearby sound while moving; verify retargeting and subsequent Search. Full Breacher door/push/attack/death gameplay, Main integration, live Sentinel flight and absent Flanker remain separate team/manual acceptance checks.
+
+---
+
+## 2026-10-20 — Animation increment 1: asset audit and reusable locomotion parameters
+
+### Branch, evidence and supported scope
+
+Verified `feature/agentbody-animation` before editing. Only pre-existing worktree item was untracked `ProjectSettings/TimelineSettings.asset`; it is untouched. No movement/steering script, Core contract, brain, teammate prefab, imported rig/model, scene, Package or ProjectSettings file is changed in this increment.
+
+The **missing-assets fallback** is required. A Unity AssetDatabase/ModelImporter/subasset audit, not just filename searching, found:
+
+- `Assets/_Project/Models/Export/PlasmaRifle.fbx`: Generic importer, **0 SkinnedMeshRenderers, no Avatar subassets, no embedded AnimationClips**.
+- `Assets/_Project/Models/Export/SentinelDrone.fbx`: Generic importer, **0 SkinnedMeshRenderers, no Avatar subassets, no embedded AnimationClips**.
+- Project-wide `t:AnimationClip`, `t:RuntimeAnimatorController` and `t:Avatar` searches under Assets returned no assets. Filename searches also found no Mixamo imports or other ground-character models. `.blend` source files are inventoried, not opened or edited; the imported exports above are what Unity can currently use.
+- Breacher and Sentinel prefabs each have **0 Animators and 0 SkinnedMeshRenderers**. The standalone Breacher prefab has no shared AgentBody; its PlayerControllerSandbox instance supplies body overrides as established by the prior audit.
+- Main, AgentBodySandbox, HunterSandbox, HunterNoiseSandbox and PlayerControllerSandbox each load with **0 Animators and 0 AgentAnimatorDrivers**. No existing visual animation connection can be presumed.
+
+Exact Unity audit log: `/tmp/hunter-stage-a.weTEGo/agentbody-animation-audit.log`. The read-only audit used an isolated project, did not save these scenes, and left its temporary editor helper outside the repository.
+
+### Cross-team asset/dependency matrix
+
+`I/W/R/S/A/H/D` means Idle, Walk, Run, Strafe, Attack, Hit and Death clips respectively. **None of these seven clips is currently available for any ground agent.** No generic/weapon/drone import is substituted for a humanoid character.
+
+| Agent | Available model/prefab and rig | Animator/controller; I/W/R/S/A/H/D | Movement/orientation now | Demonstration possible now; owner dependency |
+|---|---|---|---|---|
+| Hunter | No reusable Hunter prefab or rigged ground model found. Saved Hunter scenes use primitive torso/head/treads, not a skeleton or Avatar. | No Animator/controller; all seven clip categories absent. | HunterBrain sends Walk for wandering/investigation, Run for chase, Sneak for search to AgentBody/CharacterController. AgentRotation owns limited +Z-forward yaw. Body provides measured horizontal Velocity and ActionRequested; neither implies clips exist. | Actual speed parameters can be tested on the real brain using a transient test controller; **natural animation cannot be demonstrated**. Ashen supplies ground model/rig/clips; Manula wires the future child Animator/controller in Hunter-owned assets. |
+| Breacher | `Prefabs/AI/Breacher/Breacher.prefab` is primitive/capsule-based, not a skinned ground robot or humanoid rig. Scene overrides add shared body components. | No Animator/controller; all seven categories absent. | BreacherAgent sends Run MoveCommands via custom A*, polls arrival and cancels with Stop; legacy BreacherPathMover direct-transform loop must stay idle. Shared AgentRotation faces travel; Run's optional look target is not a Strafe animation request. | Actual Begin/Cancel can drive a test Animator parameter; **full rigged locomotion/combat cannot**. Ashen supplies rig/clips, Chethiya owns prefab placement and combat/door timing, Manula supplies the generic driver. |
+| Flanker | No Flanker prefab/model/Behaviour Tree implementation found in this checkout. Core CoverPoint alone is not an integration. | No Animator/controller; all seven categories absent/unavailable. | Movement writer, styles, facing and action lifecycle cannot be confirmed. | No real-agent demonstration. Mahima supplies BT/body integration and spawn/prefab configuration; Ashen supplies the compatible ground visual assets. |
+| Sentinel | SentinelDrone.blend → SentinelDrone.fbx → SentinelDrone.prefab exists. Imported Generic **unskinned**, no Avatar; not a humanoid ground rig. | No Animator/controller or clips in any of the seven named categories. Ground Walk/Run states are not prerequisites for its procedural flight. | SentinelDroneBrain explicitly uses SentinelDroneBody : IAgentBody, with independent hover/collision/yaw/visual tilt and (-90,0,0) model-axis correction. It does not use AgentMotor/AgentAnimatorDriver. | Existing procedural drone presentation remains separate and untouched. Ashen owns any future flight/rotor animation; **do not add the ground driver**, whose RequireComponent would add AgentBody. No new flight validation is claimed. |
+
+Main still contains camera/light only and no final agent spawns/NavMeshSurface. Mahima's Main, Flanker, cover and environment wiring remains a final-level dependency. There is no reason to modify Main to test this fallback.
+
+### First supported implementation
+
+AgentAnimatorDriver remains a ground-body component separate from every AI brain. It samples `AgentBody.Velocity` in **LateUpdate**, after movement's Update, rather than guessing locomotion from MoveStyle, requested speed, transform teleport deltas or IsMoving. Height/gravity is ignored. This matters when a Run command is physically blocked: visual locomotion must follow achieved speed, not pretend the body is running at cruise speed.
+
+Inspector settings retain the existing animator reference and `speedDampTime` field:
+
+| Setting | Default | Contract |
+|---|---:|---|
+| speedParameter | `Speed` | Required float parameter; name is configurable and hashed on binding changes |
+| referenceSpeed | 1 m/s | `target = actualHorizontalSpeed / referenceSpeed`. Default preserves old raw-m/s units; reference equal to authored Run speed gives normalized Run = 1. Values above 1 remain visible, not silently clamped. |
+| idleSpeedThreshold | 0.02 m/s | Smaller actual speeds map to exact Idle target 0, without changing physics |
+| speedDampTime | 0.1 s | Exponential response time; 0 disables damping |
+
+The driver owns a single damping stage:
+
+`parameter += (target - parameter) * (1 - exp(-deltaTime / speedDampTime))`.
+
+Values within 0.0001 of target snap to it so a stopped body reaches exact parameter zero. Invalid measured/config/time values are handled without NaN/Infinity output. Zero delta time preserves history. Walk/Run acceleration and braking change target continuously; Stop immediately makes physical speed zero and the **animation parameter fades towards Idle**. Execute/route replacement does not reset parameter history. There are no command/event subscriptions or combat-trigger mappings. Disabling the driver explicitly clears its parameter/state; it does not control or stop movement.
+
+Root motion is forced off on binding and checked while active. The driver never writes a Transform, calls CharacterController.Move, chooses an action, or enables root motion. Assets must still have appropriate in-place root curves and must be validated visually once supplied; a parameter-only test does not prove a future imported clip cannot animate an unintended visual transform.
+
+Binding diagnostics expose actual speed, target/smoothed parameter, readiness, missing Animator/controller/float parameter, inactive/uninitialized Animator and validation count. Missing/incompatible bindings produce **no recurring SetFloat warnings/log spam**. Animator parameter arrays are inspected only when the Animator, controller or parameter name changes (or on an explicit refresh), not every frame. Auto-discovery searches children, including inactive models, on enable/refresh. Use **Refresh Animator Binding** after attaching a model later or editing a controller's parameter schema in place; an explicit Animator reference takes priority. There are no new runtime assembly references, AI dependencies or per-frame managed collections.
+
+### Combat/health audit — deferred, not silently implemented
+
+Core AgentAction names Attack, Hit, Die and Alert and AgentBody.PlayAction dispatches ActionRequested. **AgentAnimatorDriver does not subscribe or play action states**; the older body's event comment is not evidence of a completed one-shot mapping. Hunter and Breacher request Attack but no matching clip/controller exists. BreacherHealth implements IDamageable and StateChanged; BreacherAgent stops/disables its AI when dead. PlayerHealth has IDamageable/Died, and PlayerWeapon applies damage through IDamageable. None of these automatically provides an enemy Hit/Death animation or correctly timed damage window.
+
+Chethiya must agree on attack impact/cooldown and door-open/push timing before future animation events can affect gameplay. Ashen must provide the action clips and exit/interrupt conventions. Do not gate existing door movement, GOAP completion or damage on missing animations, and do not invent a new shared health/action interface in this increment.
+
+### Exact inspection inventory
+
+Source/API inspection (not modified unless listed below):
+```text
+Assets/_Project/Scripts/AgentBody/AgentBody.cs
+Assets/_Project/Scripts/AgentBody/AgentMotor.cs
+Assets/_Project/Scripts/AgentBody/AgentRotation.cs
+Assets/_Project/Scripts/AgentBody/AgentAnimatorDriver.cs
+Assets/_Project/Scripts/AgentBody/BlackoutProtocol.Body.asmdef
+Assets/_Project/Scripts/Core/Movement/IAgentBody.cs
+Assets/_Project/Scripts/Core/Movement/MoveCommand.cs
+Assets/_Project/Scripts/Core/Movement/MoveStyle.cs
+Assets/_Project/Scripts/Core/Movement/AgentAction.cs
+Assets/_Project/Scripts/Core/Combat/IDamageable.cs
+Assets/_Project/Scripts/AI/Hunter/HunterBrain.cs
+Assets/_Project/Scripts/AI/Breacher/BreacherAgent.cs
+Assets/_Project/Scripts/AI/Breacher/BreacherPathMover.cs
+Assets/_Project/Scripts/AI/Breacher/BreacherHealth.cs
+Assets/_Project/Scripts/AI/Breacher/BreacherBarricade.cs
+Assets/_Project/Scripts/AI/Sentinel/SentinelDroneBrain.cs
+Assets/_Project/Scripts/AI/Sentinel/SentinelDroneBody.cs
+Assets/_Project/Scripts/Player/PlayerWeapon.cs
+Assets/_Project/Scripts/Player/PlayerHealth.cs
+Assets/_Project/Scripts/Interaction/SlidingDoor.cs
+Assets/_Project/Tests/EditMode/AgentBody/BlackoutProtocol.Body.Tests.EditMode.asmdef
+docs/decision-logs/core-developer.md
+docs/evidence/core-developer/sentinel-drone-evidence.md
+```
+Asset/import/subasset or scene inspection:
+```text
+Assets/_Project/Models/Export/SentinelDrone.fbx
+Assets/_Project/Models/Export/SentinelDrone.fbx.meta
+Assets/_Project/Models/Export/PlasmaRifle.fbx
+Assets/_Project/Models/Export/PlasmaRifle.fbx.meta
+Assets/_Project/Prefabs/AI/Sentinel/SentinelDrone.prefab
+Assets/_Project/Prefabs/AI/Breacher/Breacher.prefab
+Assets/_Project/Scenes/Main.unity
+Assets/_Project/Scenes/Sandbox/Manula/AgentBodySandbox.unity
+Assets/_Project/Scenes/Sandbox/Manula/HunterSandbox.unity
+Assets/_Project/Scenes/Sandbox/Manula/HunterNoiseSandbox.unity
+Assets/_Project/Scenes/Sandbox/Chethiya/PlayerControllerSandbox.unity
+```
+Inventoried but not opened/edited as modelling sources: `Assets/_Project/Models/Source/SentinelDrone.blend` and `Assets/_Project/Models/Source/PlasmaRifle.blend`. Assets-wide searches checked animation controllers/clips/Avatars, Mixamo and Flanker; there is no missing filename to list for an absent asset.
+
+### Exact changed files
+
+```text
+Assets/_Project/Scripts/AgentBody/AgentAnimatorDriver.cs
+Assets/_Project/Scripts/AgentBody/Logic/LocomotionAnimation.cs
+Assets/_Project/Scripts/AgentBody/Logic/LocomotionAnimation.cs.meta
+Assets/_Project/Tests/EditMode/AgentBody/AgentAnimatorDriverTests.cs
+Assets/_Project/Tests/EditMode/AgentBody/AgentAnimatorDriverTests.cs.meta
+docs/decision-logs/agent-controller.md
+```
+There is deliberately **no saved animation sandbox/controller/clip** that could be mistaken for working humanoid animation. Tests create and destroy an in-memory parameter-only AnimatorController and empty motion. The existing movement sandboxes remain unchanged.
+
+### Smallest handoffs and acceptance gap
+
+| Owner | Smallest concrete delivery | Blocks current parameter increment? | Blocks visual animation acceptance? |
+|---|---|---|---|
+| Ashen | One ground robot model with a valid Humanoid Avatar/bone map (if retargeting Humanoid/Mixamo motions), or a matching authored Generic skeleton + clips; +Z visual forward/+Y up, confirmed scale/pivot; looping **in-place Idle/Walk/Run** clips with nominal locomotion speeds and root curves documented | No | **Yes**: cannot validate retargeting, stride/feet, poses or transitions without it |
+| Manula / GV | Once those clips arrive, create an AgentBody-owned 1D locomotion controller/Blend Tree with a float Speed (or agreed name), configure thresholds in the chosen units, attach the model child/driver to a dedicated sandbox and tune reference/damping/clip timing against measured movement | Driver/math are implemented now; controller awaits actual clips | **Yes**, followed by actual graphical Play Mode evidence |
+| Chethiya | Approve Breacher visual-child placement and reusable body prefab configuration; verify Run movement/Stop with that model. Later provide Attack/Hit/Death and door/push action timing expectations; keep legacy mover inactive when shared body owns motion | No | Breacher visual integration and later combat acceptance require this coordination |
+| Mahima | Provide actual Flanker BT/prefab/body wiring and final Main agent spawns, valid navigation/cover placement and visual clearances | No | **Yes** for Flanker/final Main acceptance, not for a future isolated ground-animation sandbox |
+
+Do not import arbitrary third-party characters, change Ashen's rig/importer or reuse the flying Sentinel as the missing ground skeleton without explicit approval. Strafe, Attack, Hit, Death, animation-event damage timing and complete blending polish are later increments, not part of this fallback.
+
+### Manual verification
+
+Today: run **Window > General > Test Runner > EditMode > AgentAnimatorDriverTests** (or Run All). Four runtime cases enter/exit real Play Mode; they inspect actual Animator float values but have **no humanoid pose to display**. Adding the driver alone to a primitive safely reports a missing binding; it does not make that primitive walk or supply missing clips. Read diagnostic properties through the debugger or a future debug view; no on-screen animation panel was added.
+
+After the handoff: open AgentBodySandbox in Play Mode, attach the approved model as a child with an Animator/controller, and add AgentAnimatorDriver to the **AgentBody root**, not the drone. Assign Animator, choose parameter name and units, and leave root motion off. For example, with measured/authored Walk 1.6 m/s and Run 4 m/s and reference 4, future blend thresholds are Idle 0, Walk 0.4, Run 1; these are configuration examples, not constants in the driver. Observe acceleration, braking, corners, Stop fade-to-idle and route replacement in the Animator Parameters view and Game view. Confirm CharacterController alone moves the agent and the model faces +Z. Then repeat on approved Hunter/Breacher-owned instances without changing brains. A controller schema changed in place needs Refresh Animator Binding. Do not save teammate prefabs/scenes without their owner's approval.
+
+### Actually executed verification — Unity 6000.3.25f1
+
+- Unity's imported-asset audit completed successfully and produced the zero-controller/zero-clip/zero-Avatar results above. This is an actual Unity asset/subasset inspection, not a claim based on design documents.
+- Initial focused AgentAnimatorDriverTests: **8/8 passed** (4 pure parameter-math cases and 4 runtime integrations entering/exiting actual Play Mode). Log/XML: `/tmp/hunter-stage-a.weTEGo/agentbody-animation-focused.log` and `.xml`.
+- After adding the disabled-driver readiness guard and an explicit Animator-reference swap check, the final complete EditMode suite passed **110/110, 0 failed, 0 skipped**. It includes all 102 existing cases and all 8 new cases in their final form. Totals overlap; they are not 118 distinct tests. Final XML: `/tmp/hunter-stage-a.weTEGo/agentbody-animation-all.xml`; log: `/tmp/hunter-stage-a.weTEGo/agentbody-animation-all.log`.
+- Runtime tests used a real Animator and transient float controller/empty motion to verify zero-speed Idle parameter, actual Walk/Run values with reference 4, braking response, Stop fade-to-idle, preserved history on route replacement, root-motion-off setting, missing/wrong/disabled/replaced bindings and configuration-only parameter validation. Test objects/controllers/motions were destroyed; no test assets were saved.
+- Actual HunterBrain responded to shared sound events, requested Run through the unchanged AgentBody and drove measured animation parameters. The scoped actual Breacher MoveTo runner/A* drove nonzero parameters after Begin and faded to zero after Cancel, without claiming complete GOAP gameplay. Existing navigation, sound memory, stuck/arrival/search, steering and Breacher pure/runtime regression cases all remain green. Existing Hunter wall-detour integrations reached the goal at approximately `(6.09, 0.03, -2.92)`.
+- **Graphical humanoid Play Mode evidence: none.** These were parameter/engine integrations in a headless Editor process, not a skinned-character visual session. There is no validated Avatar retargeting, real Idle/Walk/Run blend tree/state playback, stride matching, foot planting or natural ground-robot animation yet. Those checks are blocked by the identified assets and must not be inferred from 110 passing tests.
+- Sentinel flight, absent Flanker integration, final Main spawning/navigation, full Breacher door/barricade/attack/death gameplay and future combat animations were not run as full acceptance scenarios. Inspection and the prior historical startup evidence are distinguished from new animation tests.
+- The isolated project's AgentBody source/test directories match the final repository files. `git diff --check` passes; working tree changes are confined to the six files listed above, plus the pre-existing unrelated TimelineSettings entry. No new assembly/package/scene modifications, rig changes, Git staging, commits, pushes, merges or branch switches were performed. Stop after this supported first animation increment.
+
+## 2026-10-20 — Animation Stage B: Titan robot locomotion integration
+
+### Scope and actual input assets
+
+Verified branch `feature/agentbody-animation`. Preserved all pending Stage A
+driver/helper/test/log changes and the unrelated untracked
+`ProjectSettings/TimelineSettings.asset`. Stage B does not edit those animation
+implementation files, ground movement, shared contracts, AI brains, teammate
+prefabs, Main, packages or settings. The original AgentBodySandbox is unchanged.
+
+All four required FBX exports were present in
+`/home/manula/Downloads/BlackoutRobots/`:
+
+| Filename | Bytes | SHA-256 (original and repository copy match) |
+|---|---:|---|
+| Titan_Rigged.fbx | 2337728 | `5a4dab76f4b14ae55fc2c4f6c85e7b60bb7b185c10237059b6e63322d757d3a0` |
+| Titan_Idle.fbx | 2886432 | `5d2d68a8495a3d5387e3d40260ee47dea36c6b85e8f87f8688f5d5fda567dd88` |
+| Titan_Walk.fbx | 245712 | `e1efeb85faeba39021aba34d12f232dedcb8a3c4adb0eeac56717d25a2bea832` |
+| Titan_Run.fbx | 222608 | `b48b94c35043d0dc9bb2d6d721411628011e177ebd44b513c17366b418917e5a` |
+
+Copied the actual binaries unchanged under
+`Assets/_Project/ThirdParty/AgentBody/Titan/`, following CONTRIBUTING's downloaded
+asset convention rather than mixing source FBXs into team-owned Models. Originals
+were not moved or modified. Native Unity controller/material/prefab assets live
+under `Assets/_Project/Animations/AgentBody/Titan/` (GV ownership).
+All binary FBXs already match the existing Git LFS rules; no staging/LFS conversion
+or Git configuration changes were performed.
+
+### Inspection and import decisions
+
+Re-read `CONTRIBUTING.md`, `CREDITS.md`, `.gitattributes`, AgentAnimatorDriver,
+LocomotionAnimation, AgentBody, AgentMotor, AgentRotation, WaypointRouteDriver,
+the Body/test asmdefs, existing animation/steering tests and AgentBodySandbox YAML.
+Checked the existing imported model conventions, prior four-agent dependency audit
+above, and the actual FBX hierarchy/material/Avatar/clip subassets in Unity.
+
+- Titan_Rigged: Humanoid, Create From This Model, animation import disabled. The
+  generated Avatar is valid and human. Its skeleton has 34 mapped human bones.
+- All four imports: Scale Factor **1**, **Convert Units / useFileScale disabled**,
+  no axis correction or extra local scaling on the reusable visual root. Positive
+  Z is the body/character forward direction and Y is up. CharacterController uses
+  height 1.85, radius 0.3, centre Y 0.925; actual skeleton head is around Y 1.6 in
+  the import rest pose. Conservative renderer bounds are larger than the mesh.
+- Important export-specific correction: the automatic Avatar T-pose retained
+  centimetre bone positions although imported transforms were metre-scale. An
+  initial valid Avatar had `Animator.humanScale = 107.292` and produced severe
+  limb stretching in real rendered playback. Neither a valid flag nor blindly
+  setting Scale Factor 100 was sufficient. Configured the model's Humanoid T-pose
+  skeleton metadata from the actual imported local transforms, retaining its human
+  mapping. The final Avatar's human scale is **1.044674**, and the rendered poses
+  are intact. This is serialized in `Titan_Rigged.fbx.meta`; no source rig/geometry
+  was rewritten. Preserve this custom Rig configuration when reimporting; do not
+  reset it to automatic raw-unit skeleton data.
+- Idle/Walk/Run: Humanoid, Copy From Other Avatar referencing Titan_Rigged's Avatar;
+  custom named clips, Loop Time and Loop Pose on. Root rotation, Y and XZ baked
+  into pose; original orientation/Y retained. Runtime root motion is disabled.
+  Imported lengths are approximately Idle 11 s, Walk 1.0333 s, Run 0.6333 s. The
+  controller references only named clips, not Unity's preview subassets or the
+  unused duplicated mesh in the Idle export.
+- Supplied material: texture-free `CharacterMaterialmat`, already imported as
+  URP/Lit, neutral grey (roughly 0.865 RGB). Preserved in a separate owned
+  TitanSurface material. No texture maps accompanied the four downloads; the
+  publisher's textured/PBR appearance is not claimed. Sandbox floor/route materials
+  are also under the owned animation folder, not shared Materials.
+
+### Controller, prefab and sandbox behavior
+
+`TitanLocomotion.controller`: one default Locomotion state, no redundant
+transitions, one 1D blend tree, float **Speed**, manual thresholds **Idle 0 / Walk
+0.4 / Run 1**. Each clip plays at rate 1. The existing driver samples actual
+horizontal movement in LateUpdate; sandbox reference speed is **4 m/s**, idle
+threshold **0.02 m/s**, damping **0.1 s**. No AI action mapping or animation-driven
+translation was added.
+
+`TitanVisual.prefab` is a visual-only nested model prefab with valid Avatar,
+controller and root motion disabled. It contains no AgentBody or CharacterController.
+An owner can later attach it under a Hunter/Breacher body without installing a
+second movement implementation. Do not attach the ground driver to Sentinel.
+
+Open `Assets/_Project/Scenes/Sandbox/Manula/AgentBodyAnimationSandbox.unity`.
+Press Play: initially Idle for 2.5 seconds, then Walk along a visible, hand-placed
+U-route `(0,0,0) → (0,0,20) → (10,0,20) → (10,0,0)`. Arrival pauses in Idle for
+2.5 seconds, then Run back, repeating Walk/Run alternation. Route markers sit just
+below floor level; their Y value is immaterial to horizontal steering. This scene
+tests animation and the existing shared movement; it does not need or modify a
+NavMesh and does not demonstrate AI pathfinding.
+
+The following camera frames the whole character from a rear three-quarter view.
+On-screen buttons: **Walk**, **Run**, **Stop / Idle**, **Automatic**. Walk/Run
+switches during movement preserve remaining waypoint progress; after Stop/arrival
+a new route begins at the nearer endpoint without teleporting. Stop cancels
+automatic progression. Automatic restarts with an Idle pause then Walk. Label
+shows phase, measured m/s, smoothed Speed and binding readiness. Missing waypoints
+or Stuck stop the demonstration with an explanatory label rather than retrying
+each frame. OnDisable unsubscribes Arrived/Stuck and cancels this sandbox's route.
+Only this testing component follows the camera and issues MoveCommands; it does
+not duplicate motor, rotation, steering or animation-parameter algorithms.
+
+### Exact Stage B file changes
+
+Modified:
+
+```text
+CREDITS.md
+docs/decision-logs/agent-controller.md
+```
+
+Added (all asset and folder metadata listed explicitly):
+
+```text
+Assets/_Project/Animations/AgentBody.meta
+Assets/_Project/Animations/AgentBody/Titan.meta
+Assets/_Project/Animations/AgentBody/Titan/SandboxFloor.mat
+Assets/_Project/Animations/AgentBody/Titan/SandboxFloor.mat.meta
+Assets/_Project/Animations/AgentBody/Titan/SandboxRoute.mat
+Assets/_Project/Animations/AgentBody/Titan/SandboxRoute.mat.meta
+Assets/_Project/Animations/AgentBody/Titan/TitanLocomotion.controller
+Assets/_Project/Animations/AgentBody/Titan/TitanLocomotion.controller.meta
+Assets/_Project/Animations/AgentBody/Titan/TitanSurface.mat
+Assets/_Project/Animations/AgentBody/Titan/TitanSurface.mat.meta
+Assets/_Project/Animations/AgentBody/Titan/TitanVisual.prefab
+Assets/_Project/Animations/AgentBody/Titan/TitanVisual.prefab.meta
+Assets/_Project/Scenes/Sandbox/Manula/AgentBodyAnimationSandbox.unity
+Assets/_Project/Scenes/Sandbox/Manula/AgentBodyAnimationSandbox.unity.meta
+Assets/_Project/Scripts/AgentBody/Testing/TitanAnimationSandbox.cs
+Assets/_Project/Scripts/AgentBody/Testing/TitanAnimationSandbox.cs.meta
+Assets/_Project/Tests/EditMode/AgentBody/TitanAnimationAssetTests.cs
+Assets/_Project/Tests/EditMode/AgentBody/TitanAnimationAssetTests.cs.meta
+Assets/_Project/ThirdParty/AgentBody.meta
+Assets/_Project/ThirdParty/AgentBody/Titan.meta
+Assets/_Project/ThirdParty/AgentBody/Titan/ATTRIBUTION.md
+Assets/_Project/ThirdParty/AgentBody/Titan/ATTRIBUTION.md.meta
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Idle.fbx
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Idle.fbx.meta
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Rigged.fbx
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Rigged.fbx.meta
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Run.fbx
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Run.fbx.meta
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Walk.fbx
+Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Walk.fbx.meta
+```
+
+The earlier six-file Stage A increment remains pending, unchanged except for this
+append-only GV log. Temporary Unity import/build/capture helpers, screenshots,
+logs and XML results live only in `/tmp/hunter-stage-a.weTEGo`; no editor generator
+or screenshots were added to the repository.
+
+### Attribution and handoffs
+
+CONTRIBUTING explicitly requires CREDITS entries alongside third-party imports
+and assigns Animations to GV; no exclusive CREDITS owner is named. Added two
+attribution rows rather than changing unrelated team credits.
+[Sotudios' pack page](https://sotudios.com/Assets/Humanoid-RobotPack/) identifies
+the model pack as CC BY 4.0; model credit, source, license link and derivative
+changes are retained in CREDITS and the local ATTRIBUTION file. The
+[Adobe FAQ](https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html) is linked
+separately for the rigging/animation service; it does not replace the model license.
+The four-file download did not include the pack's original license/metadata file.
+Obtain and retain that original document before release, and review raw-asset
+distribution terms before sharing outside the team. No original notice was removed.
+
+| Owner | Smallest remaining handoff | Blocking Stage B? |
+|---|---|---|
+| Ashen / project owner | Supply original pack license/metadata and approved Titan PBR maps if textured appearance is wanted; assess robot proportions/rig and later combat clips. No Blender/drone/weapon edits needed. | Not blocking texture-free locomotion demo; release attribution evidence still needs original license document. |
+| Chethiya | Approve attachment of TitanVisual to Breacher's existing body, renderer orientation/collider clearance, and keep independent legacy movement writers inactive. Future attack/door timing is separate. | Not blocking this owned sandbox. No teammate prefab changed. |
+| Mahima | Supply actual Flanker body/prefab and Main spawn/navigation integration when ready; validate chosen visual clearances. | Blocks Flanker/final-scene integration only. No code/assets appeared in this task. |
+| Manula / GV | Repeat graphical checks on approved Hunter/Breacher instances; tune authored gait speed/stride if desired. | Generic movement integrations tested; actual teammate prefabs not visually retargeted here. |
+| Ashen / Sentinel | Retain independent flying movement and procedural visual tilt. | Unaffected; do not attach this ground locomotion stack. |
+
+### Verification and limitations
+
+Executed Unity 6000.3.25f1 against the isolated cached project
+`/tmp/hunter-stage-a.weTEGo` to avoid generating unrelated repository settings.
+Native assets and metadata produced there are copied together to the repository.
+The FBX checksums above match the untouched downloads.
+
+- Real graphics-enabled Editor Play Mode rendered camera captures of Idle,
+  two different Walk poses, two Run poses and stopped Idle. Inspected these
+  images; the corrected robot is intact and visibly changes pose. Logs show
+  measured Walk ~1.6 m/s, Speed ~0.4; Run ~4 m/s, Speed ~1; stopped actual/parameter
+  speed zero, root motion false. Files: `titan-visual-final.log`, `titan-idle.png`,
+  `titan-walk-a.png`, `titan-walk-b.png`, `titan-run-a.png`, `titan-run-b.png`,
+  `titan-stopped.png` in the temporary project. These are rendered Editor frames,
+  not a claim of a human-operated continuous gameplay session or polished stride.
+- Initial focused tests: 6/7 passed. The failing runtime check used WaitForSeconds
+  in an EditMode-hosted Play Mode coroutine, so it sampled after only a frame
+  rather than the intended acceleration interval. Replaced it with frame yields
+  against explicit game time, matching the existing integration-test convention.
+  Final focused run: **7/7 passed**, zero failed/skipped, in
+  `titan-animation-focused-final.xml` / `.log`. The earlier failed result is
+  retained in `titan-animation-focused.xml`, not represented as a passing run.
+- New tests cover actual imports/Avatar configuration, all three looped root-baked
+  clips, controller float/thresholds, reusable visual prefab and root motion,
+  actual Humanoid bone motion, scale/stretch regression, actual Walk/Run parameter
+  values, mid-route speed replacement, Stop returning to Idle and stationary
+  body/visual root. Existing driver tests cover missing/wrong/replaced Animator
+  and controller bindings.
+- Final complete EditMode suite: **117/117 passed, 0 failed, 0 skipped** in
+  `titan-animation-all.xml` / `.log`. This includes all previous 110 cases and the
+  seven new Titan cases; focused counts overlap the full suite and must not be
+  added as distinct tests. Existing actual Hunter noise/navigation/body and scoped
+  Breacher Begin/Tick/Cancel integrations remain green. This is not a graphical
+  retargeting acceptance run on their teammate-owned prefabs.
+- A separate Editor process force-reimported all four FBXs using their saved
+  `.meta` files, rebound the visual prefab Animator and sampled Walk. It passed:
+  human scale **1.044674**, foot at approximately `(-0.18, 0.25, 0.35)`, controller
+  TitanLocomotion and root motion false (`titan-reimport.log`). No dependence on
+  the original automatic Avatar's cached import remains. Imported asset, script
+  and test directories match the repository copies after this check.
+- Final `git diff --check` passes; both new C# files also pass explicit untracked
+  whitespace checks. Original AgentBodySandbox, body/motor/rotation, shared/team
+  assets and unrelated TimelineSettings are unchanged. No staging, commit, push,
+  merge, branch switch or PR creation occurred.
+
+Manual follow-up: open the new scene in the repository Editor, press Play, watch
+the automatic complete outbound/return route including corners and arrival Idle,
+then press Walk/Run during movement and Stop. Inspect the child Animator Speed
+and body velocity diagnostics. Test Runner > EditMode > TitanAnimationAssetTests
+or Run All repeats the automated checks. Reopen Unity to confirm all GUID-backed
+Avatar/controller/material/prefab references persist; no download-directory path
+is used at runtime. Do not reset the FBX's custom Avatar T-pose configuration.
+
+No Hunter/Breacher visual-prefab replacement, Flanker integration, Main setup,
+Sentinel flight scenario, PBR texture authoring, foot IK/stride warping, Attack,
+Hit or Death animation work was done. Walking/running clip cadence is not proven
+perfectly stride-matched at all intermediate blend speeds; minor foot sliding or
+clip seam cleanup remains an artistic acceptance check. The demo's hand-placed
+route is not evidence of Hunter A* or dynamic obstacle avoidance. OnGUI text and
+button allocations are sandbox diagnostics only; normal gameplay drivers retain
+their existing cached parameter-binding behavior. Stop after Stage B.
+
+## 2026-10-20 — Titan visual correction: original PBR maps and Run cadence
+
+### Actual source audit
+
+Branch remains `feature/agentbody-animation`; all prior pending animation work is
+preserved. Found the extracted original pack at
+`/home/manula/Downloads/humanoid-robot-pack-v1.0.0/`, including:
+
+```text
+characters/titan/textures/titan_basecolor.png
+characters/titan/textures/titan_normal.png
+characters/titan/textures/titan_roughness.png
+characters/titan/textures/titan_metallic.png
+metadata/titan.json
+LICENSE.md
+MIXAMO_WORKFLOW.md
+```
+
+The pack metadata specifies one material, 2048x2048 maps, 1.85 m height, 63,965
+triangles and an unrigged source model. Its workflow states that the Mixamo-ready
+upload is texture-free and retains the same UV layout as the textured source.
+This explains why rigging/export did not automatically supply the textures.
+
+The project owner had already copied those four PNGs, without `.meta` files, into
+`Assets/_Project/Animations/AgentBody/Titan/Textures/` before this task. Reused
+them unchanged and supplied their import metadata. SHA-256 hashes match the
+extracted pack byte-for-byte:
+
+| Map | SHA-256 |
+|---|---|
+| basecolor | `4d09a3c62cd06ad63ace506243615ffab90da1a155af4c5bcb480ea4d3d11653` |
+| normal | `172c7b183b51cb325e789568e5041f8fed4f49ab1c44bd16d8d1262bdbefb60d` |
+| roughness | `76ebc3e09248ca5c3ac95ac1d5eb7f54c5b27775df9e41fb23d276566b7e87ab` |
+| metallic | `3afc91d8baf781f459ce101f4fcbe4e69182360e63e95f0c70e49ddf0b4e82cc` |
+
+An initial duplicate import under ThirdParty was consolidated into those existing
+paths before final verification, retaining the texture GUIDs. The unnecessary
+copies created during this task are recoverably archived at
+`/tmp/titan-duplicate-import.3cIyc5/Textures`, outside Assets; no pre-existing user
+maps were deleted or overwritten. The final project has one active set of the
+four source maps. Original package `LICENSE.md` and Titan metadata are now
+retained alongside the model's attribution in ThirdParty; the previous missing
+original-license handoff is resolved. No extra pack characters were imported.
+
+Searched the actual FBX files throughout Downloads and shallow home locations.
+The only downloaded animation candidate named Run/Running is
+`/home/manula/Downloads/BlackoutRobots/Titan_Run.fbx` (222,608 bytes, unchanged
+SHA-256 `b48b94c35043d0dc9bb2d6d721411628011e177ebd44b513c17366b418917e5a`).
+Other pack character FBXs are unrigged models, not replacement animations. No
+separate In Place Run export was found in those locations. Do not invent a
+replacement or claim access to the original browser download settings.
+
+### Material correction
+
+Inspected the actual TitanSurface material and the SkinnedMeshRenderer nested in
+TitanVisual: the renderer already referenced TitanSurface, but BaseMap, BumpMap
+and MetallicGlossMap were empty. This was the direct cause of the white robot,
+not a missing skin/Avatar or URP shader incompatibility.
+
+Retained that same material and prefab reference, configuring URP/Lit:
+
+| Input | Import / material use |
+|---|---|
+| Original basecolor | Default texture, **sRGB on**, Base Map; Base Color white to avoid tinting it |
+| Original normal | **Normal Map**, non-color/sRGB off; Normal Map slot, normal scale 1, normal keyword on; no speculative green-channel flip |
+| Original metallic / roughness | Default textures, **sRGB off**; preserved raw inputs to the derived map, not assigned incorrectly to smoothness |
+| Derived TitanMetallicSmoothness | **R = metallic.R; A = 255 - roughness.R; G = B = 0**, linear/non-sRGB, input alpha preserved, Alpha Is Transparency off |
+
+URP's installed `Shaders/LitInput.hlsl` reads metallic from the metallic map red
+channel and smoothness from its alpha, multiplied by `_Smoothness`, unless the
+albedo-alpha keyword is active. Set smoothness source to **Metallic Alpha**,
+`_Smoothness=1`, enable `_METALLICSPECGLOSSMAP` and disable
+`_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A`. Thus the final smoothness is exactly
+`1 - roughness`; there is no incorrect gamma conversion or second inversion.
+Legacy material tint is also white, matching URP Base Color.
+
+Packing used raw PNG Color32 bytes in temporary linear Texture2D buffers, with
+matching source dimensions and no resizing or RGB gamma conversion. The output
+is a separate generated PNG; none of the four original images are edited.
+Textures retain 2048 maximum size and mipmaps for this character demonstration.
+CPU Read/Write is off in their gameplay importers; packing/testing buffers are
+temporary, not retained per frame. Original materials, textures, lighting and
+models belonging to teammates are untouched.
+
+### Running diagnosis and smallest correction
+
+Checked the actual controller, child scale/orientation, Avatar, source importer,
+root-bake flags, loop samples and runtime speed diagnostics:
+
+- Run is a 30 fps Mixamo take (`mixamo.com`), frames 0–19, about **0.633333 s**.
+  There is no retained UI checkbox or named animation/overdrive setting in the
+  provided files from which to reconstruct the original web download choices.
+- An isolated Generic import of a copy of the original FBX, with uncompressed
+  curves, shows hip travel of about **3.9937 m in 0.633333 s**: **6.305865 m/s**.
+  Its source motion therefore is **not stationary/in-place**. The production
+  Humanoid clip already bakes XZ/rotation/Y into pose, and the Animator already
+  disables root motion, so no runtime root-motion conflict was found.
+- Loop Time and Loop Pose are already enabled. Direct Humanoid playable sampling
+  over the full cycle gives a maximum sampled seam position difference of about
+  **0.00011 m**, with negligible angular discontinuity. No justified reason to
+  trim frames, fabricate a new loop or add Animator state transitions was found.
+- The Avatar remains valid/Humanoid with human scale **1.044674** and the previous
+  metre-scale T-pose fix intact. Visual root scale is one and +Z remains forward.
+  Bone scale/length checks and rendered armor/leg poses show no renewed stretching.
+- AgentBody's actual Run remains **4 m/s**. The blend tree was playing the sprint
+  clip at rate 1, despite its much faster authored travel/cadence. This gait-speed
+  mismatch, rather than another rig overhaul, is the supported correction.
+
+To avoid relying on raw root travel alone, sampled the retargeted toe trajectories
+at 240 intervals/cycle. As a diagnostic approximation to stance, selected low toe
+samples (within 0.06 m of each toe's minimum height), moving backward faster than
+0.2 m/s with vertical speed under 1.5 m/s. For selected velocities `vZ`, fit the
+playback multiplier `k` minimizing `sum((4 + k*vZ)^2)`:
+
+`k = -4 * sum(vZ) / sum(vZ*vZ)`.
+
+This yielded **0.6510** across 33 selected Run intervals. Approximate forward-slip
+RMS drops from **2.2790 to 0.9138 m/s**; it is a useful diagnostic proxy, not a
+claim of perfect foot planting. Source travel predicts `4 / 6.305865 ≈ 0.6343`,
+which independently supports slowing the clip. Chose the simple fitted value
+**0.65** for the Run blend-tree child's **Time Scale only**. The resulting full
+Run cycle is roughly **0.9744 s**. Idle/Walk child rates remain 1, Speed thresholds
+remain 0 / 0.4 / 1, reference speed remains 4 m/s and parameter damping remains
+0.1 s. No body speed, acceleration, stopping, AI or movement code changes.
+
+No replacement download was necessary for this scoped correction. If an artistic
+review still rejects this high-knee sprint on a heavy robot, the smallest next
+handoff is a genuinely downloaded, less exaggerated Mixamo running/jogging loop
+exported **In Place, 30 fps, Without Skin** for the same Titan character. Its exact
+clip identity must be supplied/inspected, not invented. Foot IK/stride warping and
+combat animations remain outside this task.
+
+### Exact changes in this visual-correction increment
+
+Modified existing files (including files still untracked from the previous stage):
+
+```text
+Assets/_Project/Animations/AgentBody/Titan/TitanSurface.mat
+Assets/_Project/Animations/AgentBody/Titan/TitanLocomotion.controller
+Assets/_Project/Tests/EditMode/AgentBody/TitanAnimationAssetTests.cs
+Assets/_Project/ThirdParty/AgentBody/Titan/ATTRIBUTION.md
+docs/decision-logs/agent-controller.md
+```
+
+Added files:
+
+```text
+Assets/_Project/Animations/AgentBody/Titan/Textures.meta
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_basecolor.png.meta
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_normal.png.meta
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_roughness.png.meta
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_metallic.png.meta
+Assets/_Project/Animations/AgentBody/Titan/TitanMetallicSmoothness.png
+Assets/_Project/Animations/AgentBody/Titan/TitanMetallicSmoothness.png.meta
+Assets/_Project/ThirdParty/AgentBody/Titan/LICENSE.md
+Assets/_Project/ThirdParty/AgentBody/Titan/LICENSE.md.meta
+Assets/_Project/ThirdParty/AgentBody/Titan/titan.json
+Assets/_Project/ThirdParty/AgentBody/Titan/titan.json.meta
+```
+
+Existing user-provided untracked PNGs reused unchanged (not newly authored or
+overwritten by this increment):
+
+```text
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_basecolor.png
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_normal.png
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_roughness.png
+Assets/_Project/Animations/AgentBody/Titan/Textures/titan_metallic.png
+```
+
+No scene, visual-prefab, Animator/Avatar/FBX importer, FBX binary, runtime script,
+Core contract, teammate asset, package or ProjectSettings file was changed in
+this increment. No new production abstraction or per-frame processing was added.
+The prior Stage A/B file manifest describes earlier pending changes, not this
+increment's edits. CREDITS remains as previously recorded; existing Sotudios and
+Mixamo credits cover these matching maps. TimelineSettings SHA-256 remains
+`de43ff94910a26c658e7228213b553ac66f7c5d27cb513c3bc6ba2924eb0455c`.
+
+### Actually executed verification
+
+- Unity **6000.3.25f1**, isolated project `/tmp/hunter-stage-a.weTEGo`. The shader
+  implementation was inspected in the installed URP package, not guessed from
+  another rendering pipeline's channel layout.
+- Graphics-enabled Editor **Play Mode**, normal time scale: exercised the same
+  public methods as Walk, Run, Stop and Automatic buttons. Rendered and inspected
+  original-color Idle, different Walk/Run poses, an intermediate Walk→Run blend,
+  stopped Idle and both automatic arrival poses. The complete Automatic Walk
+  outbound and Run return completed successfully; it was not just compilation or
+  a stationary model preview. Runtime pose checks retain the expected human scale
+  and root-motion-off condition. The camera captures show the original yellow
+  and dark-metal armor with normal/material detail and no severe limb stretching.
+- Evidence in the temporary project: `titan-corrected-visual.log` and
+  `titan-corrected-{idle,walk-a,walk-b,walk-run-blend,run-a,run-b,run-c,run-loop,run-loop-b,stopped,automatic-walk,automatic-walk-arrived,automatic-run,automatic-run-b,automatic-run-arrived}.png`.
+  Walk arrival was at game time ~53.123 s; Run return arrival at ~70.111 s.
+  Stop held the body at its cancelled position. Intermediate blend captured
+  actual speed ~3.24 m/s with Speed ~0.651; steady Run remained ~4 m/s / Speed 1.
+  These are scripted graphics-enabled Play Mode camera captures, not a claim of
+  human-operated UI testing or a recorded continuous-video artistic review.
+- Loop/contact/source audit: `titan-run-contact-audit.log`; material setup:
+  `titan-material-fix.log`; cadence edit: `titan-run-cadence-fix.log`. These helpers
+  and the temporary Generic source copy were not added to the repository.
+- Focused **10/10 passed, zero failed/skipped** in `titan-correction-focused.xml`
+  / `.log`: seven existing Titan cases plus material/import assertions, exact
+  every-pixel metallic/roughness packing and continuous, stable-scale Run pose
+  sampling. Existing controller test now checks rates 1 / 1 / 0.65. Texture GUIDs
+  were retained when consolidating source paths after that focused run; final
+  complete-suite verification uses the final locations and matching tests.
+- Final complete EditMode suite: **120/120 passed, zero failed and zero skipped**,
+  in `titan-correction-all.xml` / `.log`. This includes all prior 117 cases plus
+  the three new regression cases, with the final source-map paths and corrected
+  material/controller. Existing Hunter/Breacher and AgentBody integrations remain
+  green. Focused tests overlap the full suite and are not extra distinct cases.
+- Final imported asset and test directories match the repository. All original
+  FBX and texture hashes remain unchanged. `git diff --check` and the explicit
+  untracked test-file whitespace check pass. The sandbox scene, visual prefab,
+  runtime animation/movement scripts and previous Avatar metadata are unchanged
+  by this correction. TimelineSettings hash still matches the pre-task value.
+  No commits, staging, pushes, merges or branch switches were performed.
+
+### Manual acceptance and remaining limits
+
+Open `Assets/_Project/Scenes/Sandbox/Manula/AgentBodyAnimationSandbox.unity` and
+press Play. Titan should now have yellow/dark armor rather than white. Watch the
+automatic route and arrival Idle; use Walk→Run mid-route, then Stop and Automatic.
+Check actual m/s and Speed labels, the child Animator's disabled Apply Root Motion,
+and Run child's 0.65 Time Scale. The CharacterController remains the only movement
+authority. Test Runner > EditMode > TitanAnimationAssetTests or Run All repeats
+the automated checks. No external download path is needed at runtime.
+
+The source sprint's high-knee style and some residual contact drift/armor overlap
+remain possible, particularly at blended intermediate speeds and tight turns.
+No new foot IK, warping, compression tuning, root motion, Animator layering or
+robot-specific animation authoring is claimed. Source normals are used with the
+standard non-color Normal Map import; no artist-directed normal reversal was
+provided or invented. The original pack license is now retained, but team approval
+of final artistic style and use on Hunter/Breacher-owned prefabs is still separate.
+Do not turn a sandbox visual fix into Main or teammate prefab integration.
+
+## 2026-10-20 — Hunter animation integration test: pre-LateUpdate race
+
+### Evidence and root cause
+
+Investigated the reported failure on `feature/agentbody-animation`, Unity
+6000.3.25f1. Read the complete AgentAnimatorDriverTests fixture, transient
+ParameterRig and wait helper; traced HunterBrain's event subscription, sound
+memory/Utility selection, A* request and cancellation paths, HunterNavMeshPathfinder,
+AgentBody/AgentMotor, AgentAnimatorDriver and locomotion math. Checked the real
+HunterNoiseSandbox, baked navigation, wander points and manual noise trigger.
+
+The exact zero asserted at the original line 181 is **TargetSpeedParameter**.
+That assertion happens **before the test emits its gunshot**. It is not an
+assertion on motor velocity or on Animator.GetFloat, and does not establish a
+sound-perception failure. The driver's default reference is 1, so this fixture's
+target speed uses actual m/s rather than normalized Run=1 units.
+
+The old wait required only Animator binding readiness and body velocity >0.1.
+Binding readiness does not mean AgentAnimatorDriver has sampled movement. A
+newly attached driver has zero-valued speed fields until LateUpdate; the Hunter
+may already have moved through AgentBody.Update/CharacterController. If the
+Animator is already initialized, the wait can finish in that same frame, before
+the driver's first LateUpdate. The target and stored Animator float are still
+zero. This explains why cold/headless timing could pass while the real GUI Editor
+failed; adding an arbitrary frame delay would not express the actual contract.
+
+Preserved the user's latest real-Editor XML (a single-test failure at line 181)
+as `/tmp/hunter-stage-a.weTEGo/hunter-animator-user-editor-original.xml` before
+running isolated tests. The user also reported 119/120 in the full GUI suite.
+The repository project had a live Editor/UnityLockfile; did not close it or start
+a competing process against that project.
+
+Actual reproduction using matching scene/scripts in a separate graphics-enabled
+Editor process:
+
+- Original test with diagnostic logging: **1/1 passed**, confirming intermittent
+  scheduling rather than claiming to reproduce it on every run
+  (`hunter-animator-before-graphics.xml` / `.log`).
+- Controlled realistic precondition: wait for the autonomous Hunter to physically
+  move, then attach the transient driver; leave the old readiness/velocity wait
+  unchanged. **1/1 failed at the same positive-target assertion**
+  (`hunter-animator-race-repro.xml` / `.log`). Both snapshots were frame **234**,
+  delta time ~**0.000828 s**, body velocity approximately `(-0.03,0,-0.10)`,
+  Walk, waypoint 1/5, Animator initialized/Ready. Driver actual, target, smoothed
+  and stored Animator Speed were **all exactly zero**. No fake velocity, Animator
+  float, physics movement, mocked brain or manually invoked driver update was
+  injected. This isolates the pre-LateUpdate race without a production change.
+
+### Smallest correction, within AgentBody ownership
+
+Only these two files changed in this increment:
+
+```text
+Assets/_Project/Tests/EditMode/AgentBody/AgentAnimatorDriverTests.cs
+docs/decision-logs/agent-controller.md
+```
+
+- Retain the physically-moving-Hunter precondition before attaching ParameterRig,
+  so the regression covers attaching a visual driver to an already moving body.
+- Replace the incomplete wait with a **bounded observable pipeline condition**:
+  horizontal motor velocity, driver's sampled horizontal speed, target parameter
+  and stored Animator Speed must all be positive; body must actually displace
+  more than 0.02 m. The old positive-target assertions remain and explicit
+  positive Animator assertions are added. No Animator values are written by the
+  test to satisfy the assertions.
+- After the real shared gunshot event, assert acceptance count increases; wait
+  for actual Chase, a new path request, Run style, physical displacement and
+  positive sampled/Animator outputs. Retain target/sample equality and
+  stored/smoothed equality, plus root-motion-off checks. Observed A* routes have
+  five waypoints and zero failures, so unreachable navigation was not the cause.
+- Exercise HunterBrain's real **OnDisable → AgentBody.Stop** lifecycle path,
+  without editing it. Assert velocity/sample/target/smoothed/stored values settle
+  to exact zero within 3 seconds and horizontal position does not drift. This
+  verifies locomotion Idle, not a nonexistent Hunter Utility action named Idle;
+  the disabled brain may correctly retain its previous CurrentAction value.
+- Existing 4-second movement deadlines remain. The test wait helper accepts an
+  optional failure-only diagnostic snapshot: action/status, accepted noise and
+  path counts/failures, waypoint index, grounding, body velocity, binding state,
+  initialization and every speed stage. Three successful phase snapshots are
+  logged by this test only. No per-frame production logging or allocation change.
+- No edits to production driver/motor/steering, Hunter/Breacher code, shared Core,
+  assemblies, scenes, animation assets, Packages or ProjectSettings. Reflection
+  follows the existing Body test convention and adds no assembly dependency.
+
+### Verification
+
+Results and logs are under `/tmp/hunter-stage-a.weTEGo`:
+
+| Actually executed run | Result | XML / log basename |
+|---|---|---|
+| Corrected Hunter test, independent graphics run 1 | **1/1 passed** | `hunter-animator-fixed-graphics-1` |
+| Corrected Hunter test, independent graphics run 2 | **1/1 passed** | `hunter-animator-fixed-graphics-2` |
+| Corrected Hunter test, independent headless run 3 | **1/1 passed** | `hunter-animator-fixed-headless-3` |
+| Complete AgentAnimatorDriverTests fixture, graphics enabled | **8/8 passed** | `hunter-animator-driver-group` |
+| Complete EditMode suite, headless | **120/120 passed, 0 failed, 0 skipped** | `hunter-animator-all` |
+
+Repeated/group/full runs overlap, not extra distinct tests. These runs use Unity
+6000.3.25f1 with matching Body/Hunter scripts, Body tests, scene and baked NavMesh;
+they do not claim a rerun inside the user's already-open GUI Editor. Full-suite
+Hunter output again shows successful five-waypoint Wander and Chase A* routes,
+one accepted gunshot, two path requests, no path failures, positive matched
+driver/Animator output, then cancellation with all speed stages exactly zero.
+Breacher and all existing movement/animation regressions also remain green.
+
+Final `git diff --check` and the explicit untracked test-file whitespace check
+pass. The only edits in this investigation are the two files listed above. All
+prior pending work is retained, with no new production or asset changes. The
+unrelated TimelineSettings SHA-256 remains
+`de43ff94910a26c658e7228213b553ac66f7c5d27cb513c3bc6ba2924eb0455c`.
+No Git staging, commit, push, merge or branch switch occurred.
+
+Manual GUI follow-up: after compilation, rerun
+`AgentAnimatorDriverTests.HunterActualSoundResponse_UsesSameDriverWithoutBrainChanges`
+several times, then its fixture and Run All in EditMode. Each case enters Play
+Mode itself. Output should show Wander with positive measured/Animator speed,
+accepted gunshot/Chase/Run with a new route and no failures, then cancelled/Idle
+with all speed values zero. If a machine-specific timeout occurs, retain the new
+full-state snapshot rather than weakening the positive assertions or increasing
+delays blindly. No separate graphical character-pose or art change is involved:
+this test intentionally uses a transient parameter-only Animator with empty motion.
