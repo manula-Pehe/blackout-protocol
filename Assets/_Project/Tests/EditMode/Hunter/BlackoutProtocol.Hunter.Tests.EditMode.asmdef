@@ -3,7 +3,11 @@
     "rootNamespace": "BlackoutProtocol.AI.Hunter.Tests",
     "references": [
         "BlackoutProtocol.Hunter.Logic",
-        "BlackoutProtocol.Core"
+        "BlackoutProtocol.Core",
+        "BlackoutProtocol.Hunter.Runtime",
+        "BlackoutProtocol.Body",
+        "Unity.AI.Navigation",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"
