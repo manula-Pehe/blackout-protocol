@@ -13,40 +13,53 @@ namespace BlackoutProtocol.AI.Hunter
         [SerializeField, Min(1)] private int maximumExpandedNodes = 4096;
 
         private HunterNavGraph graph;
+        private int startAnchor = -1, goalAnchor = -1;
+        private int searchLimit;
+        private bool hasSearch;
         public HunterPathResult LastSearch { get; private set; }
         public HunterPathResult LastUniformCostSearch { get; private set; }
         public int GraphNodeCount => graph == null ? 0 : graph.NodeCount;
+        public int GraphBuildCount { get; private set; }
+        public int AStarSearchCount { get; private set; }
+        public int UniformCostSearchCount { get; private set; }
+        public int QueryVersion { get; private set; }
+        public int StartAnchor => startAnchor;
+        public int GoalAnchor => goalAnchor;
+        public Vector3 LastStart { get; private set; }
+        public Vector3 LastGoal { get; private set; }
+        public bool CanCompareLastSearch => hasSearch && graph != null && LastSearch != null;
+        public bool CompareOnRouteRequest { get; set; }
+        public string NavigationStatus { get; private set; } = "No route requested.";
 
         /// <summary>Call after a NavMesh rebake or navigation-surface change.</summary>
-        public void InvalidateGraph() => graph = null;
+        public void InvalidateGraph()
+        {
+            graph = null;
+            hasSearch = false;
+            LastSearch = LastUniformCostSearch = null;
+            startAnchor = goalAnchor = -1;
+            QueryVersion++;
+            NavigationStatus = "Graph invalidated; waiting for a new route.";
+        }
 
         public bool TryFindPath(Vector3 start, Vector3 goal, List<Vector3> result)
         {
             if (result == null) throw new System.ArgumentNullException(nameof(result));
             result.Clear();
-            LastSearch = null;
-            LastUniformCostSearch = null;
-            if (!TryPrepare(start, goal, out Vector3 sampledStart, out Vector3 sampledGoal,
-                out int startNode, out int goalNode)) return false;
-
-            if ((sampledStart - sampledGoal).sqrMagnitude <= 0.000001f)
+            if (!Search(start, goal)) return false;
+            if ((LastStart - LastGoal).sqrMagnitude <= 0.000001f)
             {
-                LastSearch = HunterPathSearch.AStar(graph, startNode, startNode, maximumExpandedNodes);
-                if (!LastSearch.Succeeded) return false;
-                result.Add(sampledStart);
+                result.Add(LastStart);
                 return true;
             }
-
-            LastSearch = HunterPathSearch.AStar(graph, startNode, goalNode, maximumExpandedNodes);
-            if (!LastSearch.Succeeded) return false;
-            result.Add(sampledStart);
+            result.Add(LastStart);
             var path = LastSearch.NodePath;
             for (int i = 0; i < path.Count; i++)
             {
                 Vector3 waypoint = ToUnity(graph.GetPoint(path[i]));
                 if ((result[result.Count - 1] - waypoint).sqrMagnitude > 0.000001f) result.Add(waypoint);
             }
-            if ((result[result.Count - 1] - sampledGoal).sqrMagnitude > 0.000001f) result.Add(sampledGoal);
+            if ((result[result.Count - 1] - LastGoal).sqrMagnitude > 0.000001f) result.Add(LastGoal);
             return true;
         }
 
@@ -54,14 +67,45 @@ namespace BlackoutProtocol.AI.Hunter
         public bool TryCompareSearches(Vector3 start, Vector3 goal,
             out HunterPathResult aStar, out HunterPathResult uniformCost)
         {
-            aStar = null;
-            uniformCost = null;
-            if (!TryPrepare(start, goal, out _, out _, out int startNode, out int goalNode)) return false;
-            aStar = HunterPathSearch.AStar(graph, startNode, goalNode, maximumExpandedNodes);
-            uniformCost = HunterPathSearch.UniformCost(graph, startNode, goalNode, maximumExpandedNodes);
-            LastSearch = aStar;
-            LastUniformCostSearch = uniformCost;
+            Search(start, goal);
+            return TryCompareLastSearch(out aStar, out uniformCost);
+        }
+
+        /// <summary>Reuses the existing A* result and exact cached graph anchors; UCS runs at most once per query.</summary>
+        public bool TryCompareLastSearch(out HunterPathResult aStar, out HunterPathResult uniformCost)
+        {
+            aStar = LastSearch;
+            uniformCost = LastUniformCostSearch;
+            if (!CanCompareLastSearch) return false;
+            if (uniformCost == null)
+            {
+                uniformCost = HunterPathSearch.UniformCost(graph, startAnchor, goalAnchor, searchLimit);
+                LastUniformCostSearch = uniformCost;
+                UniformCostSearchCount++;
+            }
             return aStar.Succeeded && uniformCost.Succeeded;
+        }
+
+        private bool Search(Vector3 start, Vector3 goal)
+        {
+            QueryVersion++;
+            hasSearch = false;
+            startAnchor = goalAnchor = -1;
+            LastSearch = LastUniformCostSearch = null;
+            LastStart = LastGoal = default;
+            if (!TryPrepare(start, goal, out Vector3 sampledStart, out Vector3 sampledGoal,
+                out int startNode, out int goalNode)) return false;
+            LastStart = sampledStart;
+            LastGoal = sampledGoal;
+            startAnchor = startNode;
+            goalAnchor = (sampledStart - sampledGoal).sqrMagnitude <= 0.000001f ? startNode : goalNode;
+            hasSearch = true;
+            searchLimit = maximumExpandedNodes;
+            AStarSearchCount++;
+            LastSearch = HunterPathSearch.AStar(graph, startAnchor, goalAnchor, searchLimit);
+            NavigationStatus = LastSearch.Succeeded ? "Route found." : "Unreachable graph goal or search expansion limit reached.";
+            if (CompareOnRouteRequest) TryCompareLastSearch(out _, out _);
+            return LastSearch.Succeeded;
         }
 
         private bool TryPrepare(Vector3 start, Vector3 goal, out Vector3 sampledStart,
@@ -69,20 +113,25 @@ namespace BlackoutProtocol.AI.Hunter
         {
             sampledStart = sampledGoal = default(Vector3);
             startNode = goalNode = -1;
-            if (!Finite(start) || !Finite(goal) || !NavMesh.SamplePosition(start, out NavMeshHit startHit, sampleRadius, NavMesh.AllAreas) ||
-                !NavMesh.SamplePosition(goal, out NavMeshHit goalHit, sampleRadius, NavMesh.AllAreas)) return false;
+            if (!Finite(start) || !Finite(goal)) { NavigationStatus = "Invalid non-finite start or goal."; return false; }
+            EnsureGraph();
+            if (graph.NodeCount == 0) { NavigationStatus = "Missing or empty baked NavMesh data."; return false; }
+            if (!NavMesh.SamplePosition(start, out NavMeshHit startHit, sampleRadius, NavMesh.AllAreas))
+            { NavigationStatus = "Start is outside the baked NavMesh sampling radius."; return false; }
+            if (!NavMesh.SamplePosition(goal, out NavMeshHit goalHit, sampleRadius, NavMesh.AllAreas))
+            { NavigationStatus = "Goal is outside the baked NavMesh sampling radius."; return false; }
             sampledStart = startHit.position;
             sampledGoal = goalHit.position;
-            EnsureGraph();
-            if (graph.NodeCount == 0) return false;
             startNode = FindVisibleAnchor(sampledStart);
             goalNode = FindVisibleAnchor(sampledGoal);
-            return startNode >= 0 && goalNode >= 0;
+            if (startNode < 0 || goalNode < 0) { NavigationStatus = "No walkable visible graph anchor for an endpoint."; return false; }
+            return true;
         }
 
         private void EnsureGraph()
         {
             if (graph != null) return;
+            GraphBuildCount++;
             NavMeshTriangulation triangulation = NavMesh.CalculateTriangulation();
             var vertices = new HunterNavPoint[triangulation.vertices.Length];
             for (int i = 0; i < vertices.Length; i++) vertices[i] = ToPoint(triangulation.vertices[i]);
