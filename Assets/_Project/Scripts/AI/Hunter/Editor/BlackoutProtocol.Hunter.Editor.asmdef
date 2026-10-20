@@ -1,0 +1,12 @@
+{
+    "name": "BlackoutProtocol.Hunter.Editor",
+    "rootNamespace": "BlackoutProtocol.AI.Hunter.Editor",
+    "references": [
+        "BlackoutProtocol.Hunter.Runtime",
+        "BlackoutProtocol.Body",
+        "BlackoutProtocol.Core",
+        "Unity.AI.Navigation"
+    ],
+    "includePlatforms": ["Editor"],
+    "autoReferenced": true
+}
