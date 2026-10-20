@@ -62,6 +62,13 @@ namespace BlackoutProtocol.Body
         /// </summary>
         public void SetPath(IReadOnlyList<Vector3> path)
         {
+            if (ReferenceEquals(path, waypoints))
+            {
+                // Public debug views can also be submitted as a command. They are
+                // already validated; clearing the backing list would erase the input.
+                CurrentIndex = 0;
+                return;
+            }
             waypoints.Clear();
             CurrentIndex = 0;
 
@@ -72,7 +79,15 @@ namespace BlackoutProtocol.Body
 
             for (int i = 0; i < path.Count; i++)
             {
-                waypoints.Add(path[i]);
+                Vector3 point = path[i];
+                if (!Finite(point.x) || !Finite(point.y) || !Finite(point.z) || !Finite(point.sqrMagnitude))
+                {
+                    // Reject the whole route: dropping only a bad point could bridge a wall.
+                    waypoints.Clear();
+                    return;
+                }
+                // Identical consecutive points must not disguise a bend as two straight segments.
+                if (waypoints.Count == 0 || !point.Equals(waypoints[waypoints.Count - 1])) waypoints.Add(point);
             }
         }
 
@@ -91,9 +106,15 @@ namespace BlackoutProtocol.Body
         /// <returns>True when the path is finished.</returns>
         public bool Advance(Vector3 position, float acceptanceRadius, float arrivalRadius)
         {
+            return Advance(position, acceptanceRadius, arrivalRadius, acceptanceRadius);
+        }
+
+        /// <summary>At bends, use a tighter radius without projecting onto or skipping to a later segment.</summary>
+        public bool Advance(Vector3 position, float acceptanceRadius, float arrivalRadius, float cornerRadius)
+        {
             while (!IsFinished)
             {
-                float radius = IsOnLastWaypoint ? arrivalRadius : acceptanceRadius;
+                float radius = CurrentAcceptanceRadius(acceptanceRadius, arrivalRadius, cornerRadius);
 
                 if (HorizontalDistance(position, waypoints[CurrentIndex]) > radius)
                 {
@@ -105,6 +126,41 @@ namespace BlackoutProtocol.Body
 
             return IsFinished;
         }
+
+        /// <summary>The first waypoint and any non-collinear turn are conservative approach points.</summary>
+        public bool IsCurrentCorner
+        {
+            get
+            {
+                if (IsFinished || IsOnLastWaypoint) return false;
+                if (CurrentIndex == 0) return true;
+                Vector3 incoming = waypoints[CurrentIndex] - waypoints[CurrentIndex - 1];
+                Vector3 outgoing = waypoints[CurrentIndex + 1] - waypoints[CurrentIndex];
+                incoming.y = outgoing.y = 0;
+                // Duplicate points are advanced normally; never divide by a zero segment.
+                return incoming.sqrMagnitude > 0.000001f && outgoing.sqrMagnitude > 0.000001f &&
+                    Vector3.Angle(incoming, outgoing) > 5f;
+            }
+        }
+
+        public float CurrentAcceptanceRadius(float acceptanceRadius, float arrivalRadius, float cornerRadius)
+        {
+            if (IsOnLastWaypoint) return Mathf.Max(0, arrivalRadius);
+            float radius = Mathf.Max(0, acceptanceRadius);
+            if (!IsCurrentCorner) return radius;
+            radius = Mathf.Min(radius, Mathf.Max(0, cornerRadius));
+            // Do not swallow a short bend merely because several points fit in one radius.
+            float outgoing = HorizontalDistance(waypoints[CurrentIndex], waypoints[CurrentIndex + 1]);
+            if (outgoing > 0.001f) radius = Mathf.Min(radius, outgoing * 0.25f);
+            if (CurrentIndex > 0)
+            {
+                float incoming = HorizontalDistance(waypoints[CurrentIndex - 1], waypoints[CurrentIndex]);
+                if (incoming > 0.001f) radius = Mathf.Min(radius, incoming * 0.25f);
+            }
+            return radius;
+        }
+
+        private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
         /// <summary>
         /// Horizontal distance still to travel: to the current waypoint, then along the

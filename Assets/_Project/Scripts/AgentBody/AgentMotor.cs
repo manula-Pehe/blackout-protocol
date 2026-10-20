@@ -27,9 +27,17 @@ namespace BlackoutProtocol.Body
         /// <summary>True when the controller touched the ground on the last move.</summary>
         public bool IsGrounded => controller != null && controller.isGrounded;
 
+        // Stop/arrival must report rest immediately, even inside their event callbacks.
+        // Do not reset gravity or move the controller as a side effect of cancellation.
+        internal void ClearHorizontalVelocity() => Velocity = Vector3.zero;
+
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
+            // Arrival/corner steering deliberately issues sub-millimetre steps at high
+            // frame rates. Filtering them stalls valid motion and causes false Stuck.
+            // Collision/skin width still constrain movement; no prefab migration needed.
+            controller.minMoveDistance = 0f;
         }
 
         /// <summary>Moves the agent with the given horizontal velocity for one frame.</summary>

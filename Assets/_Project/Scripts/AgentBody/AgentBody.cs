@@ -6,7 +6,7 @@ using UnityEngine;
 namespace BlackoutProtocol.Body
 {
     /// <summary>
-    /// The shared body every enemy brain drives. A brain sends a <see cref="MoveCommand"/>
+    /// The shared ground body driven by enemy brains. A brain sends a <see cref="MoveCommand"/>
     /// (path + style + optional look target); the body follows the path, turns smoothly
     /// and reports <see cref="Arrived"/> or <see cref="Stuck"/> back. Brains never move the
     /// transform themselves, and the body never makes decisions.
@@ -32,6 +32,15 @@ namespace BlackoutProtocol.Body
         [Tooltip("Distance at which the final waypoint counts as reached.")]
         [SerializeField] private float arrivalRadius = 0.15f;
 
+        [Tooltip("Remaining route distance over which the final approach slows down (metres).")]
+        [SerializeField, Min(0.01f)] private float slowingRadius = 1.5f;
+
+        [Tooltip("Maximum acceptance radius at bends. Also limited to a quarter of each adjacent segment.")]
+        [SerializeField, Min(0.01f)] private float cornerAcceptanceRadius = 0.08f;
+
+        [Tooltip("Maximum approach speed at an intermediate bend, in m/s. Does not change style cruise speeds.")]
+        [SerializeField, Min(0.01f)] private float cornerSpeed = 0.5f;
+
         [Header("Stuck detection")]
         [Tooltip("Seconds without useful progress before Stuck is raised.")]
         [SerializeField] private float stuckTimeout = 2.5f;
@@ -53,10 +62,10 @@ namespace BlackoutProtocol.Body
         private MoveStyle style = MoveStyle.Idle;
         private Transform lookTarget;
         private float currentSpeed;
-        private Vector3 lastMoveDirection;
         private int trackedWaypointIndex = -1;
         private float bestDistanceToWaypoint;
         private float lastProgressTime;
+        private bool stuckNotified;
 
         /// <inheritdoc />
         public event Action Arrived;
@@ -95,14 +104,11 @@ namespace BlackoutProtocol.Body
         {
             motor = GetComponent<AgentMotor>();
             rotation = GetComponent<AgentRotation>();
-            lastMoveDirection = transform.forward;
         }
 
         private void OnDisable()
         {
-            follower.Clear();
-            IsMoving = false;
-            currentSpeed = 0f;
+            Stop();
         }
 
         /// <inheritdoc />
@@ -112,20 +118,29 @@ namespace BlackoutProtocol.Body
             lookTarget = command.LookTarget;
             HasArrived = false;
 
-            if (!command.HasPath || command.Style == MoveStyle.Idle)
+            if (!command.HasPath || SpeedFor(command.Style) <= 0f)
             {
                 // Hold: stand still, optionally keep facing the look target.
-                follower.Clear();
-                IsMoving = false;
+                Stop();
+                lookTarget = command.LookTarget;
                 return;
             }
 
             follower.SetPath(command.Path);
+            if (!follower.HasPath)
+            {
+                Stop();
+                return;
+            }
+            // A blocked controller may have achieved none of its requested speed.
+            // Carry actual momentum into a replacement, not an unrealized cruise speed.
+            if (motor != null) currentSpeed = Mathf.Min(currentSpeed, motor.Velocity.magnitude);
+            stuckNotified = false;
             IsMoving = true;
 
             // The first waypoint is usually the agent's own position, so skip anything
             // already reached. A path that is already complete arrives immediately.
-            if (follower.Advance(Position, waypointAcceptanceRadius, arrivalRadius))
+            if (follower.Advance(Position, waypointAcceptanceRadius, arrivalRadius, cornerAcceptanceRadius))
             {
                 Arrive();
                 return;
@@ -143,6 +158,9 @@ namespace BlackoutProtocol.Body
             style = MoveStyle.Idle;
             lookTarget = null;
             trackedWaypointIndex = -1;
+            currentSpeed = 0f; // Explicit cancellation must not coast along the obsolete route.
+            stuckNotified = false;
+            if (motor != null) motor.ClearHorizontalVelocity();
         }
 
         /// <inheritdoc />
@@ -156,36 +174,48 @@ namespace BlackoutProtocol.Body
             float deltaTime = Time.deltaTime;
             Vector3 desiredDirection = Vector3.zero;
             float targetSpeed = 0f;
+            float waypointDistance = 0f;
 
             if (IsMoving)
             {
-                if (follower.Advance(Position, waypointAcceptanceRadius, arrivalRadius))
+                if (follower.Advance(Position, waypointAcceptanceRadius, arrivalRadius, cornerAcceptanceRadius))
                 {
                     Arrive();
                 }
-                else
+                // Arrived listeners may synchronously submit a replacement command.
+                if (IsMoving && !follower.IsFinished)
                 {
                     Vector3 toWaypoint = follower.CurrentWaypoint - Position;
                     toWaypoint.y = 0f;
                     desiredDirection = toWaypoint.normalized;
-                    targetSpeed = SpeedFor(style);
+                    waypointDistance = toWaypoint.magnitude;
+                    targetSpeed = SteeringMath.ArrivalSpeed(SpeedFor(style), follower.RemainingDistance(Position),
+                        Mathf.Max(slowingRadius, arrivalRadius * 2));
+                    if (follower.IsOnLastWaypoint || follower.IsCurrentCorner)
+                    {
+                        float terminal = follower.IsOnLastWaypoint ? 0 : Mathf.Min(cornerSpeed, SpeedFor(style));
+                        float brakingDistance = waypointDistance;
+                        if (!follower.IsOnLastWaypoint)
+                            brakingDistance = Mathf.Max(0, brakingDistance - follower.CurrentAcceptanceRadius(
+                                waypointAcceptanceRadius, arrivalRadius, cornerAcceptanceRadius));
+                        targetSpeed = Mathf.Min(targetSpeed, SteeringMath.ApproachSpeed(
+                            brakingDistance, terminal, acceleration, deltaTime));
+                    }
                 }
             }
 
             UpdateRotation(desiredDirection, ref targetSpeed, deltaTime);
 
-            currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, acceleration * deltaTime);
-
-            if (desiredDirection != Vector3.zero)
-            {
-                lastMoveDirection = desiredDirection;
-            }
-
-            motor.Move(lastMoveDirection * currentSpeed, deltaTime);
+            currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, Mathf.Max(0.01f, acceleration) * deltaTime);
+            // Never step beyond the current waypoint, even after a close path replacement
+            // or a long frame. Collision response remains entirely in AgentMotor.
+            float stepSpeed = deltaTime > 0 ? Mathf.Min(currentSpeed, waypointDistance / deltaTime) : 0;
+            motor.Move(desiredDirection * stepSpeed, deltaTime);
 
             if (IsMoving)
             {
-                DetectStuck();
+                if (targetSpeed <= 0.0001f) ResetProgressTracking(); // Intentional turn, not blockage.
+                else DetectStuck();
             }
         }
 
@@ -209,6 +239,7 @@ namespace BlackoutProtocol.Body
                 {
                     targetSpeed = 0f;
                 }
+                else targetSpeed *= Mathf.Clamp01(Mathf.Cos(rotation.AngleTo(desiredDirection) * Mathf.Deg2Rad));
 
                 return;
             }
@@ -225,19 +256,19 @@ namespace BlackoutProtocol.Body
             HasArrived = true;
             trackedWaypointIndex = -1;
 
-            // Temporary hard stop at the destination; the arrive (slowing radius)
-            // behaviour in the steering branch makes the approach smooth.
+            // Arrival tolerance ends an already-slow approach; never drift after the event.
             currentSpeed = 0f;
+            if (motor != null) motor.ClearHorizontalVelocity();
 
             Arrived?.Invoke();
         }
 
-        /// <summary>Raises <see cref="Stuck"/>. Called by stuck detection (robustness branch).</summary>
+        /// <summary>Notifies once per continuous blockage; listeners may synchronously Stop or Execute.</summary>
         private void RaiseStuck()
         {
-            // Restart the timer before notifying listeners so an unhandled event
-            // cannot fire every frame. A listening brain normally stops or
-            // replaces the current move command while replanning.
+            if (stuckNotified) return;
+            stuckNotified = true;
+            // All bookkeeping precedes the callback: never overwrite a listener's new command.
             ResetProgressTracking();
             Stuck?.Invoke();
         }
@@ -251,6 +282,7 @@ namespace BlackoutProtocol.Body
 
             if (trackedWaypointIndex != follower.CurrentIndex)
             {
+                stuckNotified = false;
                 ResetProgressTracking();
                 return;
             }
@@ -259,15 +291,17 @@ namespace BlackoutProtocol.Body
                 Position,
                 follower.CurrentWaypoint);
 
-            if (distanceToWaypoint <=
-                bestDistanceToWaypoint - minimumProgressDistance)
+            float progressThreshold = Mathf.Min(minimumProgressDistance,
+                Mathf.Max(0.0001f, currentSpeed * stuckTimeout * 0.25f));
+            if (distanceToWaypoint <= bestDistanceToWaypoint - progressThreshold)
             {
                 bestDistanceToWaypoint = distanceToWaypoint;
                 lastProgressTime = Time.time;
+                stuckNotified = false; // Real progress ends this blockage episode.
                 return;
             }
 
-            if (Time.time - lastProgressTime >= stuckTimeout)
+            if (!stuckNotified && Time.time - lastProgressTime >= stuckTimeout)
             {
                 RaiseStuck();
             }
@@ -311,6 +345,12 @@ namespace BlackoutProtocol.Body
 
         private void OnValidate()
         {
+            acceleration = Mathf.Max(0.01f, acceleration);
+            arrivalRadius = Mathf.Max(0.01f, arrivalRadius);
+            waypointAcceptanceRadius = Mathf.Max(0.01f, waypointAcceptanceRadius);
+            slowingRadius = Mathf.Max(arrivalRadius * 2, slowingRadius);
+            cornerAcceptanceRadius = Mathf.Max(0.01f, cornerAcceptanceRadius);
+            cornerSpeed = Mathf.Max(0.01f, cornerSpeed);
             stuckTimeout = Mathf.Max(0.1f, stuckTimeout);
             minimumProgressDistance = Mathf.Max(
                 0.001f,
