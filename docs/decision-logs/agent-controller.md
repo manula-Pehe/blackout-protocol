@@ -896,3 +896,237 @@ with all speed values zero. If a machine-specific timeout occurs, retain the new
 full-state snapshot rather than weakening the positive assertions or increasing
 delays blindly. No separate graphical character-pose or art change is involved:
 this test intentionally uses a transient parameter-only Animator with empty motion.
+
+## Grounding and local separation — 2026-10-20
+
+### Audit and ownership
+
+Verified branch `feature/agentbody-grounding-separation` before editing. Initially
+there were no tracked changes; the unrelated untracked
+`ProjectSettings/TimelineSettings.asset` is preserved. Inspected AgentBody,
+AgentMotor, AgentRotation, AgentAnimatorDriver, PathFollower, SteeringMath, the
+Body test fixtures, Core's existing movement contracts, HunterBrain/navigation,
+BreacherAgent/BreacherPathMover and SentinelDroneBody. No Core API change needed.
+
+- **Already present:** acceleration, style speeds, bounded corner progression,
+  final-arrival slowdown, smooth turn-in-place, actual horizontal velocity for
+  animation, immediate route cancellation, replacement/reentrant event handling,
+  once-per-continuous-blockage Stuck notifications, gravity (-20 m/s²), grounded
+  downward stick speed (-2 m/s), CharacterController collisions/minMoveDistance=0.
+- **Missing:** no contact probe/downward snap after descending away from ground;
+  no local agent separation. Baseline tests demonstrated intermittent descending
+  contact and an unresolved head-on encounter (see evidence below).
+- **Navigation vs motion:** Hunter owns triangle-centroid A* routes; Breacher
+  owns GOAP/navigation requests. Both submit MoveCommand waypoints/styles to
+  IAgentBody. AgentBody only follows the current route and adjusts local physical
+  motion; it does not search, rebuild graphs or change an AI destination.
+- Hunter subscribes Arrived/Stuck, calls Stop before replanning and supplies
+  replacement paths. Breacher Begin/Tick/Cancel uses Execute, HasArrived and Stop;
+  Stuck notifies its executor. These consumers were inspected, not changed.
+  Legacy BreacherPathMover remains separate. SentinelDroneBody implements its
+  own flying IAgentBody without AgentBody/AgentMotor, so it is excluded. No
+  Flanker implementation was found; its future integration remains unverified.
+- No Main, teammate scenes/prefabs, AI brains, Core, Packages, ProjectSettings,
+  animation clips/controllers/materials or team navigation data were modified.
+
+### Implementation and defaults
+
+**Ground contact:** AgentMotor still uses CharacterController.Move and gravity.
+Only when its previous move was grounded, its new move lost contact, and vertical
+speed is non-positive, probe down from the capsule foot. Correct at most **0.25 m per physical step**
+(Inspector range 0–0.5; zero disables). Ground layer mask defaults to all layers.
+Ignore triggers, self and collision-ignored pairs/layers. The nearest obstruction
+must be below the foot, walkable under the controller's slopeLimit and not an
+agent/controller; never skip a steep/agent obstruction to reach a floor beneath.
+Correction is another downward CharacterController.Move, not a transform write.
+A large ledge still uses gravity. Warp clears historical contact. Actual velocity
+is measured after collision and correction so existing animation consumes the
+real result. A saturated 16-hit probe declines correction.
+
+Rendered capture exposed a 0.333 s GPU-readback/editor stall: one large motion
+step could descend farther than the safe snap bound. Motor motion/gravity now use
+steps of at most 1/30 s, capped at 32 steps per call for exceptional input. Normal
+30+ FPS keeps one step; frame-level actual velocity is measured across all steps.
+This does not enlarge the per-step ground probe or teleport down a large ledge.
+The focused ground test also checks 1,000 consecutive 1 ms steps and ten 200 ms
+steps. The 1 ms check already passed 1,000/1,000 before substepping; the problem
+was large capture-induced steps, not high-frequency animation or movement updates.
+
+**Local separation:** AgentBody-owned AgentSeparation uses fixed non-alloc query
+buffers (32 overlaps/hits), only while executing a moving ground route. It selects
+a nearby active ground AgentBody at a compatible elevation; flying Sentinel has
+no such component. Query saturation disables the local bias, not collision.
+
+Inspector defaults on AgentBody (old prefabs need no manual migration):
+
+| Setting | Default |
+|---|---|
+| Enable separation | true |
+| Neighbour query radius | 2.2 m |
+| Pair clearance beyond combined controller radii | 0.15 m |
+| Maximum deviation from current path segment | 0.75 m |
+| Lateral-bias response | 3 per second |
+
+For horizontal forward vector `d`, offset `o`, combined radius plus clearance `c`,
+and query horizon `R`, pure threat scoring is:
+
+`clamp01(1 - max(0, dot(o,d)-c)/(R-c)) * clamp01(1-abs(dot(o,right))/(c+0.2))`.
+
+Behind/outside-horizon/invalid inputs score zero. Head-on agents each keep right;
+already-offset agents steer away. Parallel/coincident ties use stable instance
+keys. Nearest threatening neighbour wins (instance-key tie-break); the active
+encounter retains its chosen side until passed to prevent rapid recentering.
+Bias tends toward `side * threat * 1.5` at the configured response rate; normalize
+`d + right*bias`, preserving the existing speed/acceleration envelope.
+
+Constrain the direction to a band around the **current** segment, never skip or
+edit waypoints. A capsule sweep rejects solid obstructions; three downward support
+rays include a controller-radius + 0.15 m footprint margin to reject edge creeping.
+Fallback is the original path heading; CharacterController remains the final
+collision authority. No forces, transform pushes, NavMeshAgent or teleportation.
+The original rotation, speed styles, arrival/stuck detection and animator remain.
+Only the sandbox's explicit Reset button uses the existing Warp helper.
+
+Stop/arrival/replacement clear encounter state before callbacks. Stationary agents
+receive no separation motion. An occupied goal or physically impossible corridor
+is not circumvented: native collision blocks motion and existing Stuck fires once
+per blockage. The brain decides recovery; the sandbox demonstrates Stuck → Stop.
+Pure scoring is deterministic; Unity physics/instance IDs do not promise identical
+results across platforms, process launches or network replays.
+
+Unity API references: [CharacterController.Move](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/CharacterController.Move.html)
+and [CharacterController](https://docs.unity.com/en-us/engine/6000.3/script-reference/unityengine/charactercontroller).
+No new package or external asset dependency.
+
+### Exact changed-file manifest
+
+Paths below are relative to the repository root. Each new asset retains its meta.
+
+- Modified `Assets/_Project/Scripts/AgentBody/AgentBody.cs`
+- Modified `Assets/_Project/Scripts/AgentBody/AgentMotor.cs`
+- Added `Assets/_Project/Scripts/AgentBody/AgentSeparation.cs`
+- Added `Assets/_Project/Scripts/AgentBody/AgentSeparation.cs.meta`
+- Added `Assets/_Project/Scripts/AgentBody/Logic/SeparationMath.cs`
+- Added `Assets/_Project/Scripts/AgentBody/Logic/SeparationMath.cs.meta`
+- Added `Assets/_Project/Scripts/AgentBody/Testing/GroundingSeparationSandbox.cs`
+- Added `Assets/_Project/Scripts/AgentBody/Testing/GroundingSeparationSandbox.cs.meta`
+- Added `Assets/_Project/Tests/EditMode/AgentBody/GroundingSeparationTests.cs`
+- Added `Assets/_Project/Tests/EditMode/AgentBody/GroundingSeparationTests.cs.meta`
+- Added `Assets/_Project/Scenes/Sandbox/Manula/AgentBodyGroundingSeparationSandbox.unity`
+- Added `Assets/_Project/Scenes/Sandbox/Manula/AgentBodyGroundingSeparationSandbox.unity.meta`
+- Modified `docs/decision-logs/agent-controller.md` (this file)
+
+### Verification evidence
+
+Unity 6000.3.25f1 runs use isolated project `/tmp/hunter-stage-a.weTEGo` to avoid
+rewriting repository settings. Script/test trees and package manifest/version
+were compared with the repository and match. Test fixtures live in EditMode
+assemblies; runtime integration cases explicitly enter/exit real Play Mode.
+
+- Original production baseline, first two new tests: **0/2 passed**. Descending
+  contact 25/150 ticks; head-on 0 arrivals and 2 Stuck. XML/log
+  `ground-separation-baseline`.
+- Initial correction, those two tests: **2/2 passed** (`ground-separation-first`).
+- Expanded seven-case runs: **6/7 passed** (`ground-separation-expanded` and
+  `ground-separation-footprint`). Narrow-platform support was insufficient;
+  strengthened the footprint margin rather than removing the failing assertion.
+- Final focused run: **7/7 passed, zero failed/skipped**
+  (`ground-separation-final.xml` / `.log`). Flat contact has no measured jitter;
+  35° descending contact 150/150 ticks, maximum foot gap 0.0962 m (capsule skin /
+  sloped contact geometry). Head-on: 2 arrivals, 0 Stuck, minimum centre distance
+  1.016 m, maximum lateral deviation 0.737 m. Three agents near walls: 3 arrivals,
+  0 Stuck, minimum centre distance 1.181 m. Ledge uses intermediate falling heights;
+  unsupported platform and tight lane remain blocked safely. Stop/replacement
+  tests retain positive arrival assertions and suppress cancelled callbacks.
+
+- High-rate focused extension: **1/1 passed** (`ground-highrate.xml` / `.log`),
+  including 1,000/1,000 grounded ticks at 1 ms before long-frame substepping.
+- **Complete EditMode suite: 127/127 passed, zero failed/skipped**, final production
+  code, including ten 200 ms descending steps with retained ground contact.
+  Evidence: `ground-separation-all.xml` / `.log`.
+
+| Assembly | Executed / passed |
+|---|---|
+| Body (including seven new cases and existing runtime integration cases) | 53/53 |
+| Breacher | 18/18 |
+| Core | 6/6 |
+| Hunter | 50/50 |
+
+This includes the original AgentBody sandbox round trip; cancellation, replacement,
+slow-corner, reentrant and blockage checks; Hunter sound-driven path replacement,
+arrival/search and actual Animator speed returning to zero on Stop; Breacher's
+real Begin/Tick/Cancel shared-body integration; Hunter's runtime navigation and
+brain cases. These are actual automated execution, not compilation-only evidence.
+No separate PlayMode test assembly exists; the runtime cases are EditMode
+UnityTests that enter Play Mode. Counts overlap earlier focused runs.
+
+The initial graphics capture completed all four routes without Stuck, but a
+0.333 s capture-induced step exposed intermittent descending contact (about 87%).
+The pre-substep repeat with explicit 60 Hz capture passed (162/162 contact
+samples). This justified the bounded long-frame motor fix, rather than accepting
+the capture-only workaround.
+
+**Final graphics-enabled Editor Play Mode run, variable frame times:** passed
+(`ground-visual-substeps.log`, Intel UHD 620 renderer, same isolated project).
+All four routes arrived with zero Stuck in the wide layout. Descent remained
+grounded **1,116/1,116** sampled frames, including a maximum deltaTime of
+**0.333333 s**. The pair's minimum centre separation was **1.038 m**, maximum
+lateral deviation **0.738 m**. The ledge actor crossed intermediate airborne
+heights before landing. Tight mode produced exactly two Stuck events and the
+sandbox stopped both blocked actors. This run does not set captureDeltaTime or
+change repository timing settings. Captured and visually inspected:
+`ground-visual-slope.png`, `ground-visual-passing-a.png`,
+`ground-visual-passing-b.png`, `ground-visual-ledge-falling.png`,
+`ground-visual-arrived.png`, `ground-visual-tight-blocked.png` in the same temp
+directory. This is automated graphical Editor evidence plus inspected rendered
+frames, not a claim of a human manually operating the user's project window.
+
+Both the initial and final graphics launches logged an unrelated UnityEditor
+QuickSearch indexing ArgumentOutOfRangeException during startup. Runtime
+verification continued and passed; the complete test run passed without that
+exception. This editor-index issue remains unmodified/outside AgentBody scope;
+the graphics log must not be represented as completely error-free.
+
+Performance: fixed physics query buffers are allocated once per body; no managed
+lists/arrays, debug strings, graph searches/rebuilds or per-frame logs are created
+by the production separation update. Physics query/lookup CPU cost still scales
+with active agents; no large-crowd profiler benchmark is claimed. A long frame
+can perform up to 32 physical motor steps, while normal frames use one. The
+sandbox GUI intentionally formats debug text and is demonstration-only.
+
+Final tracked `git diff --check` and explicit whitespace checks for all ten new
+asset/meta files pass. Final status contains exactly the 13 manifest files plus
+the unrelated untracked TimelineSettings asset. Its SHA-256 remains
+`de43ff94910a26c658e7228213b553ac66f7c5d27cb513c3bc6ba2924eb0455c`.
+No staging, commit, push, merge or branch change was performed.
+
+### Manual reproduction and limitations
+
+Open `Assets/_Project/Scenes/Sandbox/Manula/AgentBodyGroundingSeparationSandbox.unity`
+and press Play. The passing pair should sidestep, return toward their unchanged
+goals and arrive. Select **35° descent** to watch running ground contact, then
+**Ledge / gravity** to watch a real fall and landing. **Reset and run** repeats;
+**Stop all** cancels all routes. **Use tight corridor** intentionally leaves no
+passing space: expect two Stuck events and the sandbox stopping that pair, not
+forced overlap or passage through the walls. Return to wide and Reset to recover.
+The sandbox uses hand-authored routes and existing TitanVisual; no NavMesh bake
+is required. Existing movement/animation/Hunter scenes are preserved.
+
+Test Runner: select EditMode, run GroundingSeparationTests, then Run All. Its
+UnityTests enter Play Mode themselves. Do not run against an already-playing scene.
+
+This is conservative local separation, not global traffic scheduling/RVO. Dense
+crowds, opposite traffic in a single-width doorway and occupied final goals may
+need brain-owned replanning/yield policy. Wall/ground probes know physical
+colliders, not invisible NavMesh area exclusions or the full path corridor;
+navigation owners must supply traversable paths with appropriate body clearance.
+Nonuniform/scaled controllers, moving platforms, steep terrain, stairs and very
+large crowds need additional validation. Ray support is deliberately conservative
+near edges. No new assumption that doors dynamically rebuild graphs is made.
+
+Hunter/Breacher gameplay with live doors/barricades and final Main scene spawns
+remains a team integration check (Chethiya/Mahima); Flanker remains a future
+consumer. Ashen's independent flying movement is unchanged. Smallest recommended
+next increment: tune/stress-test these settings on actual team doorway/corridor
+geometry and spawn spacing, then define a yielding/replanning policy only if
+impossible-corridor crowd tests demonstrate a need. No combat-animation work.
