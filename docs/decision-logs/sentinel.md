@@ -40,8 +40,20 @@
 
 **Evidence:** `Assets/_Project/Scripts/AI/Sentinel/SentinelDroneBrain.cs` and the Sentinel sandbox scenario logs supplied during project testing.
 
+## 2026-10-21 — Compare A* and UCS on the same Sentinel graph query
+
+**Context:** The assignment asks for a visible heuristic comparison that uses the same graph and endpoints, with node expansions and search time available for the viva.
+
+**Decision:** Keep the production route on A*. Add an on-demand UCS run to `SentinelNavMeshPathfinder`, using the same NavMesh graph anchors and setting the heuristic to zero. Add an F1 debug view that reports the operational/composite/leaf state path, perception facts, current decision candidates and both searches' cost, expanded nodes and elapsed search time. Draw the vision cone and considered targets in Scene view, with A* and UCS graph paths in separate colors.
+
+**Why:** The comparison is explicit and repeatable without making routine movement pay for two searches. The panel also exposes current decisions so the viva can show both the hierarchy and the planner's choices.
+
+**Limitations:** Search costs omit the sampled endpoint-to-anchor legs. Timings measure only the graph search and are noisy for short runs; repeat the comparison and use the same machine/build conditions when discussing time.
+
+**Evidence:** `Assets/_Project/Scripts/AI/Sentinel/SentinelNavMeshPathfinder.cs`, `SentinelDebugView.cs`, `SentinelDroneBrain.cs`, and `docs/evidence/core-developer/sentinel-ucs-debug.md`.
+
 ## Verification status and known gaps
 
 The sandbox scenario runner checks patrol movement, detection and alarm publication, Alert-to-Track, loss of sight behind an occluder, Search, Return, and resuming patrol. The supplied Console captures show those scenario checks passing. This is sandbox evidence only; it does not establish that all edge cases pass or that the other agents react to the alarm in `Main`.
 
-Repository inspection for this entry found no Sentinel UCS comparison implementation or dedicated diagnostic view in the current Sentinel scripts; the sandbox runner's OnGUI panel reports only scenario status and current state. No Sentinel-specific EditMode test files were found. `GameEvents.RaiseAlarm` directly invokes subscribers, with no cooldown in that method; alarm throttling has not been demonstrated. The brief calls for UCS comparison/debug evidence, alarm cooldown behavior, edge-case demonstrations, and a Main-scene run with the other agents. Those items still need separate verification or implementation; this log does not claim they are complete.
+The A* vs UCS comparison and F1 debug view are implemented, but still need a Unity runtime check and a captured evidence image. No Sentinel-specific EditMode test files were found. `GameEvents.RaiseAlarm` directly invokes subscribers, with no cooldown in that method; alarm throttling has not been demonstrated. Edge-case demonstrations and the Main-scene run with the other agents also remain. This log does not claim those requirements are complete.
