@@ -10,9 +10,11 @@ namespace BlackoutProtocol.AI.Hunter.Testing
         [SerializeField] private HunterBrain hunter;
         [SerializeField] private Transform acrossWall;
         [SerializeField] private HunterSandboxTarget testTarget;
+        [SerializeField] private bool showControls = true;
         private string lastEmission = "Silence: watch the Hunter wander. Click an alarm to investigate across the wall.";
 
         public HunterSandboxTarget TestTarget => testTarget;
+        public string LastEmission => lastEmission;
 
         [ContextMenu("Emit alarm across wall")]
         public void EmitAlarmAcrossWall()
@@ -30,6 +32,11 @@ namespace BlackoutProtocol.AI.Hunter.Testing
         {
             if (!TryNearbyPoint(out Vector3 point)) return;
             for (int i = 0; i < 5; i++) Emit(point, NoiseType.Impact, NoiseLevels.Impact);
+        }
+
+        public void EmitSingleImpact()
+        {
+            if (TryNearbyPoint(out Vector3 point)) Emit(point, NoiseType.Impact, NoiseLevels.Impact);
         }
 
         public void ShowTarget()
@@ -72,6 +79,7 @@ namespace BlackoutProtocol.AI.Hunter.Testing
 
         private void OnGUI()
         {
+            if (!showControls) return;
             GUILayout.BeginArea(new Rect(16, Screen.height - 165, Mathf.Min(Screen.width - 32, 1000), 150), GUI.skin.box);
             GUILayout.Label("HUNTER STAGE B — shared noise events and a stationary player stand-in");
             GUILayout.BeginHorizontal();

@@ -188,3 +188,195 @@ Assets/_Project/Scenes/Sandbox/Manula/HunterNoiseSandbox.unity
 docs/decision-logs/hunter.md
 docs/decision-logs/hunter-stage-c-gameview.png
 ```
+
+## 2026-10-21 — Manula-only interactive technical demo, Stage 1
+
+### Purpose and composition
+
+Verified `feature/hunter-playable-demo`, starting at develop commit `c6c24e2`.
+The only initial working-tree entry was the unrelated untracked
+`ProjectSettings/TimelineSettings.asset`. This stage demonstrates GV Agent
+Controller and IS Hunter Utility AI, not an FPS game or a team integration scene.
+
+Open **`Assets/_Project/Scenes/Sandbox/Manula/ManulaTechnicalDemo.unity`**, press
+Play. No setup menu, rebake, player prefab or teammate scene is required.
+
+The scene is a Save-As composition of HunterNoiseSandbox. Its floor, corner
+obstacle, wander points, simulated target, brain parameters and persisted
+`HunterSandboxAssets/HunterSandboxNavMesh.asset` reference are preserved. Geometry
+and the navigation asset are not changed/rebaked. NavMeshSurface adds that saved
+data on scene enable; HunterNavMeshPathfinder still builds its cached graph from
+triangulation and performs Hunter-owned A*. No NavMeshAgent is introduced.
+
+Only the copied primitive Hunter visual children are replaced by the existing
+Manula-owned `Animations/AgentBody/Titan/TitanVisual.prefab`. It retains the
+textured TitanSurface material, Humanoid Avatar and in-place Idle/Walk/Run
+controller. AgentAnimatorDriver uses **referenceSpeed 4 m/s**, **damping 0.1 s**,
+and the existing **0.02 m/s idle threshold**. Actual AgentBody velocity drives its
+Speed parameter; root motion stays disabled. No mesh, rig, material, texture,
+clip, animation controller or locomotion algorithm is edited.
+
+HunterBrain, Utility scoring, memory/habituation, A*/UCS and shared movement code
+are unchanged. The new harness only calls existing test-signal methods, controls
+the camera, reads diagnostics and explicitly pauses/resumes the brain's normal
+lifecycle. The disabled navigation-only route driver is removed from the copy so
+the autonomous brain is its sole movement requester.
+
+### Controls and assessment flow
+
+1. **Silence:** observe Wander / Walk, turning, waypoint progression and arrival.
+2. **Gunshot nearby:** sends the shared 30 m-radius Gunshot event; on a fresh
+   demonstration it selects Chase / Run. Observe the real animation Speed rise.
+3. **Pause / Idle:** disables the brain (its existing OnDisable unsubscribes and
+   cancels its route), then explicitly Stop. Animation settles to Idle. The last
+   Utility action is retained and clearly marked PAUSED; Idle is not a new AI action.
+4. **Resume Hunter:** re-enables the brain's normal decision/repath lifecycle.
+   No synthetic MoveCommand, transform movement or forced selection is injected.
+5. **Alarm across wall:** emits the existing alarm at the opposite marker. On a
+   fresh/resolved trail, watch Investigate and the cyan A* detour around the wall;
+   proximity may naturally change the decision to Chase. Arrival consumes the
+   trail and produces bounded Search, then Wander.
+6. **Single impact / Repeat decoy x5:** use after stronger unresolved evidence has
+   cleared. All six observations use the existing noise contract/memory. The
+   five repeats occur near one location at the same timestamp, reducing local
+   trust. Strong older memories may still win priority: the display reports the
+   actual selected memory, not necessarily the last button pressed.
+7. **Show simulated target:** uses the original HunterSandboxTarget stand-in.
+   The brain sees/chases it and selects Attack only in real range/line of sight.
+   **Hide simulated target** unregisters it and the Hunter recovers to movement.
+   This is a decision/eligibility demonstration, not real player combat. Re-show
+   resets the stand-in if it eventually becomes invalid from simulated attacks.
+8. **Follow Titan / Overview / route:** switch presentation only. Follow gives a
+   closer locomotion view; Overview shows the floor, wall and complete route.
+
+The existing HunterDebugPanel still displays actual base/adjusted scores, selected
+action, confidence/trust/priority/age, destination/waypoints, navigation failures,
+transitions and A*/UCS metrics. **F1** hides/shows it without hiding signal buttons.
+**Auto UCS** compares only on route requests; **Compare A* / UCS** reuses the latest
+cached graph/query. No selector or memory evaluation is performed just for display.
+Scroll the panel for longer transition history. Default Auto UCS is enabled for
+assessment evidence; it can be disabled when not needed.
+
+Presentation scales from a 1280×800 reference. Only the demo opts into the narrow
+score-panel layout and hides the original signal widget; original scenes retain
+their existing layout/buttons. A single-impact method and read-only LastEmission
+are additive to the existing signal harness. Live motion text refreshes at 5 Hz;
+camera motion uses value types, and GUI styles/button labels are cached. This is
+debug presentation, not a claim of zero allocation or a profiler benchmark.
+
+Grounding/separation is intentionally **not combined with the Hunter encounter**.
+The visible footer points to the existing
+`Assets/_Project/Scenes/Sandbox/Manula/AgentBodyGroundingSeparationSandbox.unity`:
+stop Play, open it, press Play for slope, ledge and crowding evidence. Its original
+scene and the original HunterNoiseSandbox/AgentBodyAnimationSandbox are preserved.
+
+### Verification and evidence
+
+Unity 6000.3.25f1 verification uses isolated project `/tmp/manula-demo.0n2fsS`.
+The source scripts/tests, required assets, packages and Unity version match the
+repository. The isolation prevents Unity from rewriting repository settings.
+
+Initial focused run: **3/9 passed, 6 failed** (`technical-focused.xml/.log`). The
+copied Library had unresolved Body MonoScript class bindings. Creating the visual
+driver during that transient state also produced an embedded script reference
+instead of its source GUID. Reimporting the four Body scripts and restarting the
+isolated Editor restored the mappings; original repository metadata/code was not
+changed. The new scene now references the actual driver script GUID. The creation
+utility checks Body/driver script bindings and explicitly assigns the driver's
+source script, preventing a bad generation from being saved silently.
+
+Corrected focused run: **9/9 passed, zero failed/skipped**
+(`technical-focused-fixed.xml/.log`):
+
+- Saved/reopened scene composition, owned textured visual and saved NavMesh;
+  absence of FPS/team agents, navigation-only driver and NavMeshAgent.
+- Three layout cases (1280×800, 1920×1080 and 800×600), visible/non-overlapping controls.
+- Live Wander with real textured Humanoid animation, pose-size guard, nonzero
+  Animator output, cached graph and equal A*/UCS costs; display matches actual scores.
+- Impact habituation followed by credible Gunshot / Chase / Run animation.
+- Alarm corner detour, genuine arrival, Search and return to Wander.
+- Pause → zero velocity/Idle/no obsolete arrival; camera controls do not move the
+  actor; Resume recovers real autonomous movement.
+- Simulated target → Attack with no real player system; Hide unregisters and
+  recovers movement.
+
+Graphics-enabled Unity Editor Play Mode was executed in the isolated project,
+using real Game-view IMGUI mouse events for all ten visible controls and keyboard
+events for F1. The final run (`technical-visual-final.log`) observed all five
+actions, eight heard observations, two arrivals and ten route requests, with
+**zero pathfinding failures and one graph build**. A*/UCS cached comparison costs
+matched. Captures verify the textured Titan, real locomotion, corner detour,
+arrival/Search, decoy trust reduction, eligible Attack, Pause/Idle and recovery.
+The final captures were inspected, including the collapsed F1 panel.
+
+This inspection caught text accumulating outside the camera viewport during an
+earlier run. Opaque backing now clears those UI regions each frame, including
+when F1 collapses the panel. This is presentation-only and opt-in for this scene.
+Early graphical automation attempts missed button coordinates; corrected runs
+queued actual Game-view input rather than calling the controls directly.
+
+![Textured Titan running, with actual action and animation diagnostics](manula-technical-demo-titan.png)
+
+![Investigate route around the wall with matching A*/UCS graph costs](manula-technical-demo-navigation.png)
+
+The Editor also logs an unrelated QuickSearch `SearchDatabase.EnumerateAll`
+`ArgumentOutOfRangeException` at startup. The demo control sequence completed
+without runtime exceptions, but this is not a claim of an exception-free Editor
+log. No standalone player build was executed. This is an automated graphics-enabled
+Editor run with inspected captures, not a claim that the user's own Editor was
+manually operated. Grounding/crowding remains the separate existing demonstration.
+
+Final complete EditMode suite: **136/136 passed, zero failed/inconclusive/skipped**
+(`technical-all-final.xml/.log`, Unity exited code 0). Assembly totals:
+AgentBody **53/53**, Breacher **18/18**, Core **6/6**, Hunter **59/59**.
+The nine new demo cases passed again within that complete run, including their
+real Play Mode movement/animation/noise scenarios. The earlier full-suite launch
+was interrupted to include the final opaque-UI correction; it is superseded by
+this completed run, not counted as a passing run.
+
+`git diff --check` and whitespace checks for the new source/scene files are clean.
+Hashes of all three protected original sandboxes, HunterBrain and the unrelated
+TimelineSettings asset still match the pre-task values. Branch remains
+`feature/hunter-playable-demo`. No repository project settings were regenerated.
+
+To repeat locally, open **Window > General > Test Runner > EditMode** and run
+`ManulaTechnicalDemoTests`, then **Run All**. The coroutine integration tests
+enter/exit Play Mode themselves; start with the Editor out of Play Mode and save
+any unrelated scene changes first. For graphical review, open the shipped scene,
+press Play and follow the controls above; inspect Follow and Overview views.
+
+The complete isolated run command is:
+
+```sh
+/home/manula/Unity/Hub/Editor/6000.3.25f1/Editor/Unity \
+  -batchmode -nographics -projectPath /tmp/manula-demo.0n2fsS \
+  -runTests -testPlatform EditMode \
+  -testResults /tmp/manula-demo.0n2fsS/technical-all-final.xml \
+  -logFile /tmp/manula-demo.0n2fsS/technical-all-final.log
+```
+
+### Exact Stage 1 changed files
+
+```text
+Assets/_Project/Scripts/AI/Hunter/HunterDebugPanel.cs
+Assets/_Project/Scripts/AI/Hunter/Testing/HunterSandboxNoiseTrigger.cs
+Assets/_Project/Scripts/AI/Hunter/Testing/ManulaTechnicalDemo.cs
+Assets/_Project/Scripts/AI/Hunter/Testing/ManulaTechnicalDemo.cs.meta
+Assets/_Project/Scripts/AI/Hunter/Editor/ManulaTechnicalDemoSetup.cs
+Assets/_Project/Scripts/AI/Hunter/Editor/ManulaTechnicalDemoSetup.cs.meta
+Assets/_Project/Tests/EditMode/Hunter/ManulaTechnicalDemoTests.cs
+Assets/_Project/Tests/EditMode/Hunter/ManulaTechnicalDemoTests.cs.meta
+Assets/_Project/Scenes/Sandbox/Manula/ManulaTechnicalDemo.unity
+Assets/_Project/Scenes/Sandbox/Manula/ManulaTechnicalDemo.unity.meta
+docs/decision-logs/hunter.md
+docs/decision-logs/manula-technical-demo-titan.png
+docs/decision-logs/manula-technical-demo-navigation.png
+```
+
+The scene-generation menu **Tools > Hunter > Create Manula Technical Demo** is
+provided for reproducibility, not needed to open the shipped scene. It refuses an
+existing destination or Play Mode, never rebakes and never overwrites originals.
+
+No FPS player, PlayerWeapon, team HUD/health, enemy variants from teammates,
+Breacher/Flanker/Sentinel, Main, team level, victory/defeat, Core, Packages or
+ProjectSettings changes are included. No commit, push, merge or branch change.
