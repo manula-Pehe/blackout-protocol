@@ -15,6 +15,8 @@ namespace BlackoutProtocol.AI.Hunter
         [SerializeField] private HunterNavMeshPathfinder pathfinder;
         [SerializeField] private bool overlayVisible = true;
         [SerializeField] private bool compareOnRouteRequests;
+        [Tooltip("Presentation only: responsive narrow panel for the dedicated technical demo. Existing sandboxes keep their original layout.")]
+        [SerializeField] private bool compactDemoLayout;
         private readonly StringBuilder text = new StringBuilder(2048);
         private float nextRefresh;
         private Vector2 scroll;
@@ -206,21 +208,43 @@ namespace BlackoutProtocol.AI.Hunter
 
         private void OnGUI()
         {
+            Matrix4x4 previous = GUI.matrix;
+            float scale = compactDemoLayout ? Mathf.Max(0.1f, Mathf.Min(Screen.width / 1280f, Screen.height / 800f)) : 1;
+            GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1));
+            try
+            {
+                if (compactDemoLayout)
+                {
+                    // The demo camera only renders its own viewport. Clear this
+                    // reserved UI region, including when F1 collapses the panel.
+                    Color previousColor = GUI.color;
+                    GUI.color = new Color(0.025f, 0.04f, 0.065f, 1);
+                    GUI.DrawTexture(new Rect(0, 0, 416, Screen.height / scale - 174), Texture2D.whiteTexture);
+                    GUI.color = previousColor;
+                }
+                DrawPanel(Screen.width / scale, Screen.height / scale);
+            }
+            finally { GUI.matrix = previous; }
+        }
+
+        private void DrawPanel(float width, float height)
+        {
             if (!overlayVisible)
             {
-                GUI.Box(new Rect(16, 16, Mathf.Min(650, Screen.width - 32), 32), header);
+                GUI.Box(new Rect(16, 16, Mathf.Min(compactDemoLayout ? 390 : 650, width - 32), 32), header);
                 return;
             }
             if (labelStyle == null) labelStyle = new GUIStyle(GUI.skin.label) { richText = true, wordWrap = true };
-            Rect area = new Rect(16, 16, Mathf.Min(540, Screen.width - 32), Mathf.Max(40, Mathf.Min(650, Screen.height - 200)));
+            if (compactDemoLayout) labelStyle.fontSize = 14;
+            Rect area = new Rect(16, 16, Mathf.Min(compactDemoLayout ? 390 : 540, width - 32), Mathf.Max(40, Mathf.Min(650, height - 200)));
             GUILayout.BeginArea(area, GUI.skin.box);
             GUILayout.Label(header, labelStyle);
             GUILayout.BeginHorizontal();
             bool oldEnabled = GUI.enabled;
             GUI.enabled = pathfinder != null && pathfinder.CanCompareLastSearch;
-            if (GUILayout.Button("Compare latest route")) CompareLatestRoute();
+            if (GUILayout.Button(compactDemoLayout ? "Compare A* / UCS" : "Compare latest route")) CompareLatestRoute();
             GUI.enabled = oldEnabled;
-            bool automatic = GUILayout.Toggle(compareOnRouteRequests, "UCS on route requests");
+            bool automatic = GUILayout.Toggle(compareOnRouteRequests, compactDemoLayout ? "Auto UCS" : "UCS on route requests");
             if (automatic != compareOnRouteRequests) SetCompareOnRouteRequests(automatic);
             GUILayout.EndHorizontal();
             scroll = GUILayout.BeginScrollView(scroll);
