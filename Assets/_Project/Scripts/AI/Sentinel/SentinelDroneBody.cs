@@ -11,7 +11,7 @@ namespace BlackoutProtocol.AI.Sentinel
     /// baked NavMesh. It is the Sentinel-specific adapter for the shared body contract.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class SentinelDroneBody : MonoBehaviour, IAgentBody
+    public sealed class SentinelDroneBody : MonoBehaviour, IAgentBody, IDamageable
     {
         // The imported drone's rotor layout is authored in local XY with its nose on -Y.
         // This maps the rotor plane to Unity's horizontal XZ plane and the nose to +Z.
@@ -32,6 +32,8 @@ namespace BlackoutProtocol.AI.Sentinel
         [SerializeField, Min(0.01f)] private float collisionRadius = 0.18f;
         [SerializeField, Min(0.1f)] private float stuckTimeout = 2.5f;
         [SerializeField, Min(0.01f)] private float minimumProgressDistance = 0.08f;
+        [Header("Combat")]
+        [SerializeField, Min(1f)] private float maximumHealth = 100f;
 
         private readonly List<Vector3> waypoints = new List<Vector3>(16);
         private readonly RaycastHit[] movementHits = new RaycastHit[12];
@@ -41,9 +43,14 @@ namespace BlackoutProtocol.AI.Sentinel
         private Transform visualTiltPivot;
         private float bestDistanceToWaypoint;
         private float lastProgressTime;
+        private float currentHealth;
+        private Rigidbody flightBody;
+        private bool shotDown;
 
         private void Awake()
         {
+            maximumHealth = Mathf.Max(1f, maximumHealth);
+            currentHealth = maximumHealth;
             CreateVisualTiltPivot();
         }
 
@@ -55,6 +62,9 @@ namespace BlackoutProtocol.AI.Sentinel
 
         /// <summary>Raised when a brain asks the drone to play a one-shot action.</summary>
         public event Action<AgentAction> ActionRequested;
+
+        /// <summary>Raised when damage disables the Sentinel.</summary>
+        public event Action Died;
 
         /// <inheritdoc />
         public Vector3 Position => transform.position;
@@ -70,6 +80,35 @@ namespace BlackoutProtocol.AI.Sentinel
 
         /// <summary>The configured distance between the NavMesh surface and the drone pivot.</summary>
         public float HoverHeight => hoverHeight;
+        public float CurrentHealth => currentHealth;
+        public bool IsShotDown => shotDown;
+        public bool IsDead => shotDown;
+
+        public void TakeDamage(float amount, Vector3 hitPoint, GameObject source)
+        {
+            if (shotDown || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;
+
+            currentHealth = Mathf.Max(0f, currentHealth - amount);
+            if (currentHealth > 0f) return;
+
+            shotDown = true;
+            Stop();
+            SentinelDroneBrain brain = GetComponent<SentinelDroneBrain>();
+            if (brain != null) brain.enabled = false;
+
+            flightBody = GetComponent<Rigidbody>();
+            if (flightBody == null) flightBody = gameObject.AddComponent<Rigidbody>();
+            flightBody.mass = 5f;
+            flightBody.useGravity = true;
+            flightBody.isKinematic = false;
+            flightBody.interpolation = RigidbodyInterpolation.Interpolate;
+            flightBody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
+            Vector3 impactDirection = source != null ? hitPoint - source.transform.position : Vector3.up;
+            if (impactDirection.sqrMagnitude < 0.001f) impactDirection = Vector3.up;
+            flightBody.AddForceAtPosition(impactDirection.normalized * 1.5f, hitPoint, ForceMode.Impulse);
+            Died?.Invoke();
+        }
 
         /// <inheritdoc />
         public void Execute(MoveCommand command)
@@ -121,6 +160,13 @@ namespace BlackoutProtocol.AI.Sentinel
 
         private void Update()
         {
+            if (shotDown)
+            {
+                Velocity = flightBody != null ? flightBody.linearVelocity : Vector3.zero;
+                IsMoving = Velocity.sqrMagnitude > 0.01f;
+                return;
+            }
+
             float deltaTime = Time.deltaTime;
             if (deltaTime <= 0f)
             {
@@ -379,6 +425,7 @@ namespace BlackoutProtocol.AI.Sentinel
             collisionRadius = Mathf.Max(0.01f, collisionRadius);
             stuckTimeout = Mathf.Max(0.1f, stuckTimeout);
             minimumProgressDistance = Mathf.Max(0.01f, minimumProgressDistance);
+            maximumHealth = Mathf.Max(1f, maximumHealth);
         }
     }
 }
