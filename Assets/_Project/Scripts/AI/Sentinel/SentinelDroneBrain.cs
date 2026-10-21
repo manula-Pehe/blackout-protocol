@@ -53,6 +53,7 @@ namespace BlackoutProtocol.AI.Sentinel
 
         [Header("Alert and tracking")]
         [SerializeField, Min(0f)] private float alertDuration = 0.55f;
+        [SerializeField, Min(0f)] private float alarmCooldownSeconds = 6f;
         [SerializeField, Min(1f)] private float observationDistance = 5.5f;
         [SerializeField, Min(0.1f)] private float observationRefreshInterval = 1.1f;
         [SerializeField, Min(0.1f)] private float playerPositionRefreshDistance = 1.4f;
@@ -67,12 +68,14 @@ namespace BlackoutProtocol.AI.Sentinel
         private readonly List<float> patrolVisitTimes = new List<float>(8);
         private readonly List<SentinelDecisionLogic.PatrolOption> patrolOptions = new List<SentinelDecisionLogic.PatrolOption>(8);
         private readonly List<SentinelDecisionLogic.SearchOption> searchOptions = new List<SentinelDecisionLogic.SearchOption>(5);
+        private readonly List<bool> searchReachability = new List<bool>(5);
         private readonly List<Vector3> candidatePath = new List<Vector3>(32);
         private readonly List<Vector3> selectedPath = new List<Vector3>(32);
         private readonly List<SentinelDebugCandidate> debugCandidates = new List<SentinelDebugCandidate>(8);
         private readonly RaycastHit[] rayHits = new RaycastHit[16];
 
         private SentinelHsm hsm;
+        private readonly SentinelDecisionLogic.AlarmCooldown alarmCooldown = new SentinelDecisionLogic.AlarmCooldown();
         private SentinelNavMeshPathfinder pathfinder;
         private IAgentBody body;
         private IPlayerState player;
@@ -146,6 +149,7 @@ namespace BlackoutProtocol.AI.Sentinel
                 hsm.Reset();
             }
             GameEvents.LevelChanged += HandleLevelChanged;
+            GameEvents.AlarmRaised += HandleAlarmRaised;
         }
 
         private void Start()
@@ -165,6 +169,7 @@ namespace BlackoutProtocol.AI.Sentinel
         private void OnDisable()
         {
             GameEvents.LevelChanged -= HandleLevelChanged;
+            GameEvents.AlarmRaised -= HandleAlarmRaised;
             if (hsm != null)
             {
                 hsm.StateChanged -= HandleStateChanged;
@@ -196,16 +201,28 @@ namespace BlackoutProtocol.AI.Sentinel
 
             bool searchComplete = UpdateSearch();
             bool returnComplete = hsm.State == SentinelState.Return && (body.HasArrived || returnFailed);
+            bool playerDead = player != null && !player.IsAlive;
             var input = new SentinelHsmInput(
                 playerVisible,
                 hsm.StateElapsed >= alertDuration,
                 searchComplete,
-                returnComplete);
+                returnComplete,
+                playerDead);
             hsm.Tick(input, Time.deltaTime);
 
             if (bodyStuck)
             {
                 bodyStuck = false;
+                if (hsm.State == SentinelState.Search)
+                {
+                    searchIndex++;
+                    searchArrivalTime = -1f;
+                }
+                else if (hsm.State == SentinelState.Return)
+                {
+                    returningToIndex = FindNearestPatrolPoint(returningToIndex);
+                    if (returningToIndex >= 0) currentPatrolIndex = returningToIndex;
+                }
                 ReplanCurrentState();
             }
 
@@ -305,7 +322,7 @@ namespace BlackoutProtocol.AI.Sentinel
                     body.Stop();
                     HasDestination = false;
                     body.PlayAction(AgentAction.Alert);
-                    if (hasLastKnownPosition)
+                    if (hasLastKnownPosition && alarmCooldown.CanRaise(Time.time))
                     {
                         GameEvents.RaiseAlarm(lastKnownPosition);
                     }
@@ -433,12 +450,13 @@ namespace BlackoutProtocol.AI.Sentinel
             return ExecutePath(patrolPoints[index], MoveStyle.Walk, null);
         }
 
-        private int FindNearestPatrolPoint()
+        private int FindNearestPatrolPoint(int excludedIndex = -1)
         {
             int best = -1;
             float bestDistance = float.PositiveInfinity;
             for (int i = 0; i < patrolPoints.Count; i++)
             {
+                if (i == excludedIndex && patrolPoints.Count > 1) continue;
                 float distance = (patrolPoints[i] - transform.position).sqrMagnitude;
                 if (distance < bestDistance && TryPath(patrolPoints[i], candidatePath))
                 {
@@ -573,16 +591,32 @@ namespace BlackoutProtocol.AI.Sentinel
         {
             Vector3 heading = lastKnownHeading.sqrMagnitude > 0.01f ? lastKnownHeading : transform.forward;
             SentinelDecisionLogic.BuildSearchOptions(lastKnownPosition, heading, predictionSeconds, searchRadius, searchOptions);
-            Vector3 target = searchOptions[searchIndex % searchOptions.Count].Position;
+            int candidateCount = Mathf.Min(searchPointCount, searchOptions.Count);
             debugCandidates.Clear();
-            for (int i = 0; i < searchPointCount; i++)
+            searchReachability.Clear();
+            for (int i = 0; i < candidateCount; i++)
             {
-                SentinelDecisionLogic.SearchOption option = searchOptions[i % searchOptions.Count];
+                SentinelDecisionLogic.SearchOption option = searchOptions[i];
                 Vector3 candidate = option.Position;
-                bool reachable = TryPath(candidate, candidatePath);
+                bool reachable = i >= searchIndex && TryPath(candidate, candidatePath);
+                searchReachability.Add(reachable);
                 debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Search, i, candidate,
-                    option.Score, reachable, i == searchIndex && reachable));
+                    option.Score, reachable, false));
             }
+
+            searchIndex = SentinelDecisionLogic.FindNextReachableSearchIndex(searchReachability, searchIndex, candidateCount);
+            if (searchIndex < 0)
+            {
+                searchPathFailed = true;
+                HasDestination = false;
+                body.Stop();
+                return;
+            }
+
+            SentinelDebugCandidate selected = debugCandidates[searchIndex];
+            debugCandidates[searchIndex] = new SentinelDebugCandidate(selected.Type, selected.Index,
+                selected.Position, selected.Score, true, true);
+            Vector3 target = searchOptions[searchIndex].Position;
             searchPathFailed = !ExecutePath(target, MoveStyle.Sneak, null);
         }
 
@@ -678,6 +712,11 @@ namespace BlackoutProtocol.AI.Sentinel
             ReplanCurrentState();
         }
 
+        private void HandleAlarmRaised(Vector3 playerPosition)
+        {
+            alarmCooldown.Record(Time.time, alarmCooldownSeconds);
+        }
+
         private void HandleBodyStuck()
         {
             bodyStuck = true;
@@ -733,8 +772,9 @@ namespace BlackoutProtocol.AI.Sentinel
         {
             sightRange = Mathf.Max(1f, sightRange);
             perceptionInterval = Mathf.Max(0.02f, perceptionInterval);
-            searchPointCount = Mathf.Max(1, searchPointCount);
+            searchPointCount = Mathf.Clamp(searchPointCount, 1, 5);
             fallbackPatrolRadius = Mathf.Max(1f, fallbackPatrolRadius);
+            alarmCooldownSeconds = Mathf.Max(0f, alarmCooldownSeconds);
         }
     }
 }

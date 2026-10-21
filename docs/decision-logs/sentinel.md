@@ -68,4 +68,14 @@ The A* vs UCS comparison and F1 debug view are implemented.
 
 **Evidence:** `Assets/_Project/Tests/EditMode/Sentinel/` and `docs/evidence/core-developer/sentinel-editmode-tests.md`.
 
+## 2026-10-21 — Handle Sentinel edge cases
+
+**Context:** Section 7.6 calls out interrupted tracking and movement, unreachable search points, repeated alarms, changing level geometry, a disabled player, and a Sentinel being shot down.
+
+**Decision:** On player death, return directly to Patrol. Re-score observation points while tracking and rebuild the route after a level change. If the body reports that it is stuck, choose another reachable patrol, search, or return destination. Skip unreachable predictive search points. Gate alarm publication with a six-second local cooldown and restart that cooldown when any alarm is raised. Treat lethal damage as a shot-down state: disable brain movement, stop the body, and enable gravity so it falls under physics.
+
+**Why:** These cases let the Sentinel recover from changing gameplay conditions without repeatedly retrying a failed route, spamming alarms, or continuing to move after death.
+
+**Evidence:** `Assets/_Project/Scripts/AI/Sentinel/SentinelDroneBrain.cs`, `SentinelDroneBody.cs`, `SentinelHsm.cs`, `SentinelDecisionLogic.cs`, and `docs/evidence/core-developer/sentinel-edge-cases.md`.
+
 ![alt text](image.png)
