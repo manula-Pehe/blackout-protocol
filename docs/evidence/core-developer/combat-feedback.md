@@ -16,4 +16,4 @@ Select the Player object in the sandbox and use the `PlayerCombatFeedback` compo
 
 Open `Assets/_Project/Scenes/Sandbox/Ashen/PlayerShootingTest.unity` and press Play. Fire at the target and a wall to see the muzzle flash, camera kick, and impact sparks. Empty the magazine to hear the dry click, then press R to hear the reload sound. Check that the ammo, health, and reload HUD still updates.
 
-The particle objects are pooled; capture a Unity Profiler CPU/GC Alloc trace during repeated firing before using it as optimization evidence.
+The particle objects are pooled. The required repeated-firing Profiler capture has not been collected yet; follow [`combat-feedback-profiler.md`](combat-feedback-profiler.md) and record the measured GC Alloc result before treating this as optimization evidence.
