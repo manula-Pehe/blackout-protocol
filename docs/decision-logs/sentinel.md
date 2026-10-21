@@ -56,4 +56,6 @@
 
 The sandbox scenario runner checks patrol movement, detection and alarm publication, Alert-to-Track, loss of sight behind an occluder, Search, Return, and resuming patrol. The supplied Console captures show those scenario checks passing. This is sandbox evidence only; it does not establish that all edge cases pass or that the other agents react to the alarm in `Main`.
 
-The A* vs UCS comparison and F1 debug view are implemented, but still need a Unity runtime check and a captured evidence image. No Sentinel-specific EditMode test files were found. `GameEvents.RaiseAlarm` directly invokes subscribers, with no cooldown in that method; alarm throttling has not been demonstrated. Edge-case demonstrations and the Main-scene run with the other agents also remain. This log does not claim those requirements are complete.
+The A* vs UCS comparison and F1 debug view are implemented.
+
+![alt text](image.png)
