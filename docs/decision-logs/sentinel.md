@@ -58,4 +58,14 @@ The sandbox scenario runner checks patrol movement, detection and alarm publicat
 
 The A* vs UCS comparison and F1 debug view are implemented.
 
+## 2026-10-21 — Isolate Sentinel logic for EditMode verification
+
+**Context:** The assignment's unit-test checklist requires repeatable checks for HFSM transitions and child exits, patrol scoring, predictive search ranking, and A* versus UCS on identical graph data.
+
+**Decision:** Keep the Unity-facing brain and NavMesh adapter thin by extracting patrol/search decision helpers and the fixed-graph search implementation into testable runtime logic. Add leaf-state exit/enter notifications so hierarchy transitions can be verified explicitly. Cover the four required areas in `Assets/_Project/Tests/EditMode/Sentinel/`.
+
+**Verification:** Unity compiled the scripts without warnings. The nine Sentinel EditMode tests passed, including the HFSM parent change and child exit, patrol preference, heading prediction ranking, A*/UCS cost and expansion comparison, disconnected goal, and start-equals-goal cases. The full project EditMode run timed out, so no full-suite result is claimed.
+
+**Evidence:** `Assets/_Project/Tests/EditMode/Sentinel/` and `docs/evidence/core-developer/sentinel-editmode-tests.md`.
+
 ![alt text](image.png)

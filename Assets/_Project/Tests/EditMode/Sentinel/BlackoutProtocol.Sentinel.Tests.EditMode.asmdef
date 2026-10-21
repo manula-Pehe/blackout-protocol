@@ -1,0 +1,17 @@
+{
+    "name": "BlackoutProtocol.Sentinel.Tests.EditMode",
+    "rootNamespace": "BlackoutProtocol.AI.Sentinel.Tests",
+    "references": [
+        "BlackoutProtocol.Sentinel.Runtime"
+    ],
+    "includePlatforms": [ "Editor" ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [ "TestAssemblies" ]
+}

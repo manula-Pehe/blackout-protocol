@@ -46,6 +46,10 @@ namespace BlackoutProtocol.AI.Sentinel
     {
         /// <summary>Raised when the active leaf state changes.</summary>
         public event Action<SentinelState, SentinelState> StateChanged;
+        /// <summary>Raised immediately before the active leaf state is exited.</summary>
+        public event Action<SentinelState> StateExiting;
+        /// <summary>Raised after a new leaf state has been entered.</summary>
+        public event Action<SentinelState> StateEntered;
 
         public SentinelState State { get; private set; } = SentinelState.Patrol;
         /// <summary>The top-level operational composite that owns the routine and contact groups.</summary>
@@ -96,10 +100,15 @@ namespace BlackoutProtocol.AI.Sentinel
         public void Reset()
         {
             SentinelState previous = State;
+            if (previous != State)
+            {
+                StateExiting?.Invoke(previous);
+            }
             State = SentinelState.Patrol;
             StateElapsed = 0f;
             if (previous != State)
             {
+                StateEntered?.Invoke(State);
                 StateChanged?.Invoke(previous, State);
             }
         }
@@ -112,8 +121,10 @@ namespace BlackoutProtocol.AI.Sentinel
             }
 
             SentinelState previous = State;
+            StateExiting?.Invoke(previous);
             State = next;
             StateElapsed = 0f;
+            StateEntered?.Invoke(next);
             StateChanged?.Invoke(previous, next);
         }
     }
