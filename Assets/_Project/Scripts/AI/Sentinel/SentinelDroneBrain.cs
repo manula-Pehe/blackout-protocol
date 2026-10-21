@@ -4,6 +4,35 @@ using UnityEngine;
 
 namespace BlackoutProtocol.AI.Sentinel
 {
+    public enum SentinelCandidateType
+    {
+        Patrol,
+        Observation,
+        Search
+    }
+
+    /// <summary>One destination considered by the latest Sentinel decision.</summary>
+    public readonly struct SentinelDebugCandidate
+    {
+        public SentinelDebugCandidate(SentinelCandidateType type, int index, Vector3 position, float score, bool reachable, bool selected)
+        {
+            Type = type;
+            Index = index;
+            Position = position;
+            Score = score;
+            Reachable = reachable;
+            Selected = selected;
+        }
+
+        public SentinelCandidateType Type { get; }
+        public int Index { get; }
+        public string Label => $"{Type} {Index + 1}";
+        public Vector3 Position { get; }
+        public float Score { get; }
+        public bool Reachable { get; }
+        public bool Selected { get; }
+    }
+
     /// <summary>
     /// Unity-facing perception and navigation adapter for the Sentinel HSM.
     /// Assign child transforms under Patrol Route in patrol order.
@@ -38,6 +67,7 @@ namespace BlackoutProtocol.AI.Sentinel
         private readonly List<float> patrolVisitTimes = new List<float>(8);
         private readonly List<Vector3> candidatePath = new List<Vector3>(32);
         private readonly List<Vector3> selectedPath = new List<Vector3>(32);
+        private readonly List<SentinelDebugCandidate> debugCandidates = new List<SentinelDebugCandidate>(8);
         private readonly RaycastHit[] rayHits = new RaycastHit[16];
 
         private SentinelHsm hsm;
@@ -62,6 +92,19 @@ namespace BlackoutProtocol.AI.Sentinel
 
         /// <summary>The current HSM leaf state, useful for inspector/debug tooling.</summary>
         public SentinelState State => hsm != null ? hsm.State : SentinelState.Patrol;
+        public string StatePath => hsm == null ? "Operational / Routine / Patrol" :
+            $"{hsm.RootState} / {hsm.ParentState} / {hsm.State}";
+        public bool PlayerVisible => playerVisible;
+        public bool HasLastKnownPosition => hasLastKnownPosition;
+        public Vector3 LastKnownPosition => lastKnownPosition;
+        public Vector3 SensorPosition => sensorOrigin != null ? sensorOrigin.position : transform.position;
+        public float SightRange => sightRange;
+        public float FieldOfView => fieldOfView;
+        public bool HasDestination { get; private set; }
+        public Vector3 CurrentDestination { get; private set; }
+        public int SearchCandidateIndex => searchIndex;
+        public IReadOnlyList<SentinelDebugCandidate> DebugCandidates => debugCandidates;
+        public SentinelNavMeshPathfinder Pathfinder => pathfinder;
 
         private void Awake()
         {
@@ -258,6 +301,7 @@ namespace BlackoutProtocol.AI.Sentinel
                     break;
                 case SentinelState.Alert:
                     body.Stop();
+                    HasDestination = false;
                     body.PlayAction(AgentAction.Alert);
                     if (hasLastKnownPosition)
                     {
@@ -336,20 +380,20 @@ namespace BlackoutProtocol.AI.Sentinel
         {
             float bestScore = float.NegativeInfinity;
             int bestIndex = -1;
+            debugCandidates.Clear();
             for (int i = 0; i < patrolPoints.Count; i++)
             {
-                if (i == currentPatrolIndex && patrolPoints.Count > 1)
+                bool reachable = !(i == currentPatrolIndex && patrolPoints.Count > 1) && TryPath(patrolPoints[i], candidatePath);
+                if (!reachable)
                 {
-                    continue;
-                }
-                if (!TryPath(patrolPoints[i], candidatePath))
-                {
+                    debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Patrol, i, patrolPoints[i], float.NaN, false, false));
                     continue;
                 }
 
                 float routeLength = PathLength(candidatePath);
                 float recency = Time.time - patrolVisitTimes[i];
                 float score = recency - routeLength * 0.2f;
+                debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Patrol, i, patrolPoints[i], score, true, false));
                 if (score > bestScore)
                 {
                     bestScore = score;
@@ -359,12 +403,22 @@ namespace BlackoutProtocol.AI.Sentinel
 
             if (bestIndex >= 0)
             {
+                for (int i = 0; i < debugCandidates.Count; i++)
+                {
+                    SentinelDebugCandidate candidate = debugCandidates[i];
+                    if (candidate.Reachable && candidate.Position == patrolPoints[bestIndex])
+                    {
+                        debugCandidates[i] = new SentinelDebugCandidate(candidate.Type, candidate.Index, candidate.Position, candidate.Score, true, true);
+                        break;
+                    }
+                }
                 currentPatrolIndex = bestIndex;
                 patrolVisitTimes[bestIndex] = Time.time;
                 ExecutePath(patrolPoints[bestIndex], MoveStyle.Walk, null);
             }
             else
             {
+                HasDestination = false;
                 body.Stop();
             }
         }
@@ -373,6 +427,7 @@ namespace BlackoutProtocol.AI.Sentinel
         {
             if (index < 0 || index >= patrolPoints.Count)
             {
+                HasDestination = false;
                 body.Stop();
                 return false;
             }
@@ -413,6 +468,7 @@ namespace BlackoutProtocol.AI.Sentinel
             float bestScore = float.PositiveInfinity;
             bool found = false;
             selectedPath.Clear();
+            debugCandidates.Clear();
 
             for (int i = 0; i < 8; i++)
             {
@@ -420,6 +476,7 @@ namespace BlackoutProtocol.AI.Sentinel
                 Vector3 candidate = player.Position + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * preferredDistance;
                 if (!TryPath(candidate, candidatePath))
                 {
+                    debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Observation, i, candidate, float.NaN, false, false));
                     continue;
                 }
 
@@ -435,21 +492,34 @@ namespace BlackoutProtocol.AI.Sentinel
                     score += 6f;
                 }
 
+                debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Observation, i, candidatePath[candidatePath.Count - 1], score, true, false));
+
                 if (score < bestScore)
                 {
                     bestScore = score;
                     selectedPath.Clear();
                     selectedPath.AddRange(candidatePath);
+                    for (int candidateIndex = 0; candidateIndex < debugCandidates.Count; candidateIndex++)
+                    {
+                        SentinelDebugCandidate row = debugCandidates[candidateIndex];
+                        if (row.Selected)
+                            debugCandidates[candidateIndex] = new SentinelDebugCandidate(row.Type, row.Index, row.Position, row.Score, row.Reachable, false);
+                    }
+                    debugCandidates[debugCandidates.Count - 1] = new SentinelDebugCandidate(
+                        SentinelCandidateType.Observation, i, candidatePath[candidatePath.Count - 1], score, true, true);
                     found = true;
                 }
             }
 
             if (found)
             {
+                CurrentDestination = selectedPath[selectedPath.Count - 1];
+                HasDestination = true;
                 body.Execute(new MoveCommand(selectedPath, MoveStyle.Strafe, player.Transform));
             }
             else
             {
+                HasDestination = false;
                 body.Stop();
             }
         }
@@ -507,22 +577,37 @@ namespace BlackoutProtocol.AI.Sentinel
             forward.Normalize();
             Vector3 right = Vector3.Cross(Vector3.up, forward);
             Vector3 predicted = lastKnownPosition + forward * predictionSeconds;
-            Vector3 target;
-            switch (searchIndex % 5)
+            Vector3 target = SearchCandidate(searchIndex, predicted, right, forward);
+            debugCandidates.Clear();
+            for (int i = 0; i < searchPointCount; i++)
             {
-                case 0: target = predicted; break;
-                case 1: target = predicted + right * searchRadius; break;
-                case 2: target = predicted - right * searchRadius; break;
-                case 3: target = predicted + forward * searchRadius; break;
-                default: target = lastKnownPosition; break;
+                Vector3 candidate = SearchCandidate(i, predicted, right, forward);
+                bool reachable = TryPath(candidate, candidatePath);
+                debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Search, i, candidate,
+                    searchPointCount - i, reachable, i == searchIndex && reachable));
             }
             searchPathFailed = !ExecutePath(target, MoveStyle.Sneak, null);
         }
 
+        private Vector3 SearchCandidate(int index, Vector3 predicted, Vector3 right, Vector3 forward)
+        {
+            switch (index % 5)
+            {
+                case 0: return predicted;
+                case 1: return predicted + right * searchRadius;
+                case 2: return predicted - right * searchRadius;
+                case 3: return predicted + forward * searchRadius;
+                default: return lastKnownPosition;
+            }
+        }
+
         private bool ExecutePath(Vector3 goal, MoveStyle style, Transform lookTarget)
         {
+            CurrentDestination = goal;
+            HasDestination = true;
             if (!TryPath(goal, candidatePath))
             {
+                HasDestination = false;
                 body.Stop();
                 return false;
             }
@@ -615,8 +700,24 @@ namespace BlackoutProtocol.AI.Sentinel
 
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, sightRange);
+            Vector3 origin = sensorOrigin != null ? sensorOrigin.position : transform.position;
+            Vector3 forward = transform.forward;
+            forward.y = 0f;
+            if (forward.sqrMagnitude < 0.001f) forward = Vector3.forward;
+            forward.Normalize();
+            Gizmos.color = new Color(0.15f, 0.9f, 1f, 0.75f);
+            const int segments = 20;
+            Vector3 previous = origin + Quaternion.AngleAxis(-fieldOfView * 0.5f, Vector3.up) * forward * sightRange;
+            for (int i = 1; i <= segments; i++)
+            {
+                float angle = -fieldOfView * 0.5f + fieldOfView * i / segments;
+                Vector3 next = origin + Quaternion.AngleAxis(angle, Vector3.up) * forward * sightRange;
+                Gizmos.DrawLine(previous, next);
+                previous = next;
+            }
+            Gizmos.DrawLine(origin, origin + Quaternion.AngleAxis(-fieldOfView * 0.5f, Vector3.up) * forward * sightRange);
+            Gizmos.DrawLine(origin, origin + Quaternion.AngleAxis(fieldOfView * 0.5f, Vector3.up) * forward * sightRange);
+            Gizmos.DrawLine(origin, origin + forward * sightRange);
             if (patrolRouteRoot != null)
             {
                 Gizmos.color = new Color(0.1f, 0.85f, 0.95f, 1f);
@@ -634,6 +735,12 @@ namespace BlackoutProtocol.AI.Sentinel
             {
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawWireSphere(lastKnownPosition, 0.35f);
+            }
+            for (int i = 0; i < debugCandidates.Count; i++)
+            {
+                SentinelDebugCandidate candidate = debugCandidates[i];
+                Gizmos.color = !candidate.Reachable ? Color.red : candidate.Selected ? Color.green : Color.yellow;
+                Gizmos.DrawWireSphere(candidate.Position + Vector3.up * 0.1f, candidate.Selected ? 0.35f : 0.2f);
             }
         }
 
