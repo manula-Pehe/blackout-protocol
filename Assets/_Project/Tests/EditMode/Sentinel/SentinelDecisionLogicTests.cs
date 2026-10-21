@@ -42,5 +42,26 @@ namespace BlackoutProtocol.AI.Sentinel.Tests
             Assert.That(options[2].Position, Is.EqualTo(new Vector3(-1f, 0f, 5f)));
             Assert.That(options[4].Position, Is.EqualTo(new Vector3(2f, 0f, 3f)));
         }
+
+        [Test]
+        public void SearchSkipsUnreachablePredictionsAndSelectsNextReachablePoint()
+        {
+            Assert.That(SentinelDecisionLogic.FindNextReachableSearchIndex(
+                new[] { false, false, true, true }, 0, 4), Is.EqualTo(2));
+            Assert.That(SentinelDecisionLogic.FindNextReachableSearchIndex(
+                new[] { true, false, true, true }, 1, 4), Is.EqualTo(2));
+            Assert.That(SentinelDecisionLogic.FindNextReachableSearchIndex(
+                new[] { false, false }, 0, 2), Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void AlarmCooldown_SuppressesRepeatedAlarmsAndAllowsOneAfterExpiry()
+        {
+            var cooldown = new SentinelDecisionLogic.AlarmCooldown();
+            Assert.That(cooldown.CanRaise(10f), Is.True);
+            cooldown.Record(10f, 6f);
+            Assert.That(cooldown.CanRaise(15.99f), Is.False);
+            Assert.That(cooldown.CanRaise(16f), Is.True);
+        }
     }
 }

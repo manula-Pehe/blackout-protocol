@@ -2,7 +2,8 @@
     "name": "BlackoutProtocol.Sentinel.Tests.EditMode",
     "rootNamespace": "BlackoutProtocol.AI.Sentinel.Tests",
     "references": [
-        "BlackoutProtocol.Sentinel.Runtime"
+        "BlackoutProtocol.Sentinel.Runtime",
+        "BlackoutProtocol.Core"
     ],
     "includePlatforms": [ "Editor" ],
     "excludePlatforms": [],

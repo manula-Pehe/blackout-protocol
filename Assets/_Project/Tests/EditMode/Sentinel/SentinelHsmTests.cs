@@ -58,5 +58,19 @@ namespace BlackoutProtocol.AI.Sentinel.Tests
             Assert.That(hsm.ParentState, Is.EqualTo(SentinelStateGroup.Routine));
             Assert.That(hsm.State, Is.EqualTo(SentinelState.Return));
         }
+
+        [Test]
+        public void PlayerDeathReturnsSentinelDirectlyToPatrol()
+        {
+            var hsm = new SentinelHsm();
+            hsm.Tick(new SentinelHsmInput(true, false, false, false), 0.1f);
+            hsm.Tick(new SentinelHsmInput(true, true, false, false), 0.1f);
+            Assert.That(hsm.State, Is.EqualTo(SentinelState.Track));
+
+            hsm.Tick(new SentinelHsmInput(false, false, false, false, playerDead: true), 0.1f);
+
+            Assert.That(hsm.State, Is.EqualTo(SentinelState.Patrol));
+            Assert.That(hsm.ParentState, Is.EqualTo(SentinelStateGroup.Routine));
+        }
     }
 }
