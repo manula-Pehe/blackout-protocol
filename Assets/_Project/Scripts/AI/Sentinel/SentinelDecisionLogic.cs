@@ -29,6 +29,20 @@ namespace BlackoutProtocol.AI.Sentinel
             public float Score { get; }
         }
 
+        public sealed class AlarmCooldown
+        {
+            private float nextAlarmTime;
+            private bool hasAlarm;
+
+            public bool CanRaise(float now) => !hasAlarm || now >= nextAlarmTime;
+
+            public void Record(float now, float cooldown)
+            {
+                hasAlarm = true;
+                nextAlarmTime = now + Mathf.Max(0f, cooldown);
+            }
+        }
+
         public static float ScorePatrol(float now, float lastVisited, float routeLength) =>
             (now - lastVisited) - routeLength * 0.2f;
 
@@ -64,6 +78,17 @@ namespace BlackoutProtocol.AI.Sentinel
             results.Add(new SearchOption(predicted - right * searchRadius, 3f));
             results.Add(new SearchOption(predicted + forward * searchRadius, 2f));
             results.Add(new SearchOption(lastKnownPosition, 1f));
+        }
+
+        public static int FindNextReachableSearchIndex(IReadOnlyList<bool> reachable, int startIndex, int candidateCount)
+        {
+            if (reachable == null) return -1;
+            int end = Mathf.Min(candidateCount, reachable.Count);
+            for (int i = Mathf.Max(0, startIndex); i < end; i++)
+            {
+                if (reachable[i]) return i;
+            }
+            return -1;
         }
     }
 }

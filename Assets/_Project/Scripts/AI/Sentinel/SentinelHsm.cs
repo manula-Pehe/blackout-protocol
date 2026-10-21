@@ -23,18 +23,20 @@ namespace BlackoutProtocol.AI.Sentinel
     /// <summary>Inputs that drive one HSM transition step.</summary>
     public readonly struct SentinelHsmInput
     {
-        public SentinelHsmInput(bool playerVisible, bool alertElapsed, bool searchComplete, bool returnComplete)
+        public SentinelHsmInput(bool playerVisible, bool alertElapsed, bool searchComplete, bool returnComplete, bool playerDead = false)
         {
             PlayerVisible = playerVisible;
             AlertElapsed = alertElapsed;
             SearchComplete = searchComplete;
             ReturnComplete = returnComplete;
+            PlayerDead = playerDead;
         }
 
         public bool PlayerVisible { get; }
         public bool AlertElapsed { get; }
         public bool SearchComplete { get; }
         public bool ReturnComplete { get; }
+        public bool PlayerDead { get; }
     }
 
     /// <summary>
@@ -66,28 +68,36 @@ namespace BlackoutProtocol.AI.Sentinel
             StateElapsed += Math.Max(0f, deltaTime);
             SentinelState? next = null;
 
-            switch (State)
+            if (input.PlayerDead)
             {
-                case SentinelState.Patrol:
-                    if (input.PlayerVisible) next = SentinelState.Alert;
-                    break;
-                case SentinelState.Alert:
-                    if (input.AlertElapsed)
-                    {
-                        next = input.PlayerVisible ? SentinelState.Track : SentinelState.Search;
-                    }
-                    break;
-                case SentinelState.Track:
-                    if (!input.PlayerVisible) next = SentinelState.Search;
-                    break;
-                case SentinelState.Search:
-                    if (input.PlayerVisible) next = SentinelState.Alert;
-                    else if (input.SearchComplete) next = SentinelState.Return;
-                    break;
-                case SentinelState.Return:
-                    if (input.PlayerVisible) next = SentinelState.Alert;
-                    else if (input.ReturnComplete) next = SentinelState.Patrol;
-                    break;
+                if (State != SentinelState.Patrol) next = SentinelState.Patrol;
+            }
+            else
+            {
+
+                switch (State)
+                {
+                    case SentinelState.Patrol:
+                        if (input.PlayerVisible) next = SentinelState.Alert;
+                        break;
+                    case SentinelState.Alert:
+                        if (input.AlertElapsed)
+                        {
+                            next = input.PlayerVisible ? SentinelState.Track : SentinelState.Search;
+                        }
+                        break;
+                    case SentinelState.Track:
+                        if (!input.PlayerVisible) next = SentinelState.Search;
+                        break;
+                    case SentinelState.Search:
+                        if (input.PlayerVisible) next = SentinelState.Alert;
+                        else if (input.SearchComplete) next = SentinelState.Return;
+                        break;
+                    case SentinelState.Return:
+                        if (input.PlayerVisible) next = SentinelState.Alert;
+                        else if (input.ReturnComplete) next = SentinelState.Patrol;
+                        break;
+                }
             }
 
             if (next.HasValue)
@@ -100,13 +110,13 @@ namespace BlackoutProtocol.AI.Sentinel
         public void Reset()
         {
             SentinelState previous = State;
-            if (previous != State)
+            if (previous != SentinelState.Patrol)
             {
                 StateExiting?.Invoke(previous);
             }
             State = SentinelState.Patrol;
             StateElapsed = 0f;
-            if (previous != State)
+            if (previous != SentinelState.Patrol)
             {
                 StateEntered?.Invoke(State);
                 StateChanged?.Invoke(previous, State);
