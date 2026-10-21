@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using BlackoutProtocol.Core;
 using UnityEngine;
 using UnityEngine.AI;
@@ -32,11 +31,8 @@ namespace BlackoutProtocol.AI.Sentinel
     {
         private const float VertexPrecision = 1000f;
         private readonly List<Node> nodes = new List<Node>();
-        private readonly List<int> open = new List<int>();
         private readonly List<int> reversePath = new List<int>();
-        private float[] costs = Array.Empty<float>();
-        private int[] previous = Array.Empty<int>();
-        private bool[] closed = Array.Empty<bool>();
+        private SentinelGraphSearch graphSearch;
         private bool built;
         private int lastStartNode = -1;
         private int lastGoalNode = -1;
@@ -56,6 +52,7 @@ namespace BlackoutProtocol.AI.Sentinel
         public void Rebuild()
         {
             nodes.Clear();
+            graphSearch = null;
             built = true;
             hasComparableQuery = false;
             lastAStarPath.Clear();
@@ -88,9 +85,17 @@ namespace BlackoutProtocol.AI.Sentinel
                 AddEdge(mesh.vertices[mesh.indices[offset + 2]], mesh.vertices[mesh.indices[offset]], triangle, edges);
             }
 
-            costs = new float[nodes.Count];
-            previous = new int[nodes.Count];
-            closed = new bool[nodes.Count];
+            var positions = new Vector3[nodes.Count];
+            var graphEdges = new SentinelGraphEdge[nodes.Count][];
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                positions[i] = nodes[i].Position;
+                List<Connection> connections = nodes[i].Connections;
+                graphEdges[i] = new SentinelGraphEdge[connections.Count];
+                for (int j = 0; j < connections.Count; j++)
+                    graphEdges[i][j] = new SentinelGraphEdge(connections[j].Target, connections[j].Cost);
+            }
+            graphSearch = new SentinelGraphSearch(positions, graphEdges);
         }
 
         /// <inheritdoc />
@@ -256,87 +261,14 @@ namespace BlackoutProtocol.AI.Sentinel
             return aStar.Succeeded && uniformCost.Succeeded;
         }
 
-        private SentinelPathSearchStats Search(int startNode, int goalNode, bool useHeuristic, List<int> path)
-        {
-            long started = Stopwatch.GetTimestamp();
-            path.Clear();
-            Array.Fill(costs, float.PositiveInfinity);
-            Array.Fill(previous, -1);
-            Array.Clear(closed, 0, closed.Length);
-            open.Clear();
-            costs[startNode] = 0f;
-            open.Add(startNode);
-            int expanded = 0;
-            int expansionLimit = Mathf.Max(4096, nodes.Count * 2);
-            bool found = false;
-
-            while (open.Count > 0 && expanded < expansionLimit)
-            {
-                int bestSlot = FindBestOpenSlot(goalNode, useHeuristic);
-                int current = open[bestSlot];
-                open.RemoveAt(bestSlot);
-                if (closed[current]) continue;
-                closed[current] = true;
-                expanded++;
-                if (current == goalNode)
-                {
-                    found = true;
-                    break;
-                }
-
-                List<Connection> connections = nodes[current].Connections;
-                for (int i = 0; i < connections.Count; i++)
-                {
-                    Connection connection = connections[i];
-                    if (closed[connection.Target]) continue;
-                    float proposed = costs[current] + connection.Cost;
-                    if (proposed >= costs[connection.Target]) continue;
-                    costs[connection.Target] = proposed;
-                    previous[connection.Target] = current;
-                    open.Add(connection.Target);
-                }
-            }
-
-            if (found)
-            {
-                for (int cursor = goalNode; cursor >= 0; cursor = previous[cursor])
-                {
-                    path.Add(cursor);
-                    if (cursor == startNode) break;
-                }
-                path.Reverse();
-                if (path.Count == 0 || path[0] != startNode) found = false;
-            }
-
-            double elapsedMilliseconds = (Stopwatch.GetTimestamp() - started) * 1000.0 / Stopwatch.Frequency;
-            return new SentinelPathSearchStats(found, found ? costs[goalNode] : 0f, expanded, elapsedMilliseconds);
-        }
+        private SentinelPathSearchStats Search(int startNode, int goalNode, bool useHeuristic, List<int> path) =>
+            graphSearch.Search(startNode, goalNode, useHeuristic, path);
 
         private void CopyNodePath(List<int> source, List<Vector3> destination)
         {
             destination.Clear();
             for (int i = 0; i < source.Count; i++) destination.Add(nodes[source[i]].Position);
         }
-
-        private int FindBestOpenSlot(int goal, bool useHeuristic)
-        {
-            int bestSlot = 0;
-            float bestScore = SearchScore(open[0], goal, useHeuristic);
-            for (int i = 1; i < open.Count; i++)
-            {
-                int node = open[i];
-                float score = SearchScore(node, goal, useHeuristic);
-                if (score < bestScore)
-                {
-                    bestScore = score;
-                    bestSlot = i;
-                }
-            }
-            return bestSlot;
-        }
-
-        private float SearchScore(int node, int goal, bool useHeuristic) =>
-            costs[node] + (useHeuristic ? Vector3.Distance(nodes[node].Position, nodes[goal].Position) : 0f);
 
         private int FindNearestNode(Vector3 position)
         {

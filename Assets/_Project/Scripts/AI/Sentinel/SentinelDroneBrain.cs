@@ -65,6 +65,8 @@ namespace BlackoutProtocol.AI.Sentinel
 
         private readonly List<Vector3> patrolPoints = new List<Vector3>(8);
         private readonly List<float> patrolVisitTimes = new List<float>(8);
+        private readonly List<SentinelDecisionLogic.PatrolOption> patrolOptions = new List<SentinelDecisionLogic.PatrolOption>(8);
+        private readonly List<SentinelDecisionLogic.SearchOption> searchOptions = new List<SentinelDecisionLogic.SearchOption>(5);
         private readonly List<Vector3> candidatePath = new List<Vector3>(32);
         private readonly List<Vector3> selectedPath = new List<Vector3>(32);
         private readonly List<SentinelDebugCandidate> debugCandidates = new List<SentinelDebugCandidate>(8);
@@ -378,28 +380,25 @@ namespace BlackoutProtocol.AI.Sentinel
 
         private void SelectPatrolWaypoint()
         {
-            float bestScore = float.NegativeInfinity;
-            int bestIndex = -1;
             debugCandidates.Clear();
+            patrolOptions.Clear();
             for (int i = 0; i < patrolPoints.Count; i++)
             {
                 bool reachable = !(i == currentPatrolIndex && patrolPoints.Count > 1) && TryPath(patrolPoints[i], candidatePath);
                 if (!reachable)
                 {
                     debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Patrol, i, patrolPoints[i], float.NaN, false, false));
+                    patrolOptions.Add(new SentinelDecisionLogic.PatrolOption(i, patrolVisitTimes[i], 0f, false));
                     continue;
                 }
 
                 float routeLength = PathLength(candidatePath);
-                float recency = Time.time - patrolVisitTimes[i];
-                float score = recency - routeLength * 0.2f;
+                float score = SentinelDecisionLogic.ScorePatrol(Time.time, patrolVisitTimes[i], routeLength);
+                patrolOptions.Add(new SentinelDecisionLogic.PatrolOption(i, patrolVisitTimes[i], routeLength, true));
                 debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Patrol, i, patrolPoints[i], score, true, false));
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestIndex = i;
-                }
             }
+
+            int bestIndex = SentinelDecisionLogic.SelectPatrol(patrolOptions, currentPatrolIndex, patrolPoints.Count > 1);
 
             if (bestIndex >= 0)
             {
@@ -572,33 +571,19 @@ namespace BlackoutProtocol.AI.Sentinel
 
         private void MoveToSearchPoint()
         {
-            Vector3 forward = lastKnownHeading.sqrMagnitude > 0.01f ? lastKnownHeading : transform.forward;
-            forward.y = 0f;
-            forward.Normalize();
-            Vector3 right = Vector3.Cross(Vector3.up, forward);
-            Vector3 predicted = lastKnownPosition + forward * predictionSeconds;
-            Vector3 target = SearchCandidate(searchIndex, predicted, right, forward);
+            Vector3 heading = lastKnownHeading.sqrMagnitude > 0.01f ? lastKnownHeading : transform.forward;
+            SentinelDecisionLogic.BuildSearchOptions(lastKnownPosition, heading, predictionSeconds, searchRadius, searchOptions);
+            Vector3 target = searchOptions[searchIndex % searchOptions.Count].Position;
             debugCandidates.Clear();
             for (int i = 0; i < searchPointCount; i++)
             {
-                Vector3 candidate = SearchCandidate(i, predicted, right, forward);
+                SentinelDecisionLogic.SearchOption option = searchOptions[i % searchOptions.Count];
+                Vector3 candidate = option.Position;
                 bool reachable = TryPath(candidate, candidatePath);
                 debugCandidates.Add(new SentinelDebugCandidate(SentinelCandidateType.Search, i, candidate,
-                    searchPointCount - i, reachable, i == searchIndex && reachable));
+                    option.Score, reachable, i == searchIndex && reachable));
             }
             searchPathFailed = !ExecutePath(target, MoveStyle.Sneak, null);
-        }
-
-        private Vector3 SearchCandidate(int index, Vector3 predicted, Vector3 right, Vector3 forward)
-        {
-            switch (index % 5)
-            {
-                case 0: return predicted;
-                case 1: return predicted + right * searchRadius;
-                case 2: return predicted - right * searchRadius;
-                case 3: return predicted + forward * searchRadius;
-                default: return lastKnownPosition;
-            }
         }
 
         private bool ExecutePath(Vector3 goal, MoveStyle style, Transform lookTarget)

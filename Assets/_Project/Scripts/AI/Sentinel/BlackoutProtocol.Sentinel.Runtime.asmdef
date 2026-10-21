@@ -1,0 +1,12 @@
+{
+    "name": "BlackoutProtocol.Sentinel.Runtime",
+    "rootNamespace": "BlackoutProtocol.AI.Sentinel",
+    "references": [
+        "BlackoutProtocol.Core",
+        "BlackoutProtocol.Body",
+        "Unity.AI.Navigation",
+        "Unity.InputSystem"
+    ],
+    "autoReferenced": true,
+    "noEngineReferences": false
+}
