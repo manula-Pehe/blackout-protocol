@@ -55,6 +55,13 @@ namespace BlackoutProtocol.Body
         [Header("Debug")]
         [SerializeField] private bool drawPath = true;
 
+        [Header("Local ground-agent separation")]
+        [SerializeField] private bool enableSeparation = true;
+        [SerializeField, Min(0.5f)] private float separationRadius = 2.2f;
+        [SerializeField, Min(0)] private float separationClearance = 0.15f;
+        [SerializeField, Min(0.1f)] private float maximumSeparationDeviation = 0.75f;
+        [SerializeField, Min(0.1f)] private float separationResponse = 3f;
+
         private readonly PathFollower follower = new PathFollower();
 
         private AgentMotor motor;
@@ -66,6 +73,12 @@ namespace BlackoutProtocol.Body
         private float bestDistanceToWaypoint;
         private float lastProgressTime;
         private bool stuckNotified;
+        private AgentSeparation separation;
+
+        /// <summary>True when bounded local steering is modifying the current movement direction.</summary>
+        public bool IsSeparating => separation != null && separation.IsSteering;
+        /// <summary>A saturated non-alloc query suppresses local steering rather than guessing about unseen geometry.</summary>
+        public bool SeparationQuerySaturated => separation != null && separation.QuerySaturated;
 
         /// <inheritdoc />
         public event Action Arrived;
@@ -104,6 +117,7 @@ namespace BlackoutProtocol.Body
         {
             motor = GetComponent<AgentMotor>();
             rotation = GetComponent<AgentRotation>();
+            separation = new AgentSeparation(this);
         }
 
         private void OnDisable()
@@ -115,6 +129,7 @@ namespace BlackoutProtocol.Body
         public void Execute(MoveCommand command)
         {
             style = command.Style;
+            separation?.Reset();
             lookTarget = command.LookTarget;
             HasArrived = false;
 
@@ -153,6 +168,7 @@ namespace BlackoutProtocol.Body
         public void Stop()
         {
             follower.Clear();
+            separation?.Reset();
             IsMoving = false;
             HasArrived = false;
             style = MoveStyle.Idle;
@@ -204,6 +220,9 @@ namespace BlackoutProtocol.Body
                 }
             }
 
+            if (enableSeparation && IsMoving && targetSpeed > 0 && separation != null)
+                desiredDirection = separation.Steer(desiredDirection,waypointDistance,separationRadius,
+                    separationClearance,maximumSeparationDeviation,separationResponse,deltaTime);
             UpdateRotation(desiredDirection, ref targetSpeed, deltaTime);
 
             currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, Mathf.Max(0.01f, acceleration) * deltaTime);
@@ -252,6 +271,7 @@ namespace BlackoutProtocol.Body
 
         private void Arrive()
         {
+            separation?.Reset();
             IsMoving = false;
             HasArrived = true;
             trackedWaypointIndex = -1;
@@ -345,6 +365,10 @@ namespace BlackoutProtocol.Body
 
         private void OnValidate()
         {
+            separationRadius = SafeSetting(separationRadius,0.8f,6f,2.2f);
+            separationClearance = SafeSetting(separationClearance,0,0.5f,0.15f);
+            maximumSeparationDeviation = SafeSetting(maximumSeparationDeviation,0.1f,1.5f,0.75f);
+            separationResponse = SafeSetting(separationResponse,0.1f,10f,3f);
             acceleration = Mathf.Max(0.01f, acceleration);
             arrivalRadius = Mathf.Max(0.01f, arrivalRadius);
             waypointAcceptanceRadius = Mathf.Max(0.01f, waypointAcceptanceRadius);
@@ -356,6 +380,9 @@ namespace BlackoutProtocol.Body
                 0.001f,
                 minimumProgressDistance);
         }
+
+        private static float SafeSetting(float value, float min, float max, float fallback) =>
+            float.IsNaN(value) || float.IsInfinity(value) ? fallback : Mathf.Clamp(value,min,max);
 
         private void OnDrawGizmos()
         {
