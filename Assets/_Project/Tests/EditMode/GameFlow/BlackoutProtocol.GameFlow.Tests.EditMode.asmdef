@@ -1,0 +1,8 @@
+{
+    "name": "BlackoutProtocol.GameFlow.Tests.EditMode",
+    "rootNamespace": "BlackoutProtocol.GameFlow.Tests",
+    "references": ["BlackoutProtocol.GameFlow.Logic"],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "autoReferenced": true
+}

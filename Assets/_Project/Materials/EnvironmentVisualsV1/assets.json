@@ -1,0 +1,205 @@
+{
+    "version": "Blackout Environment Visuals v1",
+    "assets": [
+        {
+            "file": "Cargo.asset",
+            "hash": "2534aae08154e0e85c5b08ed613667db7b0560354be7eb8b07d34884b936ebdc"
+        },
+        {
+            "file": "Cargo.asset.meta",
+            "hash": "0414a5fc75f84cd3f96cf23cee9f70a5d2504e35b4435b4f60e23edb386a6b3f"
+        },
+        {
+            "file": "ControlCore-Floor.mat",
+            "hash": "999d2f67e3b0f686acb9cdcbf8ff339a4d020b67aaade74a5b65f690098fa576"
+        },
+        {
+            "file": "ControlCore-Floor.mat.meta",
+            "hash": "3ec156be5a44147bd8491032c146d9e271ea4cc2ce2bcfec3b4af91f256adfc9"
+        },
+        {
+            "file": "Core-Accent.mat",
+            "hash": "4037b3815e5a80f9b0e9f97ddadfae6c5f2bb723265604413465160ad9b407c4"
+        },
+        {
+            "file": "Core-Accent.mat.meta",
+            "hash": "bb472dda90caff046bbcc7cdb1ee71351b7254e58430c51f456e7d98dc108839"
+        },
+        {
+            "file": "Core-Cover.mat",
+            "hash": "95887af8e35383dcb824b902d9a7108039e2037ce6daddc56891283eb74d6ed3"
+        },
+        {
+            "file": "Core-Cover.mat.meta",
+            "hash": "33d0c8bda44ff820e33f1eecc9703a1c52a6d47b7f443281de9653bb144d57d3"
+        },
+        {
+            "file": "Core-Reactor.mat",
+            "hash": "287d2fec856b1fd23cacbf484b2cd9934b0a76ead97ee39b7b42dc69fd56f387"
+        },
+        {
+            "file": "Core-Reactor.mat.meta",
+            "hash": "f9257fa901e277a3abba97bd3391b4254233b6f9110c6d2e3a07b609567ac5e5"
+        },
+        {
+            "file": "Core-Wall.mat",
+            "hash": "738d5759cd918ebdda7e3c2369912fe361127be095adf6b8e6a50cee282e9089"
+        },
+        {
+            "file": "Core-Wall.mat.meta",
+            "hash": "2fb10d3d10f074651f2f62acf44e911e6271cbeee3e3a10d6243435a2f021538"
+        },
+        {
+            "file": "Grating.asset",
+            "hash": "959f7d26be0fa6ccb9ad7d96dc825cbbc10f54183f1953439a3a6825b1471b0b"
+        },
+        {
+            "file": "Grating.asset.meta",
+            "hash": "5e1210df790301393948ed9b6d4fdb6c8201d8865408ba1216bbf3728b937618"
+        },
+        {
+            "file": "Hub-Core-Floor.mat",
+            "hash": "1217a039ceb90b14abfd1698967e3190e804a321b58103008f8a3f2edd2f9a09"
+        },
+        {
+            "file": "Hub-Core-Floor.mat.meta",
+            "hash": "760dbbff35ca1dfd1f58957e6d2409c3b0dd05cbdbddfde364c7062710f5e6d7"
+        },
+        {
+            "file": "Hub-Maintenance-Floor.mat",
+            "hash": "4edc9e9a589cf28dad2e90a0e1545dbdd8fecb63e3cde85e003531985f722add"
+        },
+        {
+            "file": "Hub-Maintenance-Floor.mat.meta",
+            "hash": "a4fb36997562a3285b324317d46a6a2962237f230498a28785bbe5d1be2aad23"
+        },
+        {
+            "file": "Loading-Accent.mat",
+            "hash": "1b8b3a6e303dd6206e21d5ef027ecacb38b080fe9f33fe84434d63181db0c7bf"
+        },
+        {
+            "file": "Loading-Accent.mat.meta",
+            "hash": "c1279d4a50b0f92d8df8545b8ad0c347bbce25c1239c3926973776ef5efbdbfd"
+        },
+        {
+            "file": "Loading-Cover.mat",
+            "hash": "1d62914b253a660089f846dd404521334356417f52865fa0217c41ae1ba95a77"
+        },
+        {
+            "file": "Loading-Cover.mat.meta",
+            "hash": "f5b922a6ae3ad7b727279c32982a06d6f49d7c4520350c1c0d849cc2bd94c7b4"
+        },
+        {
+            "file": "Loading-Hub-Floor.mat",
+            "hash": "2dcb1ae572ba34163d8dce09a1971536e284cfb81c4a6767fe210e50e82c419a"
+        },
+        {
+            "file": "Loading-Hub-Floor.mat.meta",
+            "hash": "4c38484d20393309c7998d7465d259ce13ac11c2116961ee0aff1715c036feaf"
+        },
+        {
+            "file": "Loading-Wall.mat",
+            "hash": "810c7a29b7ac2a98e69bfcfb63101d9ad8d8e53bfa9461582eeebf9cb5e58f6a"
+        },
+        {
+            "file": "Loading-Wall.mat.meta",
+            "hash": "067808d64f9332b0d341bc37137fd93a7a66163f0aea027c1a7c0cc80e0c9aa9"
+        },
+        {
+            "file": "LoadingBay-Floor.mat",
+            "hash": "69911c7ef056e1d18d405bce1b5dbdcea74d122b834a61250447ebd4926be7b2"
+        },
+        {
+            "file": "LoadingBay-Floor.mat.meta",
+            "hash": "60e3a419436a10a31f2a1d1d56330785e908eb4b164b9d2283f588603f4cd0da"
+        },
+        {
+            "file": "Maintenance-Accent.mat",
+            "hash": "88c69ee7ecb34faf574cb6f302d69e5bbf267170bdd946426fd69b34b2eb23a4"
+        },
+        {
+            "file": "Maintenance-Accent.mat.meta",
+            "hash": "7ec0e756c1fb0647abc04659ce2eb4c9bd86ce35a2b3a7fe67f28f07a53426d9"
+        },
+        {
+            "file": "Maintenance-Core-Floor.mat",
+            "hash": "ebbac42823b98a6d8b69d8be70030611aba3c4ae386656aa51927e0429de13e9"
+        },
+        {
+            "file": "Maintenance-Core-Floor.mat.meta",
+            "hash": "8cd8febb77d7014563abee71dab3678fa00f9d87613f672b9a3a02c20c2fa8a2"
+        },
+        {
+            "file": "Maintenance-Cover.mat",
+            "hash": "e47557a0647bb032644131c9e224b090cf5d162f0f45a1209f88a3fb100eb665"
+        },
+        {
+            "file": "Maintenance-Cover.mat.meta",
+            "hash": "8867c5bc0303063e652a05f078ae2a44004c52415c23dd2afe83a121a4ab2f6a"
+        },
+        {
+            "file": "Maintenance-Floor.mat",
+            "hash": "a670115a4565d6bfadc92cb8b9af111ef813e50624ccf42efb2d46f1bd22eb6f"
+        },
+        {
+            "file": "Maintenance-Floor.mat.meta",
+            "hash": "635791cf57db531c0ca070ebc2cd930a32bac8d6a2d6ced479106023b78e7d80"
+        },
+        {
+            "file": "Maintenance-Wall.mat",
+            "hash": "aade138860b6e07738f7008ae41a9cc07c5b5ee69b47149d176f1fa2394a92fa"
+        },
+        {
+            "file": "Maintenance-Wall.mat.meta",
+            "hash": "b8029b69abbfbe5189ea94319bb86d4d27d23cc1e0d4a3ea73b206fdacd05727"
+        },
+        {
+            "file": "Night-Sky.mat",
+            "hash": "64acb21d6c2aa4b79bd6f4724ddabdb465164f4ce711935a8e73efcbbf68992f"
+        },
+        {
+            "file": "Night-Sky.mat.meta",
+            "hash": "eb2d1055d591c7ba8d6e3f89aed31e5c0ccaa9e8ff64a30a491904ea7898434e"
+        },
+        {
+            "file": "PanelGrid.asset",
+            "hash": "dfc2880aedd96d6440d0f9534be700e30b2b3b4de6dd7acb73631d7b7f5ba8f2"
+        },
+        {
+            "file": "PanelGrid.asset.meta",
+            "hash": "8eaae442159b3b5dc8934c85ea3a05ea938341373fed595766190a8ba5fd8b66"
+        },
+        {
+            "file": "Security-Accent.mat",
+            "hash": "06153c1de01e0dc5f810e6e5668534693a32f97fecd7af05fcf031ba63b42032"
+        },
+        {
+            "file": "Security-Accent.mat.meta",
+            "hash": "8e55e90ffde9ff423bc2c40601c955b0b25895bea12e2444a8d78d6eff817780"
+        },
+        {
+            "file": "Security-Cover.mat",
+            "hash": "0c343966817a86a6b52d1f5e997c1ae4a3c5cdcab0d77da1c790ae4fa1ba3f6d"
+        },
+        {
+            "file": "Security-Cover.mat.meta",
+            "hash": "dde398e04ca2034fc1d35e6002481d215e5bd089e64c59e40b7ffb8606d53d27"
+        },
+        {
+            "file": "Security-Wall.mat",
+            "hash": "7112e1dc0cf356e24e431da1ec0e824c9b511a36a1d24c9a4e46f1a590898029"
+        },
+        {
+            "file": "Security-Wall.mat.meta",
+            "hash": "69f2b38d8d08f0ff1dc5759842edb5ba87aa0250ebd6f67a445545d2ef798f26"
+        },
+        {
+            "file": "SecurityHub-Floor.mat",
+            "hash": "2459457c947dc163c1276c3c45b4b0ca160763c9edc7da52e3526e0869f7b113"
+        },
+        {
+            "file": "SecurityHub-Floor.mat.meta",
+            "hash": "72916417de87011e00032dd5783388b3a41278c9fce5c93b30532a59788694ff"
+        }
+    ]
+}
