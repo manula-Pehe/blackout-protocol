@@ -1,0 +1,8 @@
+{
+    "name": "BlackoutProtocol.Flanker.Tests.EditMode",
+    "rootNamespace": "BlackoutProtocol.AI.Flanker.Tests",
+    "references": ["BlackoutProtocol.Flanker.Logic", "BlackoutProtocol.Flanker", "BlackoutProtocol.Core"],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "autoReferenced": true
+}

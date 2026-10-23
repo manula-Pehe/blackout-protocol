@@ -1,0 +1,7 @@
+{
+    "name": "BlackoutProtocol.GameFlow.Logic",
+    "rootNamespace": "BlackoutProtocol.GameFlow.Logic",
+    "references": [],
+    "noEngineReferences": true,
+    "autoReferenced": true
+}

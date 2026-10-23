@@ -1,0 +1,6 @@
+{
+    "name": "BlackoutProtocol.Flanker",
+    "rootNamespace": "BlackoutProtocol.AI.Flanker",
+    "references": ["BlackoutProtocol.Core", "BlackoutProtocol.Flanker.Logic"],
+    "autoReferenced": true
+}
