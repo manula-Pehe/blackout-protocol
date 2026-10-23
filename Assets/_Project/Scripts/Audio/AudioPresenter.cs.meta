@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a68a72b1bb5a4f1592a2a8b78957c761
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - ambienceClip: {fileID: 8300000, guid: 38b9ab52024b42caaf594fe24c4170eb, type: 3}
+  - alarmClip: {fileID: 8300000, guid: 8bc266e065d04e3bb4a32c16aed9601c, type: 3}
+  - confirmationClip: {fileID: 8300000, guid: 8db63c2fe96f4c65a78d5497954a0e7f, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData:
+  assetBundleName:
+  assetBundleVariant:

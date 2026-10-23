@@ -2419,6 +2419,56 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 493020020}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &541281208
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 541281210}
+  - component: {fileID: 541281209}
+  m_Layer: 0
+  m_Name: Facility Audio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &541281209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 541281208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a68a72b1bb5a4f1592a2a8b78957c761, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Audio.AudioPresenter
+  ambienceClip: {fileID: 8300000, guid: 38b9ab52024b42caaf594fe24c4170eb, type: 3}
+  alarmClip: {fileID: 8300000, guid: 8bc266e065d04e3bb4a32c16aed9601c, type: 3}
+  confirmationClip: {fileID: 8300000, guid: 8db63c2fe96f4c65a78d5497954a0e7f, type: 3}
+  ambienceVolume: 0.08
+  alarmVolume: 0.18
+  oneShotVolume: 0.35
+--- !u!4 &541281210
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 541281208}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &543147664
 GameObject:
   m_ObjectHideFlags: 0
@@ -9753,3 +9803,4 @@ SceneRoots:
   - {fileID: 203844589}
   - {fileID: 1636166956}
   - {fileID: 1831713986}
+  - {fileID: 541281210}
