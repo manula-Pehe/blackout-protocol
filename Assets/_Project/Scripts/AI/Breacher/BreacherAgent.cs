@@ -178,12 +178,10 @@ namespace BlackoutProtocol.AI.Breacher
         private List<GoapAction> CreateAvailableActions()
         {
             var actions = new List<GoapAction>();
-            float doorPathCost = GetMovementCost(
-                doorApproach.position,
-                moveToDoorCost);
-            float barricadePathCost = GetMovementCost(
-                barricadeApproach.position,
-                moveToBarricadeCost);
+            bool hasDoor = door != null && doorApproach != null;
+            bool hasBarricade = barricade != null && barricadeApproach != null;
+            float doorPathCost = hasDoor ? GetMovementCost(doorApproach.position, moveToDoorCost) : 0f;
+            float barricadePathCost = hasBarricade ? GetMovementCost(barricadeApproach.position, moveToBarricadeCost) : 0f;
             float playerPathCost = GetMovementCost(
                 player.position,
                 moveToPlayerCost);
@@ -191,16 +189,16 @@ namespace BlackoutProtocol.AI.Breacher
             Debug.Log(
                 $"Breacher route inputs: " +
                 $"alarm={alarmActive}, " +
-                $"doorOpen={doorContract.IsOpen}, " +
-                $"doorLocked={doorContract.IsLocked}, " +
+                $"doorOpen={(hasDoor ? doorContract.IsOpen : true)}, " +
+                $"doorLocked={(hasDoor && doorContract.IsLocked)}, " +
                 $"doorPath={doorPathCost:F1}, " +
-                $"barricadeCleared={barricade.IsCleared}, " +
+                $"barricadeCleared={(hasBarricade ? barricade.IsCleared : true)}, " +
                 $"barricadeUnavailable={barricadeUnavailable}, " +
                 $"barricadePath={barricadePathCost:F1}, " +
                 $"playerPath={playerPathCost:F1}",
                 this);
 
-            if (!doorContract.IsOpen && !doorContract.IsLocked)
+            if (hasDoor && !doorContract.IsOpen && !doorContract.IsLocked)
             {
                 actions.Add(new MoveToAction(
                     "Door",
@@ -213,7 +211,7 @@ namespace BlackoutProtocol.AI.Breacher
                     openDoorCost)));
             }
 
-            if (!barricade.IsCleared && !barricadeUnavailable)
+            if (hasBarricade && !barricade.IsCleared && !barricadeUnavailable)
             {
                 actions.Add(new MoveToAction(
                     "Barricade",
@@ -262,7 +260,12 @@ namespace BlackoutProtocol.AI.Breacher
         {
             WorldState state = WorldState.Empty;
 
-            if (doorContract.IsOpen)
+            // Main can use the Breacher as a direct pursuer; the obstacle routes
+            // remain available in scenes that actually provide their scene targets.
+            if (door == null && barricade == null)
+                state = state.With(WorldFact.PathToPlayerOpen);
+
+            if (doorContract != null && doorContract.IsOpen)
             {
                 state = state
                     .With(WorldFact.DoorOpen)
@@ -274,7 +277,7 @@ namespace BlackoutProtocol.AI.Breacher
                 state = state.With(WorldFact.PlayerDefeated);
             }
 
-            if (barricade.IsCleared)
+            if (barricade != null && barricade.IsCleared)
             {
                 state = state
                     .With(WorldFact.BarricadeCleared)
@@ -286,19 +289,19 @@ namespace BlackoutProtocol.AI.Breacher
                 state = state.With(WorldFact.LowHealth);
             }
 
-            if (HorizontalDistance(transform.position, coverPoint.position) <=
+            if (coverPoint != null && HorizontalDistance(transform.position, coverPoint.position) <=
                 0.6f)
             {
                 state = state.With(WorldFact.InCover);
             }
 
-            if (HorizontalDistance(transform.position, doorApproach.position) <=
+            if (doorApproach != null && HorizontalDistance(transform.position, doorApproach.position) <=
                 0.6f)
             {
                 state = state.With(WorldFact.AtDoor);
             }
 
-            if (HorizontalDistance(
+            if (barricadeApproach != null && HorizontalDistance(
                     transform.position,
                     barricadeApproach.position) <= 0.6f)
             {
@@ -555,22 +558,16 @@ namespace BlackoutProtocol.AI.Breacher
         {
             if (pathfinder != null &&
                 agentBody != null &&
-                doorContract != null &&
-                pushableContract != null &&
                 playerDamageable != null &&
                 breacherHealth != null &&
                 player != null &&
-                doorApproach != null &&
-                door != null &&
-                barricadeApproach != null &&
-                barricade != null &&
                 coverPoint != null)
             {
                 return true;
             }
 
             debugStatus =
-                "Missing AgentBody, health, Player, Door, Barricade, approach, or Cover Point reference";
+                "Missing AgentBody, health, Player, or Cover Point reference";
             Debug.LogError(debugStatus, this);
             return false;
         }
