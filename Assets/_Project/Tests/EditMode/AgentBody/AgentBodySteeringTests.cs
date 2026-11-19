@@ -304,9 +304,11 @@ namespace BlackoutProtocol.Body.Tests
                 Vector3 oldGoal = Vector3.forward * (phase == 1 ? 2.5f : phase == 2 ? -4 : 8);
                 body.Execute(new MoveCommand(new[] { oldGoal }, MoveStyle.Run));
                 if (phase == 0)
-                    yield return Until(() => body.CurrentSpeed > 0.5f && body.CurrentSpeed < 3, 3);
+                    yield return Until(() => body.CurrentSpeed > 0.5f && body.CurrentSpeed < 3, 3,
+                        () => $"replacement phase {phase}: accelerate; {BodyState(body)}");
                 else if (phase == 1)
-                    yield return Until(() => body.IsMoving && PathFollower.HorizontalDistance(body.Position, oldGoal) < 0.4f && body.CurrentSpeed < 0.9f, 8);
+                    yield return Until(() => body.IsMoving && PathFollower.HorizontalDistance(body.Position, oldGoal) < 0.4f && body.CurrentSpeed < 0.9f, 8,
+                        () => $"replacement phase {phase}: slow near old goal; {BodyState(body)}");
                 else
                 {
                     rotation.TurnRate = 30;
@@ -322,7 +324,8 @@ namespace BlackoutProtocol.Body.Tests
                 Assert.LessOrEqual(body.CurrentSpeed, oldSpeed + 0.001f);
                 Assert.AreEqual(goal, body.Waypoints[body.Waypoints.Count - 1]);
                 rotation.TurnRate = 360;
-                yield return Until(() => body.HasArrived, 10);
+                yield return Until(() => body.HasArrived, 10,
+                    () => $"replacement phase {phase}: arrive at new goal {goal}; {BodyState(body)}");
                 Assert.AreEqual(phase + 1, arrivals);
                 Assert.Less(PathFollower.HorizontalDistance(arrivedAt, goal), 0.16f);
             }
@@ -461,15 +464,19 @@ namespace BlackoutProtocol.Body.Tests
             string ActionName() => type.GetProperty("CurrentAction").GetValue(brain).ToString();
             Vector3 oldGoal = new Vector3(6, 0, -3);
             GameEvents.RaiseNoise(new NoiseEvent(oldGoal, NoiseLevels.Alarm, NoiseType.Alarm, Time.time));
-            yield return Until(() => ActionName() == "Investigate" && body.IsMoving, 4);
+            yield return Until(() => ActionName() == "Investigate" && body.IsMoving, 4,
+                () => $"hunter: start investigating; action={ActionName()}; {BodyState(body)}");
             int previousRequests = Requests(), previousArrivals = Arrivals();
             Vector3 newGoal = new Vector3(-6, 0, -0.5f);
             GameEvents.RaiseNoise(new NoiseEvent(newGoal, 100, NoiseType.Alarm, Time.time));
-            yield return Until(() => Requests() > previousRequests && PathFollower.HorizontalDistance(Destination(), newGoal) < 0.1f && body.IsMoving, 4);
+            yield return Until(() => Requests() > previousRequests && PathFollower.HorizontalDistance(Destination(), newGoal) < 0.1f && body.IsMoving, 4,
+                () => $"hunter: replace route; requests={Requests()}, destination={Destination()}; {BodyState(body)}");
             Assert.AreEqual(previousArrivals, Arrivals());
-            yield return Until(() => Arrivals() > previousArrivals, 15);
+            yield return Until(() => Arrivals() > previousArrivals, 15,
+                () => $"hunter: arrive at new goal; arrivals={Arrivals()}, action={ActionName()}; {BodyState(body)}");
             Assert.Less(PathFollower.HorizontalDistance(body.Position, newGoal), 0.3f);
-            yield return Until(() => ActionName() == "Search", 3);
+            yield return Until(() => ActionName() == "Search", 3,
+                () => $"hunter: enter search; action={ActionName()}; {BodyState(body)}");
             Assert.AreEqual(previousArrivals + 1, Arrivals());
         }
 
@@ -505,11 +512,17 @@ namespace BlackoutProtocol.Body.Tests
             settings.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static IEnumerator Until(Func<bool> condition, float timeout)
+        private static string BodyState(AgentBody body) =>
+            $"position={body.Position}, moving={body.IsMoving}, arrived={body.HasArrived}, " +
+            $"speed={body.CurrentSpeed:F3}, velocity={body.Velocity}, waypoint={body.CurrentWaypointIndex}, " +
+            $"timeScale={Time.timeScale:F3}, deltaTime={Time.deltaTime:F4}";
+
+        private static IEnumerator Until(Func<bool> condition, float timeout, Func<string> details = null)
         {
             float deadline = Time.realtimeSinceStartup + timeout;
             while (!condition() && Time.realtimeSinceStartup < deadline) yield return null;
-            Assert.IsTrue(condition(), "Timed out waiting for movement integration.");
+            Assert.IsTrue(condition(), "Timed out waiting for movement integration." +
+                (details == null ? string.Empty : " " + details()));
         }
 
         private static IEnumerator UntilElapsed(float seconds)
