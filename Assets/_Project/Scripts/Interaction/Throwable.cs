@@ -1,3 +1,4 @@
+using BlackoutProtocol.Audio;
 using BlackoutProtocol.Core;
 using BlackoutProtocol.Player;
 using UnityEngine;
@@ -43,6 +44,13 @@ namespace BlackoutProtocol.Interaction
             body.mass = mass;
             body.interpolation = RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 1f;
+            audioSource.minDistance = 1.5f;
+            audioSource.maxDistance = 20f;
+            audioSource.volume = 0.55f;
+            if (impactClip == null) impactClip = ProceduralSfx.CanisterImpact;
         }
 
         public void Interact(GameObject user)
@@ -108,6 +116,7 @@ namespace BlackoutProtocol.Interaction
                 body.AddForce(
                     direction.normalized * impulse,
                     ForceMode.Impulse);
+                audioSource.PlayOneShot(ProceduralSfx.CanisterThrow, 0.65f);
             }
         }
 

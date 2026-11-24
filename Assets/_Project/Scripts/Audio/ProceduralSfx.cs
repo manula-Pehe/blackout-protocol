@@ -6,7 +6,7 @@ namespace BlackoutProtocol.Audio
     public static class ProceduralSfx
     {
         private const int SampleRate = 22050;
-        private static AudioClip step, attack, hit, death, alert, hum, scrape, door, click;
+        private static AudioClip step, attack, hit, death, alert, hum, scrape, door, click, canisterThrow, canisterImpact;
 
         public static AudioClip Step => step != null ? step : (step = Make("Robot step", 0.15f, 72f, 0.08f, 0));
         public static AudioClip Attack => attack != null ? attack : (attack = Make("Robot attack", 0.23f, 520f, 0.2f, 1));
@@ -17,6 +17,8 @@ namespace BlackoutProtocol.Audio
         public static AudioClip Scrape => scrape != null ? scrape : (scrape = Make("Crate scrape loop", 0.5f, 115f, 0.16f, 6));
         public static AudioClip Door => door != null ? door : (door = Make("Door motor", 0.65f, 135f, 0.15f, 7));
         public static AudioClip Click => click != null ? click : (click = Make("Switch click", 0.09f, 410f, 0.1f, 8));
+        public static AudioClip CanisterThrow => canisterThrow != null ? canisterThrow : (canisterThrow = Make("Canister throw", 0.22f, 290f, 0.09f, 1));
+        public static AudioClip CanisterImpact => canisterImpact != null ? canisterImpact : (canisterImpact = Make("Canister clatter", 0.3f, 340f, 0.25f, 2));
 
         private static AudioClip Make(string name, float duration, float frequency, float gain, int kind)
         {

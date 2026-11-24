@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5107394671830503029}
   - component: {fileID: 414755570349984426}
   - component: {fileID: 2999247921584838392}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ThrowableCanister
   m_TagString: Interactable
   m_Icon: {fileID: 0}
@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 7b0b57d0ebf64460b9192cb4e0fc94d8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
