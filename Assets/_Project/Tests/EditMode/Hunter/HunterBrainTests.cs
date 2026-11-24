@@ -119,7 +119,7 @@ namespace BlackoutProtocol.AI.Hunter.Tests
         }
 
         [UnityTest]
-        public IEnumerator Lifecycle_RejectsInvalidNoiseUnsubscribesAndThrottlesUnreachableEvidence()
+        public IEnumerator Lifecycle_RejectsInvalidAndUnreachableNoiseAndUnsubscribes()
         {
             EditorSceneManager.OpenScene(ScenePath);
             yield return new EnterPlayMode();
@@ -194,7 +194,7 @@ namespace BlackoutProtocol.AI.Hunter.Tests
         }
 
         [UnityTest]
-        public IEnumerator Attack_RequiresLiveVisibleRegisteredTargetAndActualRange()
+        public IEnumerator Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange()
         {
             EditorSceneManager.OpenScene(ScenePath);
             yield return new EnterPlayMode();
@@ -222,7 +222,7 @@ namespace BlackoutProtocol.AI.Hunter.Tests
                 "A silent target outside melee reach must not create visual pursuit.");
             GameEvents.RaiseNoise(new NoiseEvent(target.Position, NoiseLevels.Gunshot, NoiseType.Gunshot, Time.time, target.gameObject));
             yield return WaitUntil(() => brain.CurrentAction == HunterAction.Chase, 2);
-            Assert.That(brain.AttackCount, Is.Zero, "A visible target outside the attack radius is not eligible.");
+            Assert.That(brain.AttackCount, Is.Zero, "A heard target outside the attack radius is not eligible.");
             float health = target.HealthNormalized;
             yield return WaitUntil(() => brain.AttackCount > 0, 6);
             Assert.That(target.HealthNormalized, Is.LessThan(health));

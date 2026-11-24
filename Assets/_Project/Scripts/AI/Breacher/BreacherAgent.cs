@@ -428,20 +428,15 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is PushBarricadeAction)
             {
-                Vector3 pushOffset = player.position -
-                    pushableContract.Position;
-                pushOffset.y = 0f;
-
-                if (!pushableContract.CanPush ||
-                    pushOffset.sqrMagnitude < 0.001f)
+                if (!pushableContract.CanPush)
                 {
                     currentActionFailed = true;
                 }
                 else
                 {
-                    pushableContract.Push(
-                        pushOffset.normalized,
-                        pushBarricadeCost);
+                    // The authored barricade knows which side of the passage is clear.
+                    // The action cost is a planning weight, not a physics push distance.
+                    barricade.Push();
                 }
 
                 return;

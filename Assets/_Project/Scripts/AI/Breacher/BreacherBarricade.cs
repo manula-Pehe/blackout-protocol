@@ -1,3 +1,4 @@
+using BlackoutProtocol.Audio;
 using BlackoutProtocol.Core;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace BlackoutProtocol.AI.Breacher
         private Collider levelCollider;
         private Vector3 clearedPosition;
         private bool isMoving;
+        private AudioSource scrapeSource;
 
         public bool IsCleared { get; private set; }
         public bool IsBlocked { get; private set; }
@@ -32,6 +34,14 @@ namespace BlackoutProtocol.AI.Breacher
             barricadeBody.isKinematic = true;
             clearedPosition = barricadeBody.position +
                 transform.TransformVector(localPushOffset);
+            scrapeSource = gameObject.AddComponent<AudioSource>();
+            scrapeSource.playOnAwake = false;
+            scrapeSource.spatialBlend = 1f;
+            scrapeSource.minDistance = 1.5f;
+            scrapeSource.maxDistance = 18f;
+            scrapeSource.volume = 0.45f;
+            scrapeSource.loop = true;
+            scrapeSource.clip = ProceduralSfx.Scrape;
         }
 
         private void FixedUpdate()
@@ -57,6 +67,7 @@ namespace BlackoutProtocol.AI.Breacher
             {
                 isMoving = false;
                 IsBlocked = true;
+                scrapeSource.Stop();
                 Debug.LogWarning(
                     $"{name} cannot be pushed further.",
                     this);
@@ -71,6 +82,7 @@ namespace BlackoutProtocol.AI.Breacher
                 barricadeBody.MovePosition(clearedPosition);
                 isMoving = false;
                 IsCleared = true;
+                scrapeSource.Stop();
                 GameEvents.RaiseLevelChanged(levelCollider);
             }
         }
@@ -94,6 +106,12 @@ namespace BlackoutProtocol.AI.Breacher
             clearedPosition = barricadeBody.position +
                 direction.normalized * force;
             isMoving = true;
+            if (!scrapeSource.isPlaying) scrapeSource.Play();
+        }
+
+        private void OnDisable()
+        {
+            if (scrapeSource != null) scrapeSource.Stop();
         }
 
         private void OnValidate()

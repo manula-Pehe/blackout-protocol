@@ -1,4 +1,5 @@
 using System;
+using BlackoutProtocol.Body;
 using BlackoutProtocol.Core;
 using UnityEngine;
 
@@ -52,6 +53,8 @@ namespace BlackoutProtocol.AI.Breacher
 
             bool wasLowHealth = IsLowHealth;
             currentHealth = Mathf.Max(0f, currentHealth - amount);
+            AgentBody body = GetComponent<AgentBody>();
+            if (body != null) body.PlayAction(IsDead ? AgentAction.Die : AgentAction.Hit);
 
             Debug.Log(
                 $"Breacher health: {currentHealth:F0}/{maximumHealth:F0}",

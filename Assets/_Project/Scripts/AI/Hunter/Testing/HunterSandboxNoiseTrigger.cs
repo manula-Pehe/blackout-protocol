@@ -46,7 +46,9 @@ namespace BlackoutProtocol.AI.Hunter.Testing
             testTarget.transform.position = point;
             testTarget.gameObject.SetActive(true);
             Physics.SyncTransforms();
-            lastEmission = "Registered player stand-in shown nearby. Hunter must see it and enter attack range.";
+            GameEvents.RaiseNoise(new NoiseEvent(testTarget.Position, NoiseLevels.Gunshot,
+                NoiseType.Gunshot, Time.time, testTarget.gameObject));
+            lastEmission = "Registered player stand-in emitted a gunshot. Hunter must hear it and enter melee range.";
         }
 
         public void HideTarget()

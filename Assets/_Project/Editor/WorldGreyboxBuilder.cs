@@ -366,6 +366,9 @@ namespace BlackoutProtocol.Editor
             TextMesh text = label.gameObject.AddComponent<TextMesh>();
             text.font = font;
             label.GetComponent<MeshRenderer>().sharedMaterial = font.material;
+            // Room names are shown by the player's screen-space ZoneNameDisplay.
+            // The built-in font material otherwise draws these floor labels through walls.
+            label.GetComponent<MeshRenderer>().enabled = false;
             text.text = title;
             text.anchor = TextAnchor.MiddleCenter;
             text.alignment = TextAlignment.Center;

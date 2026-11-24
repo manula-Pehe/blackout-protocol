@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -189,6 +189,9 @@ GameObject:
   - component: {fileID: 7319447025378960142}
   - component: {fileID: 7202324805917682372}
   - component: {fileID: -4015930397573782367}
+  - component: {fileID: 314159265358979323}
+  - component: {fileID: 271828182845904523}
+  - component: {fileID: 161803398874989484}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -247,7 +250,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8667c6ac8026efca9777f11ccbde4a7, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.FirstPersonController
   walkSpeed: 4
   sprintSpeed: 7
@@ -272,7 +275,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80f84b6b30caa396fb793c5bb384b060, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerLook
   playerCamera: {fileID: 7367870917923708270}
   mouseSensitivity: 0.2
@@ -288,7 +291,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_NotificationBehavior: 0
@@ -318,7 +321,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95e95b130a91ef59292d66d9ac3965c0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerInteractor
   playerCamera: {fileID: 6067884629084238992}
   interactionDistance: 3
@@ -335,7 +338,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9e6a40982524aec960c2a728ba2cf20, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerWeapon
   playerCamera: {fileID: 6067884629084238992}
   damage: 25
@@ -360,7 +363,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89762c83f9f1ef9499c40561c5606ffe, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerHealth
   maxHealth: 100
 --- !u!114 &6753449929326629384
@@ -373,7 +376,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 041dfea6a265fa8489836a3cd476e5bf, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerState
   playerCamera: {fileID: 6067884629084238992}
   aimRange: 100
@@ -390,7 +393,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73cf4c969d6849e5b90d64ef7320e8bf, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerCombatHud
 --- !u!114 &7202324805917682372
 MonoBehaviour:
@@ -402,7 +405,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f49260eca7aa1494a8e1de248cb271dc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.FootstepEmitter
   walkingStepDistance: 1.8
   runningStepDistance: 2.2
@@ -425,7 +428,51 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87b9e858c2c6fe93d8fb6a5f7132ca2b, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerHold
   holdPoint: {fileID: 7826270292642706713}
   throwImpulse: 12
+--- !u!114 &314159265358979323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31415926535897932384626433832795, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerWeaponView
+  playerCamera: {fileID: 6067884629084238992}
+  riflePrefab: {fileID: 1073745406978503541, guid: 49aea9ba09b092d4b8ceaea6aa557f4b, type: 3}
+  localPosition: {x: 0.34, y: -0.32, z: 0.66}
+  localEulerAngles: {x: 0, y: 90, z: 0}
+  visibleLength: 0.75
+--- !u!114 &271828182845904523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27182818284590452353602874713526, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.ZoneNameDisplay
+--- !u!114 &161803398874989484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4956171826781256253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45f7d74abafe4c6ab27c14c7cf7eaab3, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerCombatFeedback
+  shotSound: {fileID: 8300000, guid: eb5b2ca10362bb84cab4b244d4ffe001, type: 3}
+  reloadSound: {fileID: 8300000, guid: 24f3b68cba17a2248ab092d9c5ca7871, type: 3}
+  emptySound: {fileID: 8300000, guid: 37f15fba701b6f74f997e061dcf692e1, type: 3}

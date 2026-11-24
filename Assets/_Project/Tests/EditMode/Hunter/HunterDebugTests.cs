@@ -203,9 +203,16 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             Assert.That(pathfinder.GraphBuildCount, Is.EqualTo(builds + 1));
 
             int accepted = brain.AcceptedNoiseCount;
+            var previousSearch = pathfinder.LastSearch;
+            var previousUcs = pathfinder.LastUniformCostSearch;
+            bool previousCanCompare = pathfinder.CanCompareLastSearch;
             GameEvents.RaiseNoise(new NoiseEvent(new Vector3(1000, 0, 1000), 2000, NoiseType.Alarm, Time.time));
             Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted));
             Assert.That(pathfinder.AcousticStatus, Does.Contain("outside"));
+            // Acoustic rejection must not replace movement-search diagnostics.
+            Assert.That(pathfinder.LastSearch, Is.SameAs(previousSearch));
+            Assert.That(pathfinder.LastUniformCostSearch, Is.SameAs(previousUcs));
+            Assert.That(pathfinder.CanCompareLastSearch, Is.EqualTo(previousCanCompare));
             int failures = brain.PathFailureCount;
             yield return new WaitForSeconds(1);
             Assert.That(brain.PathFailureCount, Is.EqualTo(failures));
@@ -229,6 +236,8 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             target.transform.position = brain.transform.position + Vector3.forward;
             target.gameObject.SetActive(true);
             Physics.SyncTransforms();
+            GameEvents.RaiseNoise(new NoiseEvent(target.Position, NoiseLevels.Gunshot,
+                NoiseType.Gunshot, Time.time, target.gameObject));
             yield return WaitFor(() => brain.AttackCount > 0, 3);
             int attacks = brain.AttackCount;
             Object.Destroy(target.gameObject);

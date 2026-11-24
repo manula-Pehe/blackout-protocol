@@ -61,6 +61,8 @@ namespace BlackoutProtocol.AI.Hunter
         private float activeSearchRadius;
         private Vector3 lastAlarmPosition;
         private float lastAlarmTime = -10f;
+        private IPlayerState lastHeardPlayer;
+        private float lastPlayerSoundTime = float.NegativeInfinity;
 
         public HunterAction CurrentAction { get; private set; } = HunterAction.Wander;
         public HunterUtilitySelection LastSelection { get; private set; }
@@ -124,13 +126,15 @@ namespace BlackoutProtocol.AI.Hunter
             if (body != null) agentBody.Stop();
             routeActive = false;
             visibleTarget = null;
+            lastHeardPlayer = null;
+            lastPlayerSoundTime = float.NegativeInfinity;
             if (pathDisplay != null) pathDisplay.positionCount = 0;
         }
 
         private void OnNoise(NoiseEvent noise)
         {
             float now = Time.time;
-            if (body == null || !Finite(noise.Position) || !Finite(noise.Loudness) || noise.Loudness <= 0 ||
+            if (body == null || pathfinder == null || !Finite(noise.Position) || !Finite(noise.Loudness) || noise.Loudness <= 0 ||
                 !Finite(noise.Time) || noise.Time < 0 || noise.Time > now ||
                 (noise.Source != null && (noise.Source == gameObject || noise.Source.transform.IsChildOf(transform)))) return;
             if (noise.Type == NoiseType.Alarm && now - lastAlarmTime < 0.15f &&
@@ -153,6 +157,17 @@ namespace BlackoutProtocol.AI.Hunter
             {
                 lastAlarmPosition = noise.Position;
                 lastAlarmTime = now;
+            }
+            // Only accepted acoustic evidence from the actual player arms melee.
+            IPlayerState sourcePlayer = PlayerRegistry.Current;
+            if (ValidTarget(sourcePlayer) && noise.Source != null &&
+                (noise.Source == sourcePlayer.Transform.gameObject ||
+                 noise.Source.transform.IsChildOf(sourcePlayer.Transform)))
+            {
+                if (!ReferenceEquals(lastHeardPlayer, sourcePlayer))
+                    lastPlayerSoundTime = float.NegativeInfinity;
+                lastHeardPlayer = sourcePlayer;
+                lastPlayerSoundTime = Mathf.Max(lastPlayerSoundTime, noise.Time);
             }
             AcceptedNoiseCount++;
             LastRuntimeEvent = $"Acoustic evidence accepted: {propagation.PerceivedLoudness:F1}/{noise.Loudness:F1} loudness, uncertainty {uncertainty:F1} m.";
@@ -404,7 +419,7 @@ namespace BlackoutProtocol.AI.Hunter
                 agentBody.Stop();
                 routeActive = false;
                 pendingReason = HunterDecisionReason.TargetLostOrInvalid;
-                LastRuntimeEvent = "Attack cancelled: target no longer alive, visible and inside actual range.";
+                LastRuntimeEvent = "Attack cancelled: player sound is stale or target is blocked or out of range.";
                 nextDecision = 0;
                 return;
             }
@@ -417,10 +432,12 @@ namespace BlackoutProtocol.AI.Hunter
             IDamageable damageable = target.Transform.GetComponentInChildren<IDamageable>();
             if (damageable != null && !damageable.IsDead && attackDamage > 0)
                 damageable.TakeDamage(attackDamage, target.Position, gameObject);
-            Status = "Attack executed after alive-target, line-of-sight and range checks.";
+            Status = "Attack executed at a recently heard player within clear melee range.";
         }
 
         private bool CanAttack(IPlayerState target) => ValidTarget(target) &&
+            ReferenceEquals(lastHeardPlayer, target) &&
+            Time.time - lastPlayerSoundTime <= 5f &&
             Vector3.Distance(agentBody.Position, target.Position) <= Mathf.Max(0.1f, attackRange) && CanSee(target);
 
         private bool CanSee(IPlayerState target)

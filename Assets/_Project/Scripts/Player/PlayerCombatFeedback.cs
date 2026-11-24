@@ -35,6 +35,7 @@ namespace BlackoutProtocol.Player
         [SerializeField] private AudioClip emptySound;
 
         private PlayerWeapon weapon;
+        private PlayerHealth health;
         private PlayerLook playerLook;
         private Camera playerCamera;
         private AudioSource audioSource;
@@ -51,10 +52,14 @@ namespace BlackoutProtocol.Player
         private ParticleSystem[] impactPool;
         private int nextImpactIndex;
         private Material particleMaterial;
+        private float lastHealth;
+        private float damageFlashUntil;
 
         private void Awake()
         {
             weapon = GetComponent<PlayerWeapon>();
+            health = GetComponent<PlayerHealth>();
+            if (health != null) lastHealth = health.CurrentHealth;
             playerLook = GetComponent<PlayerLook>();
             playerCamera = GetComponentInChildren<Camera>();
 
@@ -80,6 +85,7 @@ namespace BlackoutProtocol.Player
             weapon.ShotHit += OnShotHit;
             weapon.EmptyShot += OnEmptyShot;
             weapon.ReloadStarted += OnReloadStarted;
+            if (health != null) health.HealthChanged += OnHealthChanged;
         }
 
         private void OnDisable()
@@ -91,6 +97,7 @@ namespace BlackoutProtocol.Player
                 weapon.EmptyShot -= OnEmptyShot;
                 weapon.ReloadStarted -= OnReloadStarted;
             }
+            if (health != null) health.HealthChanged -= OnHealthChanged;
 
             if (muzzleLight != null)
             {
@@ -141,8 +148,7 @@ namespace BlackoutProtocol.Player
                 GameObject anchor = new GameObject("Combat Feedback Muzzle Anchor");
                 muzzleAnchor = anchor.transform;
                 muzzleAnchor.SetParent(playerCamera.transform, false);
-                // The sandbox has no weapon mesh. This camera-relative point keeps
-                // its flash visible until an equipped weapon provides a Muzzle child.
+                // Fallback for scenes that do not equip a view model.
                 muzzleAnchor.localPosition = new Vector3(0.31f, -0.23f, 0.58f);
             }
 
@@ -291,6 +297,30 @@ namespace BlackoutProtocol.Player
 
             float roll = UnityEngine.Random.Range(-recoilRoll, recoilRoll);
             playerLook.AddRecoil(recoilPitch, roll);
+        }
+
+        private void OnHealthChanged(float current, float maximum)
+        {
+            if (current < lastHealth) damageFlashUntil = Time.unscaledTime + 0.42f;
+            lastHealth = current;
+        }
+
+        private void OnGUI()
+        {
+            float remaining = damageFlashUntil - Time.unscaledTime;
+            if (remaining <= 0f) return;
+            float alpha = Mathf.Clamp01(remaining / 0.42f);
+            Color previous = GUI.color;
+            GUI.depth = -100;
+            GUI.color = new Color(0.85f, 0.05f, 0.04f, 0.18f * alpha);
+            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.color = new Color(1f, 0.12f, 0.08f, 0.65f * alpha);
+            const float edge = 20f;
+            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, edge), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0f, Screen.height - edge, Screen.width, edge), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0f, 0f, edge, Screen.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(Screen.width - edge, 0f, edge, Screen.height), Texture2D.whiteTexture);
+            GUI.color = previous;
         }
 
         private void OnShotHit(Vector3 point, Vector3 normal)
