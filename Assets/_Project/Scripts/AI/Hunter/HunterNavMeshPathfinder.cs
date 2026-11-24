@@ -103,9 +103,27 @@ namespace BlackoutProtocol.AI.Hunter
                 AcousticStatus = "Sound source or listener has no visible acoustic graph anchor.";
                 return false;
             }
-            BuildAcousticPortals();
-            result = HunterSoundPropagation.Propagate(graph, sourceNode, listenerNode, loudness,
-                soundLossPerMetre, acousticPortals, maximumExpandedNodes);
+            // Include the endpoint legs omitted by the centroid graph. A direct,
+            // walkable connection within one anchor does not need a centroid detour.
+            if (sourceNode == listenerNode && !NavMesh.Raycast(sourceHit.position, listenerHit.position,
+                out _, NavMesh.AllAreas))
+            {
+                float distance = Vector3.Distance(sourceHit.position, listenerHit.position);
+                float remaining = Mathf.Max(0f, loudness - soundLossPerMetre * distance);
+                result = new HunterSoundPropagationResult(remaining > 0f, loudness, remaining,
+                    distance, 0, 0, ToPoint(sourceHit.position));
+            }
+            else
+            {
+                float endpointDistance = Vector3.Distance(sourceHit.position, ToUnity(graph.GetPoint(sourceNode))) +
+                    Vector3.Distance(listenerHit.position, ToUnity(graph.GetPoint(listenerNode)));
+                float budget = loudness - soundLossPerMetre * endpointDistance;
+                BuildAcousticPortals();
+                HunterSoundPropagationResult core = HunterSoundPropagation.Propagate(graph, sourceNode,
+                    listenerNode, budget, soundLossPerMetre, acousticPortals, maximumExpandedNodes);
+                result = new HunterSoundPropagationResult(core.Heard, loudness, core.PerceivedLoudness,
+                    core.TravelDistance + endpointDistance, core.ClosedDoors, core.NodesExpanded, core.IncomingPoint);
+            }
             LastSoundPropagation = result;
             AcousticStatus = result.Heard
                 ? $"Heard after {result.TravelDistance:F1} m, {result.ClosedDoors} closed door(s), {result.PerceivedLoudness:F1} loudness remaining."

@@ -147,6 +147,11 @@ namespace BlackoutProtocol.AI.Hunter
                 propagation.PerceivedLoudness, noise.Loudness, confidence,
                 (float)propagation.TravelDistance, propagation.ClosedDoors,
                 incoming.X, incoming.Y, incoming.Z, uncertainty), now)) return;
+            if (noise.Type == NoiseType.Alarm)
+            {
+                lastAlarmPosition = noise.Position;
+                lastAlarmTime = now;
+            }
             AcceptedNoiseCount++;
             LastRuntimeEvent = $"Acoustic evidence accepted: {propagation.PerceivedLoudness:F1}/{noise.Loudness:F1} loudness, uncertainty {uncertainty:F1} m.";
         }
@@ -155,8 +160,6 @@ namespace BlackoutProtocol.AI.Hunter
         {
             if (!Finite(position)) return;
             OnNoise(new NoiseEvent(position, NoiseLevels.Alarm, NoiseType.Alarm, Time.time));
-            lastAlarmPosition = position;
-            lastAlarmTime = Time.time;
         }
 
         private void OnLevelChanged(Collider changedObject)
@@ -461,7 +464,10 @@ namespace BlackoutProtocol.AI.Hunter
             if (uncertainty <= 0.001f) return source;
             // A stable phase makes the error repeatable for tests and viva explanation,
             // while preventing exact long-range source knowledge.
-            float phase = time * 37.13f + (int)type * 71.7f + source.x * 11.3f + source.z * 17.9f;
+            // Repeated impacts at one location should retain a stable perceived
+            // direction so uncertainty does not defeat location-based habituation.
+            float temporalPhase = type == NoiseType.Impact ? 0f : time * 37.13f;
+            float phase = temporalPhase + (int)type * 71.7f + source.x * 11.3f + source.z * 17.9f;
             Vector3 direction = new Vector3(Mathf.Sin(phase), 0f, Mathf.Cos(phase));
             return source + direction * uncertainty * 0.65f;
         }

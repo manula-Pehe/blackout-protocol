@@ -80,11 +80,13 @@ namespace BlackoutProtocol.AI.Hunter.Logic
             closedDoors[sourceNode] = 0;
             queue.Enqueue(sourceNode, 0d, 0d);
             int expanded = 0;
+            bool listenerSettled = false;
 
-            while (queue.TryDequeue(out HunterPriorityQueue.Entry entry) && expanded < maximumExpandedNodes)
+            while (queue.TryDequeue(out HunterPriorityQueue.Entry entry))
             {
                 if (entry.G > cost[entry.Node] + 1e-9) continue;
-                if (entry.Node == listenerNode) break;
+                if (entry.Node == listenerNode) { listenerSettled = true; break; }
+                if (expanded >= maximumExpandedNodes) break;
                 expanded++;
 
                 IReadOnlyList<HunterNavEdge> edges = graph.GetEdges(entry.Node);
@@ -104,16 +106,13 @@ namespace BlackoutProtocol.AI.Hunter.Logic
                 }
             }
 
-            if (double.IsInfinity(cost[listenerNode])) return default;
+            if (!listenerSettled || double.IsInfinity(cost[listenerNode])) return default;
             float remaining = (float)Math.Max(0d, originalLoudness - cost[listenerNode]);
             if (remaining <= 0f) return new HunterSoundPropagationResult(false, originalLoudness, 0f,
                 distance[listenerNode], closedDoors[listenerNode], expanded, graph.GetPoint(listenerNode));
 
-            int incoming = listenerNode;
-            while (previous[incoming] >= 0 && previous[incoming] != sourceNode)
-                incoming = previous[incoming];
-            // Walking predecessors from listener reaches the node immediately on the source side.
-            if (previous[listenerNode] >= 0) incoming = previous[listenerNode];
+            // The predecessor of the listener is the first direction toward the source.
+            int incoming = previous[listenerNode] >= 0 ? previous[listenerNode] : listenerNode;
             return new HunterSoundPropagationResult(true, originalLoudness, remaining,
                 distance[listenerNode], closedDoors[listenerNode], expanded, graph.GetPoint(incoming));
         }
