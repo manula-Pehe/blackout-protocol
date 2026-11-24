@@ -117,7 +117,7 @@ namespace BlackoutProtocol.AI.Hunter.Tests
         }
 
         [UnityTest]
-        public IEnumerator Lifecycle_RejectsInvalidNoiseUnsubscribesAndThrottlesUnreachableEvidence()
+        public IEnumerator Lifecycle_RejectsInvalidAndUnreachableNoiseAndUnsubscribes()
         {
             EditorSceneManager.OpenScene(ScenePath);
             yield return new EnterPlayMode();
@@ -147,11 +147,7 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             Assert.That(body.IsMoving, Is.False);
             brain.enabled = true;
             GameEvents.RaiseNoise(new NoiseEvent(new Vector3(1000, 0, 1000), 2000, NoiseType.Alarm, Time.time));
-            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted + 1));
-            yield return WaitUntil(() => brain.PathFailureCount > 0, 3);
-            int requests = brain.PathRequestCount;
-            yield return new WaitForSeconds(0.25f);
-            Assert.That(brain.PathRequestCount, Is.EqualTo(requests), "Failure retries must respect the path cooldown.");
+            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted), "An unreachable sound must not become evidence.");
             brain.enabled = false;
             brain.enabled = true;
             yield return null;
@@ -163,7 +159,7 @@ namespace BlackoutProtocol.AI.Hunter.Tests
         }
 
         [UnityTest]
-        public IEnumerator Attack_RequiresLiveVisibleRegisteredTargetAndActualRange()
+        public IEnumerator Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange()
         {
             EditorSceneManager.OpenScene(ScenePath);
             yield return new EnterPlayMode();
@@ -186,8 +182,10 @@ namespace BlackoutProtocol.AI.Hunter.Tests
 
             target.transform.position = brain.transform.position + Vector3.forward * 3;
             Physics.SyncTransforms();
+            GameEvents.RaiseNoise(new NoiseEvent(target.Position, NoiseLevels.Gunshot,
+                NoiseType.Gunshot, Time.time, target.gameObject));
             yield return WaitUntil(() => brain.CurrentAction == HunterAction.Chase, 2);
-            Assert.That(brain.AttackCount, Is.Zero, "A visible target outside the attack radius is not eligible.");
+            Assert.That(brain.AttackCount, Is.Zero, "A heard target outside the attack radius is not eligible.");
             float health = target.HealthNormalized;
             yield return WaitUntil(() => brain.AttackCount > 0, 6);
             Assert.That(target.HealthNormalized, Is.LessThan(health));

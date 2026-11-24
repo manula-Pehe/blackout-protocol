@@ -201,8 +201,9 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             Assert.That(brain.Transitions.GetRecent(0).Reason, Is.EqualTo(HunterDecisionReason.RepeatedStuck));
             Assert.That(pathfinder.GraphBuildCount, Is.EqualTo(builds + 1));
 
+            int accepted = brain.AcceptedNoiseCount;
             GameEvents.RaiseNoise(new NoiseEvent(new Vector3(1000, 0, 1000), 2000, NoiseType.Alarm, Time.time));
-            yield return WaitFor(() => brain.PathFailureCount > 0, 3);
+            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted), "Unreachable sound must not enter Hunter memory.");
             Assert.That(pathfinder.LastSearch, Is.Null, "An unsampled endpoint must clear previous successful metrics.");
             Assert.That(pathfinder.LastUniformCostSearch, Is.Null);
             Assert.That(pathfinder.CanCompareLastSearch, Is.False);

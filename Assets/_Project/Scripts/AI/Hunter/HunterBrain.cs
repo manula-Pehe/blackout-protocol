@@ -37,6 +37,8 @@ namespace BlackoutProtocol.AI.Hunter
         [SerializeField, Min(0)] private float attackDamage = 10f;
 
         private readonly List<Vector3> path = new List<Vector3>(64);
+        private readonly List<Vector3> soundPath = new List<Vector3>(64);
+        private readonly RaycastHit[] soundOccluders = new RaycastHit[16];
         private HunterSoundMemory memory;
         private HunterUtilitySelector selector;
         private IAgentBody agentBody;
@@ -53,6 +55,7 @@ namespace BlackoutProtocol.AI.Hunter
         private float blockedPursuitUntil, nextStuckRecovery;
         private bool previouslyVisible;
         private double lastFreshNoiseTime = -1;
+        private float lastPlayerSoundTime = float.NegativeInfinity;
 
         public HunterAction CurrentAction { get; private set; } = HunterAction.Wander;
         public HunterUtilitySelection LastSelection { get; private set; }
@@ -118,13 +121,32 @@ namespace BlackoutProtocol.AI.Hunter
             if (body == null || !Finite(noise.Position) || !Finite(noise.Loudness) || noise.Loudness <= 0 ||
                 !Finite(noise.Time) || noise.Time < 0 || noise.Time > now ||
                 (noise.Source != null && (noise.Source == gameObject || noise.Source.transform.IsChildOf(transform)))) return;
-            double distance = HunterNavPoint.Distance(ToPoint(agentBody.Position), ToPoint(noise.Position));
-            if (distance >= noise.Loudness) return;
+            double directDistance = HunterNavPoint.Distance(ToPoint(agentBody.Position), ToPoint(noise.Position));
+            if (directDistance >= noise.Loudness) return;
+            float audibleRadius = noise.Loudness;
+            Vector3 direction = noise.Position - agentBody.Position;
+            int hitCount = Physics.RaycastNonAlloc(agentBody.Position + Vector3.up, direction.normalized,
+                soundOccluders, direction.magnitude, ~0, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < hitCount; i++)
+            {
+                foreach (MonoBehaviour component in soundOccluders[i].collider.GetComponentsInParent<MonoBehaviour>())
+                    if (component is IDoor door && !door.IsOpen) audibleRadius *= 0.5f;
+            }
+            if (directDistance >= audibleRadius || pathfinder == null ||
+                !pathfinder.TryFindPath(agentBody.Position, noise.Position, soundPath)) return;
+            double distance = 0;
+            for (int i = 1; i < soundPath.Count; i++) distance += Vector3.Distance(soundPath[i - 1], soundPath[i]);
+            if (distance >= audibleRadius) return;
             // Loudness is an audible radius, not volume. The square-root falloff retains
             // useful evidence in the middle of the radius while confidence reaches zero at its edge.
-            float confidence = Mathf.Sqrt(Mathf.Clamp01(1f - (float)(distance / noise.Loudness)));
+            float confidence = Mathf.Sqrt(Mathf.Clamp01(1f - (float)(distance / audibleRadius)));
             if (!memory.Record(new HunterNoiseObservation(noise.Position.x, noise.Position.y, noise.Position.z,
-                noise.Type, noise.Time, noise.Loudness, confidence), now)) return;
+                noise.Type, noise.Time, audibleRadius, confidence), now)) return;
+            IPlayerState sourcePlayer = PlayerRegistry.Current;
+            if (ValidTarget(sourcePlayer) && noise.Source != null &&
+                (noise.Source == sourcePlayer.Transform.gameObject ||
+                 noise.Source.transform.IsChildOf(sourcePlayer.Transform)))
+                lastPlayerSoundTime = now;
             AcceptedNoiseCount++;
             LastRuntimeEvent = "Noise observation accepted; next scheduled decision will evaluate it.";
         }
@@ -148,15 +170,9 @@ namespace BlackoutProtocol.AI.Hunter
             float now = Time.time;
             LastDecisionTime = now;
             DecisionCount++;
-            visibleTarget = PlayerRegistry.Current;
-            if (!CanSee(visibleTarget) || IsPursuitBlocked(visibleTarget.Position)) visibleTarget = null;
-            if (previouslyVisible && !HasVisibleTarget)
-            {
-                pendingReason = HunterDecisionReason.TargetLostOrInvalid;
-                LastRuntimeEvent = "Target lost, invalid, or temporarily excluded after failed pursuit.";
-            }
-            else if (!previouslyVisible && HasVisibleTarget) pendingReason = HunterDecisionReason.VisiblePlayer;
-            previouslyVisible = HasVisibleTarget;
+            // The Hunter has no visual acquisition. It pursues only accepted sound evidence.
+            visibleTarget = null;
+            previouslyVisible = false;
             bool previouslyRemembered = HasSelectedNoise;
             HasSelectedNoise = memory.TryGetMostRelevant(now, resolvedThroughTime, out HunterRememberedNoise noise);
             if (!HasSelectedNoise) HasSelectedNoise = memory.TryGetMostRelevant(now, out noise);
@@ -229,7 +245,7 @@ namespace BlackoutProtocol.AI.Hunter
                 fresh ? SelectedNoise.SoundIntensity * SelectedNoise.Confidence : 0,
                 HasVisibleTarget ? 1 : hasTrail && HasSelectedNoise ? SelectedNoise.Confidence : 0,
                 HasVisibleTarget ? 1 : HasSelectedNoise ? SelectedNoise.EffectiveTrust : 0,
-                proximity, searching ? 1 : 0, CanAttack(visibleTarget) ? 1 : 0);
+                proximity, searching ? 1 : 0, CanAttack(PlayerRegistry.Current) ? 1 : 0);
         }
 
         private void Wander()
@@ -358,7 +374,7 @@ namespace BlackoutProtocol.AI.Hunter
                 agentBody.Stop();
                 routeActive = false;
                 pendingReason = HunterDecisionReason.TargetLostOrInvalid;
-                LastRuntimeEvent = "Attack cancelled: target no longer alive, visible and inside actual range.";
+                LastRuntimeEvent = "Attack cancelled: player sound is stale or target is blocked or out of range.";
                 nextDecision = 0;
                 return;
             }
@@ -371,10 +387,11 @@ namespace BlackoutProtocol.AI.Hunter
             IDamageable damageable = target.Transform.GetComponentInChildren<IDamageable>();
             if (damageable != null && !damageable.IsDead && attackDamage > 0)
                 damageable.TakeDamage(attackDamage, target.Position, gameObject);
-            Status = "Attack executed after alive-target, line-of-sight and range checks.";
+            Status = "Attack executed at a recently heard player within clear melee range.";
         }
 
         private bool CanAttack(IPlayerState target) => ValidTarget(target) &&
+            Time.time - lastPlayerSoundTime <= 5f &&
             Vector3.Distance(agentBody.Position, target.Position) <= Mathf.Max(0.1f, attackRange) && CanSee(target);
 
         private bool CanSee(IPlayerState target)

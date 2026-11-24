@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using BlackoutProtocol.AI.Flanker.Logic;
 using BlackoutProtocol.Core;
 using UnityEngine;
@@ -17,6 +18,11 @@ namespace BlackoutProtocol.AI.Flanker
         private FlankerAStar search;
         private float[] exposure;
         private readonly List<int> route = new List<int>();
+        private readonly List<int> comparisonRoute = new List<int>();
+        private float[] lastExposure;
+        private int lastStart = -1;
+        private int lastGoal = -1;
+        private float lastWeight;
         private bool exposureDirty = true;
         private bool threatKnown;
         private Vector3 threatEye;
@@ -25,6 +31,12 @@ namespace BlackoutProtocol.AI.Flanker
 
         public double LastCost { get; private set; }
         public int Expanded => search == null ? 0 : search.Expanded;
+        public int LastAStarExpanded { get; private set; }
+        public double LastAStarMilliseconds { get; private set; }
+        public double LastUcsCost { get; private set; }
+        public int LastUcsExpanded { get; private set; }
+        public double LastUcsMilliseconds { get; private set; }
+        public bool HasComparison { get; private set; }
         public int NodeCount => graph == null ? 0 : graph.Count;
         private NavMeshQueryFilter Filter => new NavMeshQueryFilter { agentTypeID = agentTypeId, areaMask = NavMesh.AllAreas };
 
@@ -34,6 +46,8 @@ namespace BlackoutProtocol.AI.Flanker
             graph = null;
             search = null;
             exposureDirty = true;
+            lastStart = lastGoal = -1;
+            HasComparison = false;
         }
 
         /// <summary>Supply perceived or remembered threat information; never reads the live player itself.</summary>
@@ -68,8 +82,19 @@ namespace BlackoutProtocol.AI.Flanker
             int last = Anchor(sampledGoal);
             if (first < 0 || last < 0) return false;
             RefreshExposure();
-            if (!search.Find(first, last, exposure, Mathf.Max(0f, exposurePenalty) * penaltyScale,
-                route, out double cost, maximumExpanded)) return false;
+            float weight = Mathf.Max(0f, exposurePenalty) * penaltyScale;
+            var stopwatch = Stopwatch.StartNew();
+            bool found = search.Find(first, last, exposure, weight,
+                route, out double cost, maximumExpanded);
+            stopwatch.Stop();
+            LastAStarExpanded = search.Expanded;
+            LastAStarMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
+            lastStart = first;
+            lastGoal = last;
+            lastWeight = weight;
+            lastExposure = (float[])exposure.Clone();
+            HasComparison = false;
+            if (!found) return false;
 
             result.Add(sampledStart);
             for (int index = 0; index < route.Count; index++)
@@ -90,6 +115,21 @@ namespace BlackoutProtocol.AI.Flanker
             if ((sampledGoal - result[result.Count - 1]).sqrMagnitude > 0.0001f) result.Add(sampledGoal);
             LastCost = cost;
             return true;
+        }
+
+        /// <summary>Runs UCS with the same graph, endpoints, and frozen exposure as the last A* route.</summary>
+        public bool CompareLastRoute()
+        {
+            if (search == null || lastStart < 0 || lastGoal < 0 || lastExposure == null) return false;
+            var stopwatch = Stopwatch.StartNew();
+            bool found = search.Find(lastStart, lastGoal, lastExposure, lastWeight,
+                comparisonRoute, out double cost, maximumExpanded, heuristic: false);
+            stopwatch.Stop();
+            LastUcsCost = cost;
+            LastUcsExpanded = search.Expanded;
+            LastUcsMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
+            HasComparison = found;
+            return found;
         }
 
         private void EnsureGraph()

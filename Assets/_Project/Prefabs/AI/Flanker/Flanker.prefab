@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 855254802435360262}
   - component: {fileID: 2396865486490179727}
   - component: {fileID: 58509293541724301}
+  - component: {fileID: 141421356237309504}
   m_Layer: 7
   m_Name: Flanker
   m_TagString: Enemy
@@ -188,7 +189,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1572c6bdfc83128ab4199b21740ad18, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Flanker::BlackoutProtocol.AI.Flanker.FlankerHealth
   maximumHealth: 100
 --- !u!114 &2334151692795609864
@@ -201,7 +202,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b6bc1525fee334450529df4aebd06a4, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Flanker::BlackoutProtocol.AI.Flanker.FlankerNavMeshPathfinder
   agentTypeId: 0
   exposurePenalty: 5
@@ -216,7 +217,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea5297b634cedadfbae150300c057b21, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentMotor
   gravity: -20
   groundedStickSpeed: -2
@@ -230,7 +231,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d635140b2de7c122cbcc7c904dcae51a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentRotation
   turnRate: 360
 --- !u!114 &2396865486490179727
@@ -243,7 +244,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7f225d8406a27306ab8902b6eddc477, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentBody
   walkSpeed: 1.6
   runSpeed: 4
@@ -266,7 +267,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb92ec356bf9367d755b6609ff9b2924, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Flanker::BlackoutProtocol.AI.Flanker.FlankerBrain
   sightRange: 28
   fieldOfView: 130
@@ -278,3 +279,15 @@ MonoBehaviour:
   patrolPoints: []
   currentTactic: 0
   playerVisible: 0
+--- !u!114 &141421356237309504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7691909307762200856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14142135623730950488016887242096, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BlackoutProtocol.Flanker::BlackoutProtocol.AI.Flanker.FlankerDebugView
