@@ -19,11 +19,12 @@ namespace BlackoutProtocol.AI.Hunter
         {
             if (IsDead || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;
             currentHealth = Mathf.Max(0f, currentHealth - amount);
+            AgentBody body = GetComponent<AgentBody>();
+            if (body != null) body.PlayAction(IsDead ? AgentAction.Die : AgentAction.Hit);
             if (!IsDead) return;
 
             HunterBrain brain = GetComponent<HunterBrain>();
             if (brain != null) brain.enabled = false;
-            AgentBody body = GetComponent<AgentBody>();
             if (body != null) body.Stop();
         }
     }

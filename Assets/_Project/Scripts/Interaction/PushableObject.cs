@@ -1,3 +1,4 @@
+using BlackoutProtocol.Audio;
 using BlackoutProtocol.Core;
 using UnityEngine;
 using UnityEngine.AI;
@@ -69,6 +70,18 @@ namespace BlackoutProtocol.Interaction
 
             previousPosition = body.position;
             lastSettledPosition = body.position;
+            if (scrapeAudioSource == null) scrapeAudioSource = gameObject.AddComponent<AudioSource>();
+            scrapeAudioSource.playOnAwake = false;
+            scrapeAudioSource.spatialBlend = 1f;
+            scrapeAudioSource.minDistance = 1.5f;
+            scrapeAudioSource.maxDistance = 16f;
+            scrapeAudioSource.volume = 0.42f;
+            if (scrapeClip == null) scrapeClip = ProceduralSfx.Scrape;
+        }
+
+        private void OnDisable()
+        {
+            if (scrapeAudioSource != null) scrapeAudioSource.Stop();
         }
 
         private void FixedUpdate()

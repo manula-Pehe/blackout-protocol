@@ -89,9 +89,14 @@ namespace BlackoutProtocol.AI.Sentinel
             if (shotDown || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;
 
             currentHealth = Mathf.Max(0f, currentHealth - amount);
-            if (currentHealth > 0f) return;
+            if (currentHealth > 0f)
+            {
+                PlayAction(AgentAction.Hit);
+                return;
+            }
 
             shotDown = true;
+            PlayAction(AgentAction.Die);
             Stop();
             SentinelDroneBrain brain = GetComponent<SentinelDroneBrain>();
             if (brain != null) brain.enabled = false;

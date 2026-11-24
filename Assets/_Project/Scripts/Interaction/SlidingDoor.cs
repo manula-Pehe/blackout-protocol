@@ -1,3 +1,4 @@
+using BlackoutProtocol.Audio;
 using BlackoutProtocol.Core;
 using UnityEngine;
 
@@ -72,6 +73,12 @@ namespace BlackoutProtocol.Interaction
 
             IsLocked = startsLocked;
             levelCollider = doorPanel.GetComponent<Collider>();
+            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 1f;
+            audioSource.minDistance = 1.5f;
+            audioSource.maxDistance = 18f;
+            audioSource.volume = 0.45f;
         }
 
         private void FixedUpdate()
@@ -165,10 +172,7 @@ namespace BlackoutProtocol.Interaction
                 Time.time,
                 gameObject));
 
-            if (audioSource != null && clip != null)
-            {
-                audioSource.PlayOneShot(clip);
-            }
+            if (audioSource != null) audioSource.PlayOneShot(clip != null ? clip : ProceduralSfx.Door);
 
             if (logNoiseEvents)
             {

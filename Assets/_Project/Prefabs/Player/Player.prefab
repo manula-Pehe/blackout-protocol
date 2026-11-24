@@ -473,3 +473,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45f7d74abafe4c6ab27c14c7cf7eaab3, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerCombatFeedback
+  shotSound: {fileID: 8300000, guid: eb5b2ca10362bb84cab4b244d4ffe001, type: 3}
+  reloadSound: {fileID: 8300000, guid: 24f3b68cba17a2248ab092d9c5ca7871, type: 3}
+  emptySound: {fileID: 8300000, guid: 37f15fba701b6f74f997e061dcf692e1, type: 3}

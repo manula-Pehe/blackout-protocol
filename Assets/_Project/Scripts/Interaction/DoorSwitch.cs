@@ -1,3 +1,4 @@
+using BlackoutProtocol.Audio;
 using UnityEngine;
 
 namespace BlackoutProtocol.Interaction
@@ -15,6 +16,7 @@ namespace BlackoutProtocol.Interaction
         [SerializeField] private Color activatedColour = Color.green;
 
         private bool hasBeenUsed;
+        private AudioSource clickSource;
 
         public string Prompt
         {
@@ -37,6 +39,12 @@ namespace BlackoutProtocol.Interaction
             }
 
             UpdateIndicator();
+            clickSource = gameObject.AddComponent<AudioSource>();
+            clickSource.playOnAwake = false;
+            clickSource.spatialBlend = 1f;
+            clickSource.minDistance = 1.5f;
+            clickSource.maxDistance = 12f;
+            clickSource.volume = 0.6f;
         }
 
         public void Interact(GameObject user)
@@ -63,6 +71,7 @@ namespace BlackoutProtocol.Interaction
 
             hasBeenUsed = true;
             UpdateIndicator();
+            clickSource.PlayOneShot(ProceduralSfx.Click);
         }
 
         private void UpdateIndicator()
