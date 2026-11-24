@@ -6271,7 +6271,7 @@ PrefabInstance:
     - target: {fileID: 3988934678937753365, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 064fc944118d255d3a023d008deab2eb, type: 2}
+      objectReference: {fileID: 9100000, guid: ecf451db12ae1a3adb11775842468623, type: 2}
     - target: {fileID: 4731583380401481865, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -6679,6 +6679,8 @@ MonoBehaviour:
   runReference: 4
   sneakReference: 1
   damping: 0.09
+  fingerRestWeight: 1
+  wristRestWeight: 0.65
 --- !u!1 &1146446583
 GameObject:
   m_ObjectHideFlags: 0
@@ -10270,6 +10272,8 @@ MonoBehaviour:
   runReference: 4
   sneakReference: 1
   damping: 0.09
+  fingerRestWeight: 1
+  wristRestWeight: 0.65
 --- !u!1 &1872962851 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7580718988875674766, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
@@ -10516,6 +10520,8 @@ MonoBehaviour:
   runReference: 4
   sneakReference: 1
   damping: 0.09
+  fingerRestWeight: 1
+  wristRestWeight: 0.65
 --- !u!1 &1988243772
 GameObject:
   m_ObjectHideFlags: 0

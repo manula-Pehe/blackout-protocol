@@ -60,7 +60,7 @@ namespace BlackoutProtocol.EditorTools
                 AssetDatabase.CreateAsset(copy, AssetDatabase.GenerateUniqueAssetPath(Folder + "/" + Labels[i] + ".anim")); motions[i] = copy;
             }
             var c = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
-            foreach (string name in new[] { "Speed", "LocalX", "LocalZ", "StrideRate" }) c.AddParameter(new AnimatorControllerParameter { name = name, type = AnimatorControllerParameterType.Float, defaultFloat = name == "StrideRate" ? 1 : 0 });
+            foreach (string name in new[] { "Speed", "LocalX", "LocalZ", "StrideRate", "AttackRate" }) c.AddParameter(new AnimatorControllerParameter { name = name, type = AnimatorControllerParameterType.Float, defaultFloat = name == "StrideRate" || name == "AttackRate" ? 1 : 0 });
             c.AddParameter("Sneak", AnimatorControllerParameterType.Bool);
             foreach (string name in new[] { "Attack", "Hit", "Die", "Alert" }) c.AddParameter(name, AnimatorControllerParameterType.Trigger);
             var machine = c.layers[0].stateMachine;
@@ -80,7 +80,7 @@ namespace BlackoutProtocol.EditorTools
             AssetDatabase.CreateAsset(mask, AssetDatabase.GenerateUniqueAssetPath(Folder + "/UpperBody.mask"));
             c.AddLayer("Upper Body"); var layers = c.layers; layers[1].avatarMask = mask; layers[1].defaultWeight = 0; layers[1].blendingMode = AnimatorLayerBlendingMode.Override; c.layers = layers;
             var upper = layers[1].stateMachine; var empty = upper.AddState("No Action"); upper.defaultState = empty; empty.writeDefaultValues = false;
-            var attack = upper.AddState("Attack"); attack.motion = motions[10]; Any(upper, attack, "Attack"); Exit(attack, empty);
+            var attack = upper.AddState("Attack"); attack.motion = motions[10]; attack.speedParameter = "AttackRate"; attack.speedParameterActive = true; Any(upper, attack, "Attack"); Exit(attack, empty);
             var alert = upper.AddState("Alert"); alert.motion = motions[13]; Any(upper, alert, "Alert"); Exit(alert, empty);
             EditorUtility.SetDirty(c); AssetDatabase.SaveAssets(); Selection.activeObject = c;
             Debug.Log("Created " + controllerPath + ". Apply to Main and verify clip timing before committing.");

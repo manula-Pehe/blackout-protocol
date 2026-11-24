@@ -11,6 +11,7 @@ namespace BlackoutProtocol.Audio
     public sealed class RobotAudioFeedback : MonoBehaviour
     {
         private AgentBody groundBody;
+        private AgentActionAnimation humanoid;
         private SentinelDroneBody droneBody;
         private AudioSource oneShot;
         private AudioSource loop;
@@ -35,13 +36,15 @@ namespace BlackoutProtocol.Audio
                     label.gameObject.AddComponent<WorldSpaceLabelVisibility>();
             foreach (AgentBody body in Object.FindObjectsByType<AgentBody>(FindObjectsSortMode.None))
             {
-                if (body.GetComponent<AgentAnimatorDriver>() == null && body.GetComponentInChildren<Animator>() != null)
+                var humanoid = body.GetComponentInChildren<AgentActionAnimation>(true);
+                bool animated = humanoid != null && humanoid.IsReady;
+                if (!animated && body.GetComponent<AgentAnimatorDriver>() == null && body.GetComponentInChildren<Animator>() != null)
                     body.gameObject.AddComponent<AgentAnimatorDriver>();
                 if (body.GetComponent<RobotAudioFeedback>() == null)
                     body.gameObject.AddComponent<RobotAudioFeedback>();
-                if (body.GetComponent<RobotAttackVisual>() == null)
+                if (!animated && body.GetComponent<RobotAttackVisual>() == null)
                     body.gameObject.AddComponent<RobotAttackVisual>();
-                if (body.GetComponent<RobotDeathFall>() == null)
+                if (!animated && body.GetComponent<RobotDeathFall>() == null)
                     body.gameObject.AddComponent<RobotDeathFall>();
                 if (body.GetComponent<EnemyHealthDisplay>() == null)
                     body.gameObject.AddComponent<EnemyHealthDisplay>();
@@ -58,6 +61,7 @@ namespace BlackoutProtocol.Audio
         private void Awake()
         {
             groundBody = GetComponent<AgentBody>();
+            humanoid = GetComponentInChildren<AgentActionAnimation>(true);
             droneBody = GetComponent<SentinelDroneBody>();
             oneShot = gameObject.AddComponent<AudioSource>();
             Configure(oneShot, 0.68f);
@@ -80,6 +84,7 @@ namespace BlackoutProtocol.Audio
         private void OnEnable()
         {
             if (groundBody != null) groundBody.ActionRequested += OnAction;
+            if (humanoid != null) { humanoid.Footstep += OnFootstep; humanoid.AttackImpact += OnAttackImpact; }
             if (droneBody != null)
             {
                 droneBody.ActionRequested += OnAction;
@@ -90,6 +95,7 @@ namespace BlackoutProtocol.Audio
         private void OnDisable()
         {
             if (groundBody != null) groundBody.ActionRequested -= OnAction;
+            if (humanoid != null) { humanoid.Footstep -= OnFootstep; humanoid.AttackImpact -= OnAttackImpact; }
             if (droneBody != null)
             {
                 droneBody.ActionRequested -= OnAction;
@@ -107,13 +113,20 @@ namespace BlackoutProtocol.Audio
                 if (!loop.isPlaying) loop.Play();
                 return;
             }
+            if (humanoid != null && humanoid.IsReady) return;
             if (groundBody == null || !groundBody.IsMoving || Time.time < nextStep) return;
             nextStep = Time.time + (groundBody.Style == MoveStyle.Run ? 0.31f : 0.52f);
             oneShot.PlayOneShot(ProceduralSfx.Step, 0.45f);
         }
 
+        private void OnFootstep()
+        {
+            if (groundBody != null) oneShot.PlayOneShot(ProceduralSfx.Step, groundBody.Style == MoveStyle.Sneak ? 0.15f : 0.45f);
+        }
+        private void OnAttackImpact() => oneShot.PlayOneShot(ProceduralSfx.Attack, 0.75f);
         private void OnAction(AgentAction action)
         {
+            if (action == AgentAction.Attack && humanoid != null && humanoid.IsReady) return;
             AudioClip clip = action == AgentAction.Attack ? ProceduralSfx.Attack :
                 action == AgentAction.Hit ? ProceduralSfx.Hit :
                 action == AgentAction.Die ? ProceduralSfx.Death : ProceduralSfx.Alert;

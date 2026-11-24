@@ -18,6 +18,7 @@ namespace BlackoutProtocol.Body
 
         private readonly List<Part> parts = new List<Part>();
         private AgentBody body;
+        private AgentActionAnimation humanoid;
         private CharacterController controller;
         private float deathStarted = -1f;
         private bool finished;
@@ -25,6 +26,7 @@ namespace BlackoutProtocol.Body
         private void Awake()
         {
             body = GetComponent<AgentBody>();
+            humanoid = GetComponentInChildren<AgentActionAnimation>(true);
             controller = GetComponent<CharacterController>();
             foreach (Transform child in transform)
             {
@@ -52,6 +54,7 @@ namespace BlackoutProtocol.Body
 
         private void OnAction(AgentAction action)
         {
+            if (humanoid != null && humanoid.IsReady) return;
             if (action != AgentAction.Die || deathStarted >= 0f) return;
             deathStarted = Time.time;
             body.Stop();

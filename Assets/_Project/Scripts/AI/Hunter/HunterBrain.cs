@@ -62,6 +62,8 @@ namespace BlackoutProtocol.AI.Hunter
         private Vector3 lastAlarmPosition;
         private float lastAlarmTime = -10f;
         private IPlayerState lastHeardPlayer;
+        private IPlayerState pendingAttackTarget;
+        private System.Action timedAttackImpact;
         private float lastPlayerSoundTime = float.NegativeInfinity;
 
         public HunterAction CurrentAction { get; private set; } = HunterAction.Wander;
@@ -116,6 +118,8 @@ namespace BlackoutProtocol.AI.Hunter
 
         private void OnDisable()
         {
+            if (agentBody is IAgentTimedAttack timing) timing.CancelTimedAttack();
+            pendingAttackTarget = null;
             if (!subscribed) return;
             GameEvents.Noise -= OnNoise;
             GameEvents.LevelChanged -= OnLevelChanged;
@@ -426,9 +430,32 @@ namespace BlackoutProtocol.AI.Hunter
             if (agentBody.IsMoving) agentBody.Stop();
             routeActive = false;
             if (Time.time < nextAttack) return;
+            if (agentBody is IAgentTimedAttack timing && timing.HasTimedAttack)
+            {
+                if (timedAttackImpact == null) timedAttackImpact = ResolveTimedAttack;
+                if (!timing.TryPlayTimedAttack(attackCooldown, timedAttackImpact)) return;
+                pendingAttackTarget = target;
+                Status = "Attack windup: waiting for animation impact.";
+            }
+            else
+            {
+                agentBody.PlayAction(AgentAction.Attack);
+                ApplyAttackDamage(target);
+            }
             nextAttack = Time.time + Mathf.Max(0.1f, attackCooldown);
-            agentBody.PlayAction(AgentAction.Attack);
             AttackCount++;
+        }
+
+        private void ResolveTimedAttack()
+        {
+            IPlayerState target = pendingAttackTarget;
+            pendingAttackTarget = null;
+            if (!isActiveAndEnabled || !ReferenceEquals(target, PlayerRegistry.Current) || !CanAttack(target)) return;
+            ApplyAttackDamage(target);
+        }
+
+        private void ApplyAttackDamage(IPlayerState target)
+        {
             IDamageable damageable = target.Transform.GetComponentInChildren<IDamageable>();
             if (damageable != null && !damageable.IsDead && attackDamage > 0)
                 damageable.TakeDamage(attackDamage, target.Position, gameObject);

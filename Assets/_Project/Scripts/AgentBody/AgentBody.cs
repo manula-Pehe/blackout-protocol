@@ -18,7 +18,7 @@ namespace BlackoutProtocol.Body
     [RequireComponent(typeof(AgentMotor))]
     [RequireComponent(typeof(AgentRotation))]
     [DisallowMultipleComponent]
-    public sealed class AgentBody : MonoBehaviour, IAgentBody
+    public sealed class AgentBody : MonoBehaviour, IAgentBody, IAgentTimedAttack
     {
         [Header("Speeds (m/s)")]
         [SerializeField] private float walkSpeed = 1.6f;
@@ -73,6 +73,28 @@ namespace BlackoutProtocol.Body
         [SerializeField, Min(0.1f)] private float separationResponse = 3f;
 
         private readonly PathFollower follower = new PathFollower();
+
+        private AgentActionAnimation actionAnimation;
+        private bool animationBindingChecked;
+        private AgentActionAnimation ActionAnimation
+        {
+            get
+            {
+                if (!animationBindingChecked)
+                {
+                    actionAnimation = GetComponentInChildren<AgentActionAnimation>(true);
+                    animationBindingChecked = true;
+                }
+                return actionAnimation;
+            }
+        }
+        public bool HasTimedAttack => ActionAnimation != null && ActionAnimation.SupportsTimedAttack;
+        public bool TryPlayTimedAttack(float cycleSeconds, Action onImpact) =>
+            HasTimedAttack && ActionAnimation.TryPlayTimedAttack(cycleSeconds, onImpact);
+        public void CancelTimedAttack()
+        {
+            if (ActionAnimation != null) ActionAnimation.CancelPendingAttack();
+        }
 
         private AgentMotor motor;
         private AgentRotation rotation;
