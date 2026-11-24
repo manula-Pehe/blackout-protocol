@@ -575,7 +575,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7f225d8406a27306ab8902b6eddc477, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentBody
   walkSpeed: 1.6
   runSpeed: 4
@@ -587,6 +587,9 @@ MonoBehaviour:
   slowingRadius: 1.5
   cornerAcceptanceRadius: 0.08
   cornerSpeed: 0.5
+  enableRouteRefinement: 0
+  lookAheadDistance: 0.8
+  maximumJoinDistance: 0.35
   stuckTimeout: 2.5
   minimumProgressDistance: 0.1
   turnInPlaceAngle: 100
@@ -606,7 +609,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d635140b2de7c122cbcc7c904dcae51a, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentRotation
   turnRate: 360
 --- !u!114 &79526618
@@ -619,7 +622,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea5297b634cedadfbae150300c057b21, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentMotor
   gravity: -20
   groundedStickSpeed: -2
@@ -662,7 +665,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48324ef46e609964bafb13c3188c4c3e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentAnimatorDriver
   animator: {fileID: 0}
   speedParameter: Speed
@@ -935,7 +938,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &161157679
@@ -1303,7 +1306,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7659bfe0f595fc5448d1ea9c6fc956bb, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Interaction.PushableObject
   mass: 35
   linearDamping: 2
@@ -1370,7 +1373,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: 
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -1623,7 +1626,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &283127366
@@ -2339,7 +2342,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &464140523
@@ -2749,6 +2752,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 1636166956}
     m_Modifications:
     - target: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -2812,18 +2827,6 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: a67493c34bcb14d5e810a8be525f44a8, type: 2}
-    - target: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 3.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.2
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2852,7 +2855,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0dc9296de332d5b6dae61ab79f96dc63, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.AI.Breacher.BreacherBarricade
   localPushOffset: {x: 3.5, y: 0, z: 0}
   pushSpeed: 2
@@ -2884,7 +2887,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a68a72b1bb5a4f1592a2a8b78957c761, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Audio.AudioPresenter
   ambienceClip: {fileID: 8300000, guid: 38b9ab52024b42caaf594fe24c4170eb, type: 3}
   alarmClip: {fileID: 8300000, guid: 8bc266e065d04e3bb4a32c16aed9601c, type: 3}
@@ -3015,7 +3018,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -3613,7 +3616,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -3681,7 +3684,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
   m_SerializedVersion: 0
   m_AgentTypeID: 0
@@ -3937,7 +3940,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1001 &723751558
@@ -4160,7 +4163,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &749874426
@@ -4713,7 +4716,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &841083428
@@ -5016,7 +5019,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &952941159
@@ -5272,7 +5275,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: 
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -5600,7 +5603,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -6265,6 +6268,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 3988934678937753365, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 064fc944118d255d3a023d008deab2eb, type: 2}
     - target: {fileID: 4731583380401481865, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -6448,6 +6455,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7705789309682440149, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1137955354}
+    - targetCorrespondingSourceObject: {fileID: 7705789309682440149, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1137955356}
     - targetCorrespondingSourceObject: {fileID: 7580718988875674766, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1872962853}
@@ -6472,7 +6482,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e20b3c57642b493823611c1a24aaf715, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Hunter.Runtime::BlackoutProtocol.AI.Hunter.HunterBrain
   body: {fileID: 0}
   pathfinder: {fileID: 0}
@@ -6509,7 +6519,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db4ba9338e7240dabac022e620073f8b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Hunter.Runtime::BlackoutProtocol.AI.Hunter.HunterHealth
   maximumHealth: 100
 --- !u!114 &1137955349
@@ -6522,7 +6532,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d56d03a463f43758fd32035d729ceee, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Hunter.Runtime::BlackoutProtocol.AI.Hunter.HunterNavMeshPathfinder
   sampleRadius: 2
   maximumExpandedNodes: 4096
@@ -6539,7 +6549,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7f225d8406a27306ab8902b6eddc477, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentBody
   walkSpeed: 1.6
   runSpeed: 4
@@ -6551,6 +6561,9 @@ MonoBehaviour:
   slowingRadius: 1.5
   cornerAcceptanceRadius: 0.08
   cornerSpeed: 0.5
+  enableRouteRefinement: 0
+  lookAheadDistance: 0.8
+  maximumJoinDistance: 0.35
   stuckTimeout: 2.5
   minimumProgressDistance: 0.1
   turnInPlaceAngle: 100
@@ -6570,7 +6583,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d635140b2de7c122cbcc7c904dcae51a, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentRotation
   turnRate: 360
 --- !u!114 &1137955352
@@ -6583,7 +6596,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea5297b634cedadfbae150300c057b21, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentMotor
   gravity: -20
   groundedStickSpeed: -2
@@ -6626,7 +6639,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 22b602ca645c4012427a9c315889669f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Hunter.Runtime::BlackoutProtocol.AI.Hunter.HunterDebugPanel
   brain: {fileID: 1137955347}
   pathfinder: {fileID: 1137955349}
@@ -6643,13 +6656,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48324ef46e609964bafb13c3188c4c3e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentAnimatorDriver
   animator: {fileID: 762429491}
   speedParameter: Speed
   referenceSpeed: 4
   idleSpeedThreshold: 0.02
   speedDampTime: 0.1
+--- !u!114 &1137955356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137955346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b085c401cc1e5cd6bf21bf00fb52ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentActionAnimation
+  walkReference: 1.6
+  runReference: 4
+  sneakReference: 1
+  damping: 0.09
 --- !u!1 &1146446583
 GameObject:
   m_ObjectHideFlags: 0
@@ -7774,7 +7803,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &1273312370
@@ -7819,7 +7848,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1001 &1280379335
@@ -7897,7 +7926,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 041dfea6a265fa8489836a3cd476e5bf, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Player.PlayerState
 --- !u!1 &1310823304
 GameObject:
@@ -7941,7 +7970,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &1343955475
@@ -7989,7 +8018,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a018bd247ab74d17a7b90a3600000006, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.GameFlow.GameFlowHud
 --- !u!114 &1343955478
 MonoBehaviour:
@@ -8001,7 +8030,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a018bd247ab74d17a7b90a3600000005, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.GameFlow.GameFlowController
   player: {fileID: 1280379337}
   console: {fileID: 2103073710}
@@ -9009,7 +9038,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &1522603730
@@ -9054,7 +9083,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &1567864258
@@ -9323,7 +9352,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &1636166955
@@ -9375,7 +9404,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
   m_SerializedVersion: 0
   m_AgentTypeID: 0
@@ -9684,7 +9713,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7659bfe0f595fc5448d1ea9c6fc956bb, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Interaction.PushableObject
   mass: 35
   linearDamping: 2
@@ -10144,7 +10173,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48324ef46e609964bafb13c3188c4c3e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentAnimatorDriver
   animator: {fileID: 0}
   speedParameter: Speed
@@ -10159,6 +10188,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 79526614}
     m_Modifications:
+    - target: {fileID: 1744025826676340497, guid: 17ebe2a5c009daa46a536a8bfa3e56df, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 064fc944118d255d3a023d008deab2eb, type: 2}
     - target: {fileID: 5017003696419764177, guid: 17ebe2a5c009daa46a536a8bfa3e56df, type: 3}
       propertyPath: m_Name
       value: Breacher Visual
@@ -10206,13 +10239,37 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5017003696419764177, guid: 17ebe2a5c009daa46a536a8bfa3e56df, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1849004189}
   m_SourcePrefab: {fileID: 100100000, guid: 17ebe2a5c009daa46a536a8bfa3e56df, type: 3}
 --- !u!4 &1849004187 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5680212219956800875, guid: 17ebe2a5c009daa46a536a8bfa3e56df, type: 3}
   m_PrefabInstance: {fileID: 1849004186}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1849004188 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5017003696419764177, guid: 17ebe2a5c009daa46a536a8bfa3e56df, type: 3}
+  m_PrefabInstance: {fileID: 1849004186}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1849004189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849004188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b085c401cc1e5cd6bf21bf00fb52ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentActionAnimation
+  walkReference: 1.6
+  runReference: 4
+  sneakReference: 1
+  damping: 0.09
 --- !u!1 &1872962851 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7580718988875674766, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
@@ -10228,7 +10285,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15e7b0a1617b33e4da9aec7c1b4d7f22, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyVisualGrounding
   verticalOffset: -0.81
 --- !u!1 &1893982517
@@ -10421,16 +10478,44 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8034955668367656468, guid: 9f003e6896d7dd4439a7a189bbc1f6fb, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 064fc944118d255d3a023d008deab2eb, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3614730117439112916, guid: 9f003e6896d7dd4439a7a189bbc1f6fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1978626504}
   m_SourcePrefab: {fileID: 100100000, guid: 9f003e6896d7dd4439a7a189bbc1f6fb, type: 3}
 --- !u!4 &1978626502 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4134807276096396398, guid: 9f003e6896d7dd4439a7a189bbc1f6fb, type: 3}
   m_PrefabInstance: {fileID: 1978626501}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1978626503 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3614730117439112916, guid: 9f003e6896d7dd4439a7a189bbc1f6fb, type: 3}
+  m_PrefabInstance: {fileID: 1978626501}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1978626504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978626503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b085c401cc1e5cd6bf21bf00fb52ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentActionAnimation
+  walkReference: 1.6
+  runReference: 4
+  sneakReference: 1
+  damping: 0.09
 --- !u!1 &1988243772
 GameObject:
   m_ObjectHideFlags: 0
@@ -11164,7 +11249,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -11278,7 +11363,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16b96f3cdee8bd38c92b6b2e8e3b4063, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Interaction.ShutdownConsole
 --- !u!1 &2115437918
 GameObject:
@@ -11322,7 +11407,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
 --- !u!1 &2139692551
@@ -11479,20 +11564,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f66cb4a5d9778f1fa8af254f07e0d16, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
---- !u!114 &3141592653590 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4057344272768474326, guid: 067b4515a4cc28d69abbdcfd6fc866b2, type: 3}
-  m_PrefabInstance: {fileID: 753988501}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ce5ce53675da1b62a64d2494746a747, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Interaction.SlidingDoor
 --- !u!1001 &2999000001
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11584,7 +11658,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ce5ce53675da1b62a64d2494746a747, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Interaction.SlidingDoor
 --- !u!1 &2999000100
 GameObject:
@@ -11709,7 +11783,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e42d81a5df34534dd9cb711b27069fb2, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Interaction.DoorSwitch
   linkedDoor: {fileID: 2999000003}
   openDoorOnUse: 1
