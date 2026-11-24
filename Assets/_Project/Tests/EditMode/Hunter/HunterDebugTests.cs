@@ -186,7 +186,8 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             var body = brain.GetComponent<AgentBody>();
             var pathfinder = brain.GetComponent<HunterNavMeshPathfinder>();
             GameEvents.RaiseNoise(new NoiseEvent(new Vector3(6, 0, -3), 50, NoiseType.Alarm, Time.time));
-            yield return WaitFor(() => brain.CurrentAction == HunterAction.Investigate && body.IsMoving, 3);
+            yield return WaitFor(() => (brain.CurrentAction == HunterAction.Investigate ||
+                brain.CurrentAction == HunterAction.Chase) && body.IsMoving, 3);
             int requests = brain.PathRequestCount, builds = pathfinder.GraphBuildCount;
             RaiseStuck(body);
             for (int i = 0; i < 10; i++) RaiseStuck(body);
@@ -201,17 +202,11 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             Assert.That(brain.Transitions.GetRecent(0).Reason, Is.EqualTo(HunterDecisionReason.RepeatedStuck));
             Assert.That(pathfinder.GraphBuildCount, Is.EqualTo(builds + 1));
 
+            int accepted = brain.AcceptedNoiseCount;
             GameEvents.RaiseNoise(new NoiseEvent(new Vector3(1000, 0, 1000), 2000, NoiseType.Alarm, Time.time));
-            yield return WaitFor(() => brain.PathFailureCount > 0, 3);
-            Assert.That(pathfinder.LastSearch, Is.Null, "An unsampled endpoint must clear previous successful metrics.");
-            Assert.That(pathfinder.LastUniformCostSearch, Is.Null);
-            Assert.That(pathfinder.CanCompareLastSearch, Is.False);
-            var panel = brain.GetComponent<HunterDebugPanel>();
-            Assert.That(panel.CompareLatestRoute(), Is.False);
-            Assert.That(panel.ComparisonText, Does.Contain("not run"));
-            Assert.That(pathfinder.NavigationStatus, Does.Contain("Goal"));
+            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted));
+            Assert.That(pathfinder.AcousticStatus, Does.Contain("outside"));
             int failures = brain.PathFailureCount;
-            yield return WaitFor(() => brain.CurrentAction == HunterAction.Search, 2);
             yield return new WaitForSeconds(1);
             Assert.That(brain.PathFailureCount, Is.EqualTo(failures));
             Assert.That(pathfinder.GraphBuildCount, Is.EqualTo(builds + 1));
@@ -253,7 +248,9 @@ namespace BlackoutProtocol.AI.Hunter.Tests
         {
             float deadline = Time.realtimeSinceStartup + timeout;
             while (!predicate() && Time.realtimeSinceStartup < deadline) yield return null;
-            Assert.That(predicate(), Is.True, "Timed out waiting for Hunter debug/robustness behavior.");
+            HunterBrain brain = Object.FindFirstObjectByType<HunterBrain>();
+            Assert.That(predicate(), Is.True, brain == null ? "Missing HunterBrain." :
+                $"Timed out: action={brain.CurrentAction}, status={brain.Status}, event={brain.LastRuntimeEvent}, accepted={brain.AcceptedNoiseCount}, requests={brain.PathRequestCount}, failures={brain.PathFailureCount}.");
         }
 
         [UnityTearDown]

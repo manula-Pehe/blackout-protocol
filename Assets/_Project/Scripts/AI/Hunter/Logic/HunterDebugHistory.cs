@@ -13,7 +13,8 @@ namespace BlackoutProtocol.AI.Hunter.Logic
         ArrivedAtTrail,
         UnreachablePursuit,
         RepeatedStuck,
-        SearchCompleted
+        SearchCompleted,
+        LevelChanged
     }
 
     /// <summary>The actual selection and triggering event at a runtime action change.</summary>
