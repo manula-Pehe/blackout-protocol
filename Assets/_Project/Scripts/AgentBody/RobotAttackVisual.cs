@@ -53,7 +53,20 @@ namespace BlackoutProtocol.Body
 
         private void OnAction(AgentAction action)
         {
-            if (action == AgentAction.Attack) { attackStarted = Time.time; attacking = true; }
+            if (action == AgentAction.Attack)
+            {
+                if (attacking) Restore();
+                for (int i = 0; i < parts.Count; i++)
+                {
+                    Part part = parts[i];
+                    if (part.Transform == null) continue;
+                    part.Position = part.Transform.localPosition;
+                    part.Rotation = part.Transform.localRotation;
+                    parts[i] = part;
+                }
+                attackStarted = Time.time;
+                attacking = true;
+            }
             else if (action == AgentAction.Die) { attacking = false; Restore(); }
         }
 

@@ -82,15 +82,21 @@ namespace BlackoutProtocol.Audio
         {
             if (bar == null) return;
             Camera camera = Camera.main;
+            bool visible = false;
             if (camera != null)
             {
                 Vector3 toCamera = camera.transform.position - bar.position;
                 if (toCamera.sqrMagnitude > 0.001f) bar.rotation = Quaternion.LookRotation(toCamera);
+                Vector3 sightTarget = sentinel != null ? transform.position :
+                    transform.position + Vector3.up * 1.1f;
+                visible = WorldSpaceVisibility.CanSee(camera, transform, sightTarget);
             }
             float fraction = hunter != null ? hunter.HealthNormalized : flanker != null ? flanker.HealthNormalized :
                 breacher != null ? breacher.CurrentHealth / Mathf.Max(1f, breacher.MaximumHealth) :
                 sentinel != null ? sentinel.CurrentHealth / Mathf.Max(1f, sentinel.MaximumHealth) : 0f;
             fraction = Mathf.Clamp01(fraction);
+            bool show = fraction > 0f && visible;
+            if (bar.gameObject.activeSelf != show) bar.gameObject.SetActive(show);
             if (Mathf.Approximately(fraction, lastFraction)) return;
             lastFraction = fraction;
             fill.localScale = new Vector3(fraction, 0.10f, 1);

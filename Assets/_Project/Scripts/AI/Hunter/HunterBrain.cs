@@ -29,7 +29,7 @@ namespace BlackoutProtocol.AI.Hunter
         [SerializeField, Min(0.1f)] private float searchDuration = 8f;
         [SerializeField, Min(0.1f)] private float searchRadius = 1.5f;
         [Header("Visual target and attack")]
-        [SerializeField, Min(1)] private float sightRange = 12f;
+        [SerializeField, Min(1)] private float sightRange = 20f;
         [SerializeField, Min(1)] private float noiseProximityRange = 24f;
         [SerializeField] private LayerMask sightMask = ~0;
         [SerializeField, Min(0.1f)] private float attackRange = 1.4f;
@@ -276,6 +276,16 @@ namespace BlackoutProtocol.AI.Hunter
             if (!routeFinder.TryFindPath(agentBody.Position, goal, path))
             {
                 PathFailureCount++;
+                if (CurrentAction == HunterAction.Chase && HasVisibleTarget && CanSee(visibleTarget))
+                {
+                    path.Clear();
+                    path.Add(agentBody.Position);
+                    path.Add(goal);
+                    routeActive = true;
+                    agentBody.Execute(new MoveCommand(path, style, visibleTarget.Transform));
+                    Status = "Visible player: direct local pursuit while A* route is unavailable.";
+                    return;
+                }
                 routeActive = false;
                 agentBody.Stop();
                 Status = pathfinder.NavigationStatus;

@@ -1,5 +1,6 @@
 using BlackoutProtocol.Audio;
 using BlackoutProtocol.Core;
+using BlackoutProtocol.Interaction;
 using UnityEngine;
 
 namespace BlackoutProtocol.AI.Breacher
@@ -8,7 +9,7 @@ namespace BlackoutProtocol.AI.Breacher
     /// A kinematic obstacle the Breacher can push out of a route.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
-    public sealed class BreacherBarricade : MonoBehaviour, IPushable
+    public sealed class BreacherBarricade : MonoBehaviour, IPushable, IInteractable
     {
         [Header("Push Movement")]
         [SerializeField] private Vector3 localPushOffset =
@@ -26,6 +27,8 @@ namespace BlackoutProtocol.AI.Breacher
         public bool IsBlocked { get; private set; }
         public bool CanPush => !IsCleared && !IsBlocked;
         public Vector3 Position => transform.position;
+        public string Prompt => IsCleared ? string.Empty :
+            IsBlocked ? "Crate is blocked" : "Press E to push crate";
 
         private void Awake()
         {
@@ -33,7 +36,7 @@ namespace BlackoutProtocol.AI.Breacher
             levelCollider = GetComponent<Collider>();
             barricadeBody.isKinematic = true;
             clearedPosition = barricadeBody.position +
-                transform.TransformVector(localPushOffset);
+                transform.TransformDirection(localPushOffset);
             scrapeSource = gameObject.AddComponent<AudioSource>();
             scrapeSource.playOnAwake = false;
             scrapeSource.spatialBlend = 1f;
@@ -91,8 +94,16 @@ namespace BlackoutProtocol.AI.Breacher
         public void Push()
         {
             Vector3 worldOffset =
-                transform.TransformVector(localPushOffset);
+                transform.TransformDirection(localPushOffset);
             Push(worldOffset.normalized, worldOffset.magnitude);
+        }
+
+        public void Interact(GameObject user)
+        {
+            if (user != null && !IsCleared)
+            {
+                Push();
+            }
         }
 
         public void Push(Vector3 direction, float force)

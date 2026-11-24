@@ -30,12 +30,19 @@ namespace BlackoutProtocol.Audio
 
         private static void Install()
         {
+            foreach (TextMesh label in Object.FindObjectsByType<TextMesh>(FindObjectsSortMode.None))
+                if (label.name == "Elevator Exit Sign" && label.GetComponent<WorldSpaceLabelVisibility>() == null)
+                    label.gameObject.AddComponent<WorldSpaceLabelVisibility>();
             foreach (AgentBody body in Object.FindObjectsByType<AgentBody>(FindObjectsSortMode.None))
             {
+                if (body.GetComponent<AgentAnimatorDriver>() == null && body.GetComponentInChildren<Animator>() != null)
+                    body.gameObject.AddComponent<AgentAnimatorDriver>();
                 if (body.GetComponent<RobotAudioFeedback>() == null)
                     body.gameObject.AddComponent<RobotAudioFeedback>();
                 if (body.GetComponent<RobotAttackVisual>() == null)
                     body.gameObject.AddComponent<RobotAttackVisual>();
+                if (body.GetComponent<RobotDeathFall>() == null)
+                    body.gameObject.AddComponent<RobotDeathFall>();
                 if (body.GetComponent<EnemyHealthDisplay>() == null)
                     body.gameObject.AddComponent<EnemyHealthDisplay>();
             }
