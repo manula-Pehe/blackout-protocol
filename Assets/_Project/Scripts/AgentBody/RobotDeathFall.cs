@@ -67,7 +67,21 @@ namespace BlackoutProtocol.Body
                 Part part = parts[i];
                 if (part.Transform == null) continue;
                 part.Transform.localRotation = part.Rotation * Quaternion.Euler(0, 0, 85f * eased);
-                part.Transform.localPosition = part.Position + Vector3.down * (0.6f * eased);
+                part.Transform.localPosition = part.Position;
+            }
+            if (Physics.Raycast(transform.position + Vector3.up * 2f,
+                Vector3.down, out RaycastHit floorHit, 5f, 1 << GameLayers.Ground,
+                QueryTriggerInteraction.Ignore))
+            {
+                float lowest = float.PositiveInfinity;
+                foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
+                    if (renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
+                        lowest = Mathf.Min(lowest, renderer.bounds.min.y);
+                float lift = floorHit.point.y + 0.03f - lowest;
+                if (lift > 0f)
+                    foreach (Part part in parts)
+                        if (part.Transform != null)
+                            part.Transform.position += Vector3.up * lift;
             }
             if (progress < 1f) return;
             finished = true;

@@ -89,7 +89,11 @@ namespace BlackoutProtocol.Audio
                 if (toCamera.sqrMagnitude > 0.001f) bar.rotation = Quaternion.LookRotation(toCamera);
                 Vector3 sightTarget = sentinel != null ? transform.position :
                     transform.position + Vector3.up * 1.1f;
-                visible = WorldSpaceVisibility.CanSee(camera, transform, sightTarget);
+                Vector3 viewport = camera.WorldToViewportPoint(bar.position);
+                visible = viewport.z > 0f && viewport.x >= 0f && viewport.x <= 1f &&
+                    viewport.y >= 0f && viewport.y <= 1f &&
+                    WorldSpaceVisibility.CanSee(camera, transform, sightTarget) &&
+                    WorldSpaceVisibility.CanSee(camera, transform, bar.position);
             }
             float fraction = hunter != null ? hunter.HealthNormalized : flanker != null ? flanker.HealthNormalized :
                 breacher != null ? breacher.CurrentHealth / Mathf.Max(1f, breacher.MaximumHealth) :

@@ -25,10 +25,10 @@ namespace BlackoutProtocol.AI.Breacher
 
         public bool IsCleared { get; private set; }
         public bool IsBlocked { get; private set; }
-        public bool CanPush => !IsCleared && !IsBlocked;
+        public bool CanPush => !IsCleared && !isMoving;
         public Vector3 Position => transform.position;
         public string Prompt => IsCleared ? string.Empty :
-            IsBlocked ? "Crate is blocked" : "Press E to push crate";
+            isMoving ? "Crate moving" : "Press E to push crate";
 
         private void Awake()
         {
@@ -61,12 +61,7 @@ namespace BlackoutProtocol.AI.Breacher
 
             Vector3 movement = nextPosition - barricadeBody.position;
 
-            if (movement.sqrMagnitude > 0f &&
-                barricadeBody.SweepTest(
-                    movement.normalized,
-                    out _,
-                    movement.magnitude + 0.01f,
-                    QueryTriggerInteraction.Ignore))
+            if (movement.sqrMagnitude > 0f && IsSpaceBlocked(nextPosition))
             {
                 isMoving = false;
                 IsBlocked = true;
@@ -88,6 +83,25 @@ namespace BlackoutProtocol.AI.Breacher
                 scrapeSource.Stop();
                 GameEvents.RaiseLevelChanged(levelCollider);
             }
+        }
+
+        private bool IsSpaceBlocked(Vector3 nextPosition)
+        {
+            Bounds bounds = levelCollider.bounds;
+            Vector3 center = nextPosition + bounds.center - barricadeBody.position;
+            Vector3 halfExtents = bounds.extents - new Vector3(0.05f, 0.12f, 0.05f);
+            Collider[] overlaps = Physics.OverlapBox(center, halfExtents,
+                transform.rotation, ~0, QueryTriggerInteraction.Ignore);
+            foreach (Collider other in overlaps)
+            {
+                if (other == levelCollider || other.transform.IsChildOf(transform) ||
+                    other.gameObject.layer == GameLayers.Ground ||
+                    other.GetComponentInParent<CharacterController>() != null ||
+                    (other.attachedRigidbody != null && !other.attachedRigidbody.isKinematic))
+                    continue;
+                return true;
+            }
+            return false;
         }
 
         [ContextMenu("Debug/Push Barricade")]
