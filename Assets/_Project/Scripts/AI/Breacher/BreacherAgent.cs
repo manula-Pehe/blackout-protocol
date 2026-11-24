@@ -180,25 +180,49 @@ namespace BlackoutProtocol.AI.Breacher
             var actions = new List<GoapAction>();
             bool hasDoor = door != null && doorApproach != null;
             bool hasBarricade = barricade != null && barricadeApproach != null;
-            float doorPathCost = hasDoor ? GetMovementCost(doorApproach.position, moveToDoorCost) : 0f;
-            float barricadePathCost = hasBarricade ? GetMovementCost(barricadeApproach.position, moveToBarricadeCost) : 0f;
-            float playerPathCost = GetMovementCost(
+            float doorPathCost = 0f;
+            float barricadePathCost = 0f;
+            bool hasDoorPath = hasDoor && TryGetMovementCost(
+                doorApproach.position,
+                moveToDoorCost,
+                out doorPathCost);
+            bool hasBarricadePath = hasBarricade && TryGetMovementCost(
+                barricadeApproach.position,
+                moveToBarricadeCost,
+                out barricadePathCost);
+            bool hasPlayerPath = TryGetMovementCost(
                 player.position,
-                moveToPlayerCost);
+                moveToPlayerCost,
+                out float playerPathCost);
+            bool canOpenDoor = hasDoorPath &&
+                !doorContract.IsOpen &&
+                !doorContract.IsLocked;
+            bool canClearBarricade = hasBarricadePath &&
+                !barricade.IsCleared &&
+                !barricadeUnavailable;
+
+            if (!hasPlayerPath && (canOpenDoor || canClearBarricade))
+            {
+                playerPathCost = Mathf.Max(
+                    moveToPlayerCost,
+                    HorizontalDistance(transform.position, player.position));
+                hasPlayerPath = true;
+            }
 
             Debug.Log(
                 $"Breacher route inputs: " +
                 $"alarm={alarmActive}, " +
                 $"doorOpen={(hasDoor ? doorContract.IsOpen : true)}, " +
                 $"doorLocked={(hasDoor && doorContract.IsLocked)}, " +
-                $"doorPath={doorPathCost:F1}, " +
+                $"doorPath={(hasDoorPath ? doorPathCost.ToString("F1") : "unreachable")}, " +
                 $"barricadeCleared={(hasBarricade ? barricade.IsCleared : true)}, " +
                 $"barricadeUnavailable={barricadeUnavailable}, " +
-                $"barricadePath={barricadePathCost:F1}, " +
-                $"playerPath={playerPathCost:F1}",
+                $"barricadePath={(hasBarricadePath ? barricadePathCost.ToString("F1") : "unreachable")}, " +
+                $"playerPath={(hasPlayerPath ? playerPathCost.ToString("F1") : "unreachable")}",
                 this);
 
-            if (hasDoor && !doorContract.IsOpen && !doorContract.IsLocked)
+            if (hasDoor && hasDoorPath &&
+                !doorContract.IsOpen && !doorContract.IsLocked)
             {
                 actions.Add(new MoveToAction(
                     "Door",
@@ -211,7 +235,8 @@ namespace BlackoutProtocol.AI.Breacher
                     openDoorCost)));
             }
 
-            if (hasBarricade && !barricade.IsCleared && !barricadeUnavailable)
+            if (hasBarricade && hasBarricadePath &&
+                !barricade.IsCleared && !barricadeUnavailable)
             {
                 actions.Add(new MoveToAction(
                     "Barricade",
@@ -223,30 +248,47 @@ namespace BlackoutProtocol.AI.Breacher
                     pushBarricadeCost)));
             }
 
-            actions.Add(new MoveToAction(
-                "Player",
-                WorldState.From(WorldFact.PathToPlayerOpen),
-                WorldState.From(
-                    WorldFact.AtPlayer,
-                    WorldFact.PlayerInRange),
-                LocationFacts,
-                playerPathCost));
+            if (hasPlayerPath)
+            {
+                actions.Add(new MoveToAction(
+                    "Player",
+                    WorldState.From(WorldFact.PathToPlayerOpen),
+                    WorldState.From(
+                        WorldFact.AtPlayer,
+                        WorldFact.PlayerInRange),
+                    LocationFacts,
+                    playerPathCost));
+            }
+
             actions.Add(new AttackAction(attackCost));
-            actions.Add(new TakeCoverAction(GetMovementCost(
-                coverPoint.position,
-                takeCoverCost)));
+
+            if (TryGetMovementCost(
+                    coverPoint.position,
+                    takeCoverCost,
+                    out float coverPathCost))
+            {
+                actions.Add(new TakeCoverAction(coverPathCost));
+            }
+
             return actions;
         }
 
-        private float GetMovementCost(
+        private bool TryGetMovementCost(
             Vector3 destination,
-            float fallbackCost)
+            float actionCost,
+            out float totalCost)
         {
-            return pathMover.TryCalculatePathCost(
+            totalCost = 0f;
+
+            if (!pathMover.TryCalculatePathCost(
                     destination,
-                    out float pathCost)
-                ? Mathf.Max(0.1f, pathCost)
-                : fallbackCost;
+                    out float pathCost))
+            {
+                return false;
+            }
+
+            totalCost = Mathf.Max(0.1f, pathCost) + actionCost;
+            return true;
         }
 
         private float ApplyAlarmUrgency(float normalCost)
@@ -574,7 +616,8 @@ namespace BlackoutProtocol.AI.Breacher
 
         private void DetectMovedPlayer()
         {
-            if (executor.Status != PlanExecutionStatus.Running ||
+            if (executor == null || player == null ||
+                executor.Status != PlanExecutionStatus.Running ||
                 !(executor.CurrentAction is MoveToAction moveAction) ||
                 moveAction.DestinationName != "Player")
             {
