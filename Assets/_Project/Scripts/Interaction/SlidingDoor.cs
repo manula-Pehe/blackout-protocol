@@ -66,6 +66,8 @@ namespace BlackoutProtocol.Interaction
                 return;
             }
 
+            BuildWindowedPanel();
+
             closedPosition = doorPanel.position;
             openPosition =
                 closedPosition +
@@ -79,6 +81,37 @@ namespace BlackoutProtocol.Interaction
             audioSource.minDistance = 1.5f;
             audioSource.maxDistance = 18f;
             audioSource.volume = 0.45f;
+        }
+
+        private void BuildWindowedPanel()
+        {
+            MeshRenderer panelRenderer = doorPanel.GetComponent<MeshRenderer>();
+            if (panelRenderer == null) return;
+            Material doorMaterial = panelRenderer.sharedMaterial;
+            panelRenderer.enabled = false;
+            AddFramePart("Window Frame Left", new Vector3(-0.375f, 0f, 0f),
+                new Vector3(0.25f, 1f, 1f), doorMaterial);
+            AddFramePart("Window Frame Right", new Vector3(0.375f, 0f, 0f),
+                new Vector3(0.25f, 1f, 1f), doorMaterial);
+            AddFramePart("Window Frame Bottom", new Vector3(0f, -0.325f, 0f),
+                new Vector3(0.5f, 0.35f, 1f), doorMaterial);
+            AddFramePart("Window Frame Top", new Vector3(0f, 0.325f, 0f),
+                new Vector3(0.5f, 0.35f, 1f), doorMaterial);
+        }
+
+        private void AddFramePart(string partName, Vector3 position,
+            Vector3 scale, Material material)
+        {
+            GameObject part = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            part.name = partName;
+            part.layer = doorPanel.gameObject.layer;
+            part.transform.SetParent(doorPanel.transform, false);
+            part.transform.localPosition = position;
+            part.transform.localScale = scale;
+            Collider partCollider = part.GetComponent<Collider>();
+            partCollider.enabled = false;
+            Destroy(partCollider);
+            part.GetComponent<MeshRenderer>().sharedMaterial = material;
         }
 
         private void FixedUpdate()

@@ -40,7 +40,6 @@ namespace BlackoutProtocol.AI.Breacher
         [SerializeField] private float playerReplanDistance = 1.5f;
         [Tooltip("Multiplier applied to door and barricade action costs during an alarm.")]
         [SerializeField] private float alarmObstacleCostMultiplier = 0.35f;
-        [SerializeField] private bool showDebugPanel = true;
 
         private BreacherPathMover pathMover;
         private BreacherHealth breacherHealth;
@@ -67,6 +66,8 @@ namespace BlackoutProtocol.AI.Breacher
         private bool alarmActive;
         private bool directPlayerRoute;
         private float nextDirectRouteCheck;
+        private bool searchAtDoor;
+        private float nextSearchAttempt;
 
         private static WorldState LocationFacts => WorldState.From(
             WorldFact.AtDoor,
@@ -154,6 +155,7 @@ namespace BlackoutProtocol.AI.Breacher
             }
             DetectMovedPlayer();
             executor.Tick();
+            if (waitingForWorldChange) UpdateRouteSearch();
 
             if (!waitingForWorldChange &&
                 executor.Status == PlanExecutionStatus.NeedsReplan &&
@@ -190,7 +192,8 @@ namespace BlackoutProtocol.AI.Breacher
             if (!currentPlan.Succeeded)
             {
                 waitingForWorldChange = true;
-                debugStatus = "No valid GOAP plan - waiting safely";
+                debugStatus = "Searching for another route";
+                agentBody.Stop();
                 Debug.LogWarning(debugStatus, this);
                 return;
             }
@@ -695,11 +698,35 @@ namespace BlackoutProtocol.AI.Breacher
 
         private void HandleLevelChanged(Collider changedObject)
         {
+            if (waitingForWorldChange)
+            {
+                CreateAndStartPlan();
+                return;
+            }
             if (executor != null &&
                 executor.Status == PlanExecutionStatus.Running)
             {
                 executor.NotifyLevelChanged();
             }
+        }
+
+        private void UpdateRouteSearch()
+        {
+            if (agentBody.IsMoving || Time.time < nextSearchAttempt) return;
+            nextSearchAttempt = Time.time + 1.5f;
+            searchAtDoor = !searchAtDoor;
+            Transform target = searchAtDoor ? doorApproach : coverPoint;
+            if (target == null || !pathfinder.TryFindPath(
+                agentBody.Position, target.position, movementPath))
+            {
+                target = searchAtDoor ? coverPoint : doorApproach;
+                if (target == null || !pathfinder.TryFindPath(
+                    agentBody.Position, target.position, movementPath))
+                {
+                    return;
+                }
+            }
+            agentBody.Execute(new MoveCommand(movementPath, MoveStyle.Walk));
         }
 
         private void HandleAgentStuck()
@@ -884,35 +911,6 @@ namespace BlackoutProtocol.AI.Breacher
             first.y = 0f;
             second.y = 0f;
             return Vector3.Distance(first, second);
-        }
-
-        private void OnGUI()
-        {
-            if (!showDebugPanel)
-            {
-                return;
-            }
-
-            int actionCount = currentPlan != null && currentPlan.Succeeded
-                ? currentPlan.Actions.Count
-                : 0;
-            float panelHeight = 185f + actionCount * 20f;
-
-            var style = new GUIStyle(GUI.skin.box)
-            {
-                alignment = TextAnchor.UpperLeft,
-                fontSize = 14,
-                padding = new RectOffset(12, 12, 10, 10)
-            };
-
-            GUI.Box(
-                new Rect(
-                    12f,
-                    Screen.height - panelHeight - 12f,
-                    440f,
-                    panelHeight),
-                debugStatus,
-                style);
         }
 
         private void OnValidate()
