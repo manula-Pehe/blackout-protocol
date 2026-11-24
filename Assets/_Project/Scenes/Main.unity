@@ -575,7 +575,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7f225d8406a27306ab8902b6eddc477, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentBody
   walkSpeed: 1.6
   runSpeed: 4
@@ -606,7 +606,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d635140b2de7c122cbcc7c904dcae51a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentRotation
   turnRate: 360
 --- !u!114 &79526618
@@ -4264,6 +4264,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9009271107676305558, guid: 067b4515a4cc28d69abbdcfd6fc866b2, type: 3}
   m_PrefabInstance: {fileID: 753988501}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &762429491 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3988934678937753365, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
+  m_PrefabInstance: {fileID: 1137955344}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &801183218
 GameObject:
   m_ObjectHideFlags: 0
@@ -6425,6 +6430,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7705789309682440149, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1137955347}
+    - targetCorrespondingSourceObject: {fileID: 7705789309682440149, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1137955355}
+    - targetCorrespondingSourceObject: {fileID: 7705789309682440149, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1137955354}
     - targetCorrespondingSourceObject: {fileID: 7580718988875674766, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1872962853}
@@ -6467,7 +6478,6 @@ MonoBehaviour:
   minimumTrailConfidence: 0.35
   searchDuration: 8
   searchRadius: 1.5
-  sightRange: 12
   noiseProximityRange: 24
   sightMask:
     serializedVersion: 2
@@ -6475,6 +6485,8 @@ MonoBehaviour:
   attackRange: 1.4
   attackCooldown: 1.2
   attackDamage: 10
+  navMeshChangeDelay: 0.4
+  maximumSoundUncertainty: 6
 --- !u!114 &1137955348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6502,6 +6514,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: BlackoutProtocol.Hunter.Runtime::BlackoutProtocol.AI.Hunter.HunterNavMeshPathfinder
   sampleRadius: 2
   maximumExpandedNodes: 4096
+  soundLossPerMetre: 1
+  closedDoorSoundPenalty: 8
+  doorwayNodeSearchRadius: 7
 --- !u!114 &1137955350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6589,6 +6604,40 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1137955354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137955346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22b602ca645c4012427a9c315889669f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BlackoutProtocol.Hunter.Runtime::BlackoutProtocol.AI.Hunter.HunterDebugPanel
+  brain: {fileID: 1137955347}
+  pathfinder: {fileID: 1137955349}
+  overlayVisible: 0
+  compareOnRouteRequests: 0
+  compactDemoLayout: 0
+--- !u!114 &1137955355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137955346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48324ef46e609964bafb13c3188c4c3e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BlackoutProtocol.Body::BlackoutProtocol.Body.AgentAnimatorDriver
+  animator: {fileID: 762429491}
+  speedParameter: Speed
+  referenceSpeed: 4
+  idleSpeedThreshold: 0.02
+  speedDampTime: 0.1
 --- !u!1 &1146446583
 GameObject:
   m_ObjectHideFlags: 0
