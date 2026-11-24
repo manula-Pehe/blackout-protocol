@@ -90,6 +90,8 @@ namespace BlackoutProtocol.AI.Hunter
             if (body == null) body = GetComponent<AgentBody>();
             if (pathfinder == null) pathfinder = GetComponent<HunterNavMeshPathfinder>();
             agentBody = body;
+            // Hunter owns ordinary geometric routes, unlike exposure/interaction paths.
+            if (body != null) body.EnableRouteRefinement = true;
             routeFinder = pathfinder;
             memory = new HunterSoundMemory(confidenceHalfLife: memoryHalfLife, maximumAge: memoryMaximumAge);
             selector = new HunterUtilitySelector(hysteresisBonus);

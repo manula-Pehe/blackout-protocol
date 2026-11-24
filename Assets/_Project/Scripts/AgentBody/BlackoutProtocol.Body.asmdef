@@ -2,7 +2,8 @@
     "name": "BlackoutProtocol.Body",
     "rootNamespace": "BlackoutProtocol.Body",
     "references": [
-        "BlackoutProtocol.Core"
+        "BlackoutProtocol.Core",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using BlackoutProtocol.Core;
 using UnityEngine;
+using UnityEngine.AI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace BlackoutProtocol.Body
 {
@@ -41,6 +45,12 @@ namespace BlackoutProtocol.Body
         [Tooltip("Maximum approach speed at an intermediate bend, in m/s. Does not change style cruise speeds.")]
         [SerializeField, Min(0.01f)] private float cornerSpeed = 0.5f;
 
+        [Header("Optional route refinement")]
+        [Tooltip("Enable only for routes whose navigation owner permits local geometric refinement.")]
+        [SerializeField] private bool enableRouteRefinement;
+        [SerializeField, Range(0.1f, 2f)] private float lookAheadDistance = 0.8f;
+        [SerializeField, Range(0.05f, 0.5f)] private float maximumJoinDistance = 0.35f;
+
         [Header("Stuck detection")]
         [Tooltip("Seconds without useful progress before Stuck is raised.")]
         [SerializeField] private float stuckTimeout = 2.5f;
@@ -74,6 +84,19 @@ namespace BlackoutProtocol.Body
         private float lastProgressTime;
         private bool stuckNotified;
         private AgentSeparation separation;
+        private CharacterController controller;
+        private bool runtimeDebugVisible;
+        private Vector3 steeringTarget;
+        private bool usingLookAhead;
+
+        /// <summary>Opt-in only: preserves tactical waypoints for other navigation owners.</summary>
+        public bool EnableRouteRefinement
+        {
+            get => enableRouteRefinement;
+            set => enableRouteRefinement = value;
+        }
+        public Vector3 SteeringTarget => steeringTarget;
+        public bool UsingLookAhead => usingLookAhead;
 
         /// <summary>True when bounded local steering is modifying the current movement direction.</summary>
         public bool IsSeparating => separation != null && separation.IsSteering;
@@ -116,6 +139,7 @@ namespace BlackoutProtocol.Body
         private void Awake()
         {
             motor = GetComponent<AgentMotor>();
+            controller = GetComponent<CharacterController>();
             rotation = GetComponent<AgentRotation>();
             separation = new AgentSeparation(this);
         }
@@ -128,6 +152,7 @@ namespace BlackoutProtocol.Body
         /// <inheritdoc />
         public void Execute(MoveCommand command)
         {
+            bool wasMoving = IsMoving;
             style = command.Style;
             separation?.Reset();
             lookTarget = command.LookTarget;
@@ -147,6 +172,13 @@ namespace BlackoutProtocol.Body
                 Stop();
                 return;
             }
+            // Fresh Hunter routes usually begin at the body already. Only repair a
+            // nearby replacement whose first point is behind the current position.
+            if (enableRouteRefinement && wasMoving && controller != null &&
+                follower.TryGetNearestJoin(GroundPoint(), maximumJoinDistance,
+                    out int segment, out Vector3 join) && CanTraverse(join))
+                follower.JoinAtSegment(segment, join);
+
             // A blocked controller may have achieved none of its requested speed.
             // Carry actual momentum into a replacement, not an unrealized cruise speed.
             if (motor != null) currentSpeed = Mathf.Min(currentSpeed, motor.Velocity.magnitude);
@@ -187,6 +219,9 @@ namespace BlackoutProtocol.Body
 
         private void Update()
         {
+            UpdateDebugToggle();
+            usingLookAhead = false;
+            steeringTarget = Position;
             float deltaTime = Time.deltaTime;
             Vector3 desiredDirection = Vector3.zero;
             float targetSpeed = 0f;
@@ -205,11 +240,36 @@ namespace BlackoutProtocol.Body
                     toWaypoint.y = 0f;
                     desiredDirection = toWaypoint.normalized;
                     waypointDistance = toWaypoint.magnitude;
+                    steeringTarget = follower.CurrentWaypoint;
+                    // The path follower still owns waypoint acceptance. A look-ahead
+                    // chord is legal only if it passes inside the current acceptance
+                    // disk and is clear on the baked NavMesh. It never skips a waypoint.
+                    if (enableRouteRefinement && follower.TryGetLookAhead(Position, lookAheadDistance,
+                        follower.CurrentAcceptanceRadius(waypointAcceptanceRadius, arrivalRadius,
+                            cornerAcceptanceRadius), out Vector3 ahead) && CanTraverse(ahead))
+                    {
+                        Vector3 towardAhead = ahead - Position;
+                        towardAhead.y = 0f;
+                        if (towardAhead.sqrMagnitude > 0.000001f)
+                        {
+                            desiredDirection = towardAhead.normalized;
+                            steeringTarget = ahead;
+                            usingLookAhead = true;
+                        }
+                    }
                     targetSpeed = SteeringMath.ArrivalSpeed(SpeedFor(style), follower.RemainingDistance(Position),
                         Mathf.Max(slowingRadius, arrivalRadius * 2));
                     if (follower.IsOnLastWaypoint || follower.IsCurrentCorner)
                     {
-                        float terminal = follower.IsOnLastWaypoint ? 0 : Mathf.Min(cornerSpeed, SpeedFor(style));
+                        float cruise = SpeedFor(style);
+                        float terminal = follower.IsOnLastWaypoint ? 0 : Mathf.Min(cornerSpeed, cruise);
+                        if (enableRouteRefinement && !follower.IsOnLastWaypoint)
+                        {
+                            // Gentle bends retain more speed; right-angle or sharper
+                            // turns retain the original conservative corner cap.
+                            float severity = Mathf.InverseLerp(5f, 90f, follower.CurrentTurnAngle);
+                            terminal = Mathf.Lerp(cruise, terminal, severity);
+                        }
                         float brakingDistance = waypointDistance;
                         if (!follower.IsOnLastWaypoint)
                             brakingDistance = Mathf.Max(0, brakingDistance - follower.CurrentAcceptanceRadius(
@@ -236,6 +296,35 @@ namespace BlackoutProtocol.Body
                 if (targetSpeed <= 0.0001f) ResetProgressTracking(); // Intentional turn, not blockage.
                 else DetectStuck();
             }
+        }
+
+        private Vector3 GroundPoint()
+        {
+            if (controller == null) return Position;
+            Bounds bounds = controller.bounds;
+            return bounds.center - Vector3.up * bounds.extents.y;
+        }
+
+        private bool CanTraverse(Vector3 target)
+        {
+            // Use the feet, not the potentially centre-pivoted root. Reject samples
+            // that shift horizontally: sampling must not silently move across a wall.
+            Vector3 start = GroundPoint();
+            if (!NavMesh.SamplePosition(start, out NavMeshHit from, 0.35f, NavMesh.AllAreas) ||
+                !NavMesh.SamplePosition(target, out NavMeshHit to, 0.15f, NavMesh.AllAreas)) return false;
+            if (HorizontalDistance(start, from.position) > 0.05f ||
+                HorizontalDistance(target, to.position) > 0.05f) return false;
+            return !NavMesh.Raycast(from.position, to.position, out _, NavMesh.AllAreas);
+        }
+
+        private void UpdateDebugToggle()
+        {
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current != null && Keyboard.current.f1Key.wasPressedThisFrame)
+                runtimeDebugVisible = !runtimeDebugVisible;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            if (Input.GetKeyDown(KeyCode.F1)) runtimeDebugVisible = !runtimeDebugVisible;
+#endif
         }
 
         private void UpdateRotation(Vector3 desiredDirection, ref float targetSpeed, float deltaTime)
@@ -365,6 +454,8 @@ namespace BlackoutProtocol.Body
 
         private void OnValidate()
         {
+            lookAheadDistance = SafeSetting(lookAheadDistance, 0.1f, 2f, 0.8f);
+            maximumJoinDistance = SafeSetting(maximumJoinDistance, 0.05f, 0.5f, 0.35f);
             separationRadius = SafeSetting(separationRadius,0.8f,6f,2.2f);
             separationClearance = SafeSetting(separationClearance,0,0.5f,0.15f);
             maximumSeparationDeviation = SafeSetting(maximumSeparationDeviation,0.1f,1.5f,0.75f);
@@ -386,7 +477,7 @@ namespace BlackoutProtocol.Body
 
         private void OnDrawGizmos()
         {
-            if (!drawPath || !follower.HasPath)
+            if (!drawPath || (Application.isPlaying && !runtimeDebugVisible) || !follower.HasPath)
             {
                 return;
             }
@@ -410,6 +501,17 @@ namespace BlackoutProtocol.Body
             {
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(Position, follower.CurrentWaypoint);
+                Gizmos.color = stuckNotified ? Color.red : Color.green;
+                Gizmos.DrawWireSphere(follower.CurrentWaypoint, follower.CurrentAcceptanceRadius(
+                    waypointAcceptanceRadius, arrivalRadius, cornerAcceptanceRadius));
+                Gizmos.color = Color.blue;
+                Gizmos.DrawWireSphere(follower.Destination, slowingRadius);
+                if (usingLookAhead)
+                {
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawLine(Position, steeringTarget);
+                    Gizmos.DrawWireSphere(steeringTarget, 0.1f);
+                }
             }
         }
     }
