@@ -62,6 +62,8 @@ namespace BlackoutProtocol.AI.Breacher
         private ReplanReason lastReplanReason = ReplanReason.None;
         private string currentGoalName = "Defeat Player";
         private bool alarmActive;
+        private bool directPlayerRoute;
+        private float nextDirectRouteCheck;
 
         private static WorldState LocationFacts => WorldState.From(
             WorldFact.AtDoor,
@@ -129,6 +131,22 @@ namespace BlackoutProtocol.AI.Breacher
 
         private void Update()
         {
+            if (Time.time >= nextDirectRouteCheck)
+            {
+                nextDirectRouteCheck = Time.time + 0.35f;
+                bool nearby = player != null &&
+                    HorizontalDistance(transform.position, player.position) <= 10f;
+                bool clear = nearby && !Physics.Linecast(
+                    transform.position + Vector3.up,
+                    player.position + Vector3.up,
+                    GameLayers.SightBlockers, QueryTriggerInteraction.Ignore);
+                bool reachable = clear;
+                if (reachable != directPlayerRoute)
+                {
+                    directPlayerRoute = reachable;
+                    CreateAndStartPlan();
+                }
+            }
             DetectMovedPlayer();
             executor.Tick();
 
@@ -194,6 +212,12 @@ namespace BlackoutProtocol.AI.Breacher
                 player.position,
                 moveToPlayerCost,
                 out float playerPathCost);
+            if (directPlayerRoute && !hasPlayerPath)
+            {
+                playerPathCost = Mathf.Max(moveToPlayerCost,
+                    HorizontalDistance(transform.position, player.position));
+                hasPlayerPath = true;
+            }
             bool canOpenDoor = hasDoorPath &&
                 !doorContract.IsOpen &&
                 !doorContract.IsLocked;
@@ -304,7 +328,7 @@ namespace BlackoutProtocol.AI.Breacher
 
             // Main can use the Breacher as a direct pursuer; the obstacle routes
             // remain available in scenes that actually provide their scene targets.
-            if (door == null && barricade == null)
+            if (directPlayerRoute || (door == null && barricade == null))
                 state = state.With(WorldFact.PathToPlayerOpen);
 
             if (doorContract != null && doorContract.IsOpen)
@@ -367,18 +391,23 @@ namespace BlackoutProtocol.AI.Breacher
 
             if (action is MoveToAction moveAction)
             {
-                if (!TryResolveDestination(
-                        moveAction.DestinationName,
-                        out Vector3 destination) ||
-                    !pathfinder.TryFindPath(
-                        agentBody.Position,
-                        destination,
-                        movementPath))
+                if (!TryResolveDestination(moveAction.DestinationName, out Vector3 destination))
                 {
                     currentActionFailed = true;
                 }
                 else
                 {
+                    if (!pathfinder.TryFindPath(agentBody.Position, destination, movementPath))
+                    {
+                        if (moveAction.DestinationName != "Player" || !directPlayerRoute)
+                        {
+                            currentActionFailed = true;
+                            return;
+                        }
+                        movementPath.Clear();
+                        movementPath.Add(agentBody.Position);
+                        movementPath.Add(destination);
+                    }
                     Transform lookTarget =
                         moveAction.DestinationName == "Player"
                             ? player

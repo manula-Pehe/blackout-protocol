@@ -44,6 +44,10 @@ namespace BlackoutProtocol.AI.Flanker
         private float nextShot;
         private float nextCover;
         private int patrolIndex;
+        private CharacterController controller;
+        private Transform visualRoot;
+        private Vector3 standingVisualPosition;
+        private bool crouched;
 
         public FlankerTactic CurrentTactic => tree.Active;
         public CoverPoint ClaimedCover => claimed;
@@ -55,6 +59,14 @@ namespace BlackoutProtocol.AI.Flanker
             navigation = GetComponent<FlankerNavMeshPathfinder>();
             pathfinder = navigation;
             health = GetComponent<FlankerHealth>();
+            controller = GetComponent<CharacterController>();
+            foreach (Transform child in transform)
+                if (child.gameObject.activeInHierarchy && child.GetComponentInChildren<MeshRenderer>() != null)
+                {
+                    visualRoot = child;
+                    standingVisualPosition = child.localPosition;
+                    break;
+                }
             home = transform.position;
         }
 
@@ -96,6 +108,7 @@ namespace BlackoutProtocol.AI.Flanker
             tree.Abort(this);
             ReleaseCover();
             body?.Stop();
+            SetCoverPose(false);
         }
 
         private void Update()
@@ -246,12 +259,6 @@ namespace BlackoutProtocol.AI.Flanker
         private bool TakeCover(bool retreat, bool hold)
         {
             if (claimed != null && (!claimed.isActiveAndEnabled || !Protected(claimed))) ReleaseCover();
-            if (claimed != null && !retreat && !hold)
-            {
-                Vector3 direction = claimed.Position - FlankerNavMeshPathfinder.ToUnity(memory.Position);
-                direction.y = 0f;
-                if (Vector3.Dot(lastForward.normalized, direction.normalized) > 0.5f) ReleaseCover();
-            }
             if (claimed == null)
             {
                 if (Time.time < nextCover) return false;
@@ -283,7 +290,12 @@ namespace BlackoutProtocol.AI.Flanker
                 claimed = selected;
             }
             BehaviourStatus result = Move(claimed.Position, retreat ? MoveStyle.Run : MoveStyle.Strafe);
-            if (result != BehaviourStatus.Failure) return true;
+            if (result != BehaviourStatus.Failure)
+            {
+                SetCoverPose(result == BehaviourStatus.Success ||
+                    HorizontalDistance(body.Position, claimed.Position) < 0.8f);
+                return true;
+            }
             rejected = claimed;
             rejectUntil = Time.time + 2f;
             ReleaseCover();
@@ -325,6 +337,21 @@ namespace BlackoutProtocol.AI.Flanker
         {
             if (claimed != null) claimed.Release(gameObject);
             claimed = null;
+            SetCoverPose(false);
+        }
+
+        private void SetCoverPose(bool value)
+        {
+            if (crouched == value) return;
+            crouched = value;
+            if (visualRoot != null)
+                visualRoot.localPosition = standingVisualPosition +
+                    (value ? Vector3.down * 0.55f : Vector3.zero);
+            if (controller != null)
+            {
+                controller.height = value ? 1.2f : 1.8f;
+                controller.center = value ? new Vector3(0, 0.6f, 0) : new Vector3(0, 0.9f, 0);
+            }
         }
 
         private void PlayerChanged(IPlayerState current)
@@ -366,6 +393,12 @@ namespace BlackoutProtocol.AI.Flanker
         private void Hit()
         {
             body.PlayAction(AgentAction.Hit);
+            IPlayerState attacker = PlayerRegistry.Current;
+            if (attacker != null && attacker.IsAlive)
+            {
+                memory.Remember(FlankerNavMeshPathfinder.ToPoint(attacker.Position), Time.time, memorySeconds);
+                lastForward = attacker.Transform.forward;
+            }
             nextDecision = 0f;
         }
 

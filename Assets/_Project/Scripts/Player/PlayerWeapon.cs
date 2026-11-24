@@ -35,10 +35,12 @@ namespace BlackoutProtocol.Player
         private float nextShotTime;
         private float reloadCompletesAt;
         private PlayerState playerState;
+        private PlayerHold playerHold;
         private PlayerInput playerInput;
         private InputActionAsset playerActions;
         private InputAction attackAction;
         private InputAction reloadAction;
+        private bool attackSuppressedUntilReleased;
 
         /// <summary>Raised after magazine or reserve ammunition changes.</summary>
         public event Action<int, int, int> AmmoChanged;
@@ -71,6 +73,7 @@ namespace BlackoutProtocol.Player
             currentAmmo = magazineSize;
             reserveAmmo = initialReserveAmmo;
             playerState = GetComponent<PlayerState>();
+            playerHold = GetComponent<PlayerHold>();
             playerInput = GetComponent<PlayerInput>();
             RefreshAttackAction();
         }
@@ -78,6 +81,12 @@ namespace BlackoutProtocol.Player
         /// <summary>Called by PlayerInput's Send Messages behavior for the Attack action.</summary>
         public void OnAttack(InputValue value)
         {
+            if (!value.isPressed)
+            {
+                attackSuppressedUntilReleased = false;
+                return;
+            }
+
             if (value.isPressed && !IsReloading)
             {
                 TryFire();
@@ -96,6 +105,10 @@ namespace BlackoutProtocol.Player
         private void Update()
         {
             RefreshAttackAction();
+            if (attackAction != null && !attackAction.IsPressed())
+            {
+                attackSuppressedUntilReleased = false;
+            }
 
             if (IsReloading)
             {
@@ -123,6 +136,7 @@ namespace BlackoutProtocol.Player
         private void OnDisable()
         {
             isReloading = false;
+            attackSuppressedUntilReleased = false;
             playerState?.SetReloading(false);
         }
 
@@ -152,7 +166,16 @@ namespace BlackoutProtocol.Player
 
         private void TryFire()
         {
-            if (IsReloading || playerCamera == null || Time.time < nextShotTime)
+            if (playerHold != null &&
+                (playerHold.IsHoldingObject ||
+                 playerHold.LastThrowFrame == Time.frameCount))
+            {
+                attackSuppressedUntilReleased = true;
+                return;
+            }
+
+            if (attackSuppressedUntilReleased || IsReloading ||
+                playerCamera == null || Time.time < nextShotTime)
             {
                 return;
             }
@@ -199,6 +222,7 @@ namespace BlackoutProtocol.Player
         private void TryStartReload()
         {
             if (IsReloading ||
+                (playerHold != null && playerHold.IsHoldingObject) ||
                 currentAmmo >= magazineSize ||
                 reserveAmmo <= 0)
             {

@@ -1,3 +1,4 @@
+using BlackoutProtocol.Audio;
 using BlackoutProtocol.Core;
 using BlackoutProtocol.Player;
 using UnityEngine;
@@ -27,12 +28,14 @@ namespace BlackoutProtocol.Interaction
         private Rigidbody body;
         private Collider[] objectColliders;
         private PlayerHold holder;
+        private Collider[] pendingHolderColliders;
+        private float restoreHolderCollisionAt;
         private float nextImpactTime;
         private bool impactsArmed;
 
         public string Prompt => holder == null
             ? "Press E to pick up"
-            : "Press Q to throw";
+            : "Press Q or fire to throw";
 
         public bool IsHeld => holder != null;
 
@@ -43,6 +46,27 @@ namespace BlackoutProtocol.Interaction
             body.mass = mass;
             body.interpolation = RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 1f;
+            audioSource.minDistance = 1.5f;
+            audioSource.maxDistance = 20f;
+            audioSource.volume = 0.55f;
+            if (impactClip == null) impactClip = ProceduralSfx.CanisterImpact;
+        }
+
+        private void FixedUpdate()
+        {
+            if (pendingHolderColliders != null &&
+                Time.time >= restoreHolderCollisionAt)
+            {
+                RestoreHolderCollision();
+            }
+        }
+
+        private void OnDisable()
+        {
+            RestoreHolderCollision();
         }
 
         public void Interact(GameObject user)
@@ -63,6 +87,7 @@ namespace BlackoutProtocol.Interaction
                 return;
             }
 
+            RestoreHolderCollision();
             holder = newHolder;
             impactsArmed = false;
             SetCollisionWithHolder(holderColliders, true);
@@ -88,7 +113,8 @@ namespace BlackoutProtocol.Interaction
         public void Release(
             Vector3 direction,
             float impulse,
-            Collider[] holderColliders)
+            Collider[] holderColliders,
+            Vector3 releasePosition)
         {
             if (holder == null)
             {
@@ -96,18 +122,20 @@ namespace BlackoutProtocol.Interaction
             }
 
             holder = null;
+            body.position = releasePosition;
             body.isKinematic = false;
             body.useGravity = true;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            SetCollisionWithHolder(holderColliders, false);
+            pendingHolderColliders = holderColliders;
+            restoreHolderCollisionAt = Time.time + 0.25f;
             impactsArmed = true;
-            nextImpactTime = Time.time + 0.05f;
+            nextImpactTime = Time.time;
 
             if (direction.sqrMagnitude > 0.001f && impulse > 0f)
             {
-                body.AddForce(
-                    direction.normalized * impulse,
-                    ForceMode.Impulse);
+                body.linearVelocity = direction.normalized *
+                    (impulse / body.mass);
+                audioSource.PlayOneShot(ProceduralSfx.CanisterThrow, 0.65f);
             }
         }
 
@@ -173,6 +201,17 @@ namespace BlackoutProtocol.Interaction
                     }
                 }
             }
+        }
+
+        private void RestoreHolderCollision()
+        {
+            if (pendingHolderColliders == null)
+            {
+                return;
+            }
+
+            SetCollisionWithHolder(pendingHolderColliders, false);
+            pendingHolderColliders = null;
         }
 
         private void OnValidate()
