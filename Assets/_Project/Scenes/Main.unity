@@ -146,8 +146,8 @@ Transform:
   m_GameObject: {fileID: 30169281}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -24, y: -2.96, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -24, y: -2.96, z: 7.5}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 369098246}
@@ -456,13 +456,29 @@ PrefabInstance:
     m_TransformParent: {fileID: 943120178}
     m_Modifications:
     - target: {fileID: 4679940049891989039, guid: 107ad6f4a8befb8739c61ba2478ff5c7, type: 3}
+      propertyPath: door
+      value: 
+      objectReference: {fileID: 3141592653590}
+    - target: {fileID: 4679940049891989039, guid: 107ad6f4a8befb8739c61ba2478ff5c7, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 1280379336}
     - target: {fileID: 4679940049891989039, guid: 107ad6f4a8befb8739c61ba2478ff5c7, type: 3}
+      propertyPath: barricade
+      value: 
+      objectReference: {fileID: 514903959}
+    - target: {fileID: 4679940049891989039, guid: 107ad6f4a8befb8739c61ba2478ff5c7, type: 3}
       propertyPath: coverPoint
       value: 
       objectReference: {fileID: 282027123}
+    - target: {fileID: 4679940049891989039, guid: 107ad6f4a8befb8739c61ba2478ff5c7, type: 3}
+      propertyPath: doorApproach
+      value: 
+      objectReference: {fileID: 331417569}
+    - target: {fileID: 4679940049891989039, guid: 107ad6f4a8befb8739c61ba2478ff5c7, type: 3}
+      propertyPath: barricadeApproach
+      value: 
+      objectReference: {fileID: 1362422540}
     - target: {fileID: 6230069619698122364, guid: 107ad6f4a8befb8739c61ba2478ff5c7, type: 3}
       propertyPath: m_Name
       value: Breacher
@@ -1868,6 +1884,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 327458468}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &331417568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 331417569}
+  m_Layer: 0
+  m_Name: Breacher Door Approach
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &331417569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331417568}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &369098245
 GameObject:
   m_ObjectHideFlags: 0
@@ -2746,6 +2793,10 @@ PrefabInstance:
       value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 3191707403072001197, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3191707403072001197, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
       propertyPath: logLevelChanges
       value: 0
       objectReference: {fileID: 0}
@@ -2764,13 +2815,36 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7657008513349702781, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 514903959}
   m_SourcePrefab: {fileID: 100100000, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
 --- !u!4 &514903957 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
   m_PrefabInstance: {fileID: 514903956}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &514903958 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7657008513349702781, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
+  m_PrefabInstance: {fileID: 514903956}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &514903959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 514903958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc9296de332d5b6dae61ab79f96dc63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.AI.Breacher.BreacherBarricade
+  localPushOffset: {x: 0, y: 0, z: 2}
+  pushSpeed: 2
+  arrivalDistance: 0.02
 --- !u!1 &541281208
 GameObject:
   m_ObjectHideFlags: 0
@@ -3230,8 +3304,8 @@ Transform:
   m_GameObject: {fileID: 606590188}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 12, y: 0.03999996, z: 30}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 2, y: 0.03999996, z: 31}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 676997766}
@@ -6228,11 +6302,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6514664655505693777, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.395
       objectReference: {fileID: 0}
     - target: {fileID: 6514664655505693777, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.069
       objectReference: {fileID: 0}
     - target: {fileID: 6599324715297626153, guid: 8bf2ef5c574537945a378fc32d9b7dd4, type: 3}
       propertyPath: m_Layer
@@ -7986,6 +8060,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1348056214}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1362422539
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1362422540}
+  m_Layer: 0
+  m_Name: Breacher Barricade Approach
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1362422540
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362422539}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -25.5, y: 0, z: 5.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1378003387
 GameObject:
   m_ObjectHideFlags: 0
@@ -10124,8 +10229,8 @@ Transform:
   m_GameObject: {fileID: 1904521950}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.03999996, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 5, y: 0.03999996, z: 9.5}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 801183219}
@@ -10475,8 +10580,8 @@ Transform:
   m_GameObject: {fileID: 2010484977}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 30, y: 0.03999996, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 30, y: 0.03999996, z: -10}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1830669102}
@@ -11314,6 +11419,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BlackoutProtocol.Core::BlackoutProtocol.Core.CoverPoint
   coverHeight: 1.5
+--- !u!114 &3141592653590 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4057344272768474326, guid: 067b4515a4cc28d69abbdcfd6fc866b2, type: 3}
+  m_PrefabInstance: {fileID: 753988501}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ce5ce53675da1b62a64d2494746a747, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.Interaction.SlidingDoor
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -11324,3 +11440,5 @@ SceneRoots:
   - {fileID: 1831713986}
   - {fileID: 541281210}
   - {fileID: 943120178}
+  - {fileID: 331417569}
+  - {fileID: 1362422540}
