@@ -11,7 +11,7 @@ namespace BlackoutProtocol.Audio
             Vector3 direction = target - origin;
             float distance = direction.magnitude;
             if (distance < 0.2f) return true;
-            RaycastHit[] hits = Physics.RaycastAll(origin, direction / distance, distance - 0.15f,
+            RaycastHit[] hits = Physics.RaycastAll(origin, direction / distance, distance,
                 ~0, QueryTriggerInteraction.Ignore);
             foreach (RaycastHit hit in hits)
             {

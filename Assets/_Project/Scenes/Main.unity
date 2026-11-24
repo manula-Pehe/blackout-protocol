@@ -2795,7 +2795,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3191707403072001197, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3191707403072001197, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
       propertyPath: logLevelChanges
@@ -2828,36 +2828,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7657008513349702781, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 514903959}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
 --- !u!4 &514903957 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2207991629769991652, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
   m_PrefabInstance: {fileID: 514903956}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &514903958 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7657008513349702781, guid: 03668cf04d4b5a071843900a502397cb, type: 3}
-  m_PrefabInstance: {fileID: 514903956}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &514903959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 514903958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0dc9296de332d5b6dae61ab79f96dc63, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::BlackoutProtocol.AI.Breacher.BreacherBarricade
-  localPushOffset: {x: 0, y: 0, z: 3.5}
-  pushSpeed: 2
-  arrivalDistance: 0.02
 --- !u!1 &541281208
 GameObject:
   m_ObjectHideFlags: 0
