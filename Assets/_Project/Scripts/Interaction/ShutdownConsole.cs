@@ -1,4 +1,5 @@
 using System;
+using BlackoutProtocol.Audio;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,6 +15,7 @@ namespace BlackoutProtocol.Interaction
     {
         [Header("Visual Feedback")]
         [SerializeField] private Renderer indicatorRenderer;
+        [SerializeField] private Renderer secondaryIndicatorRenderer;
         [SerializeField] private Color readyColour = new Color(0f, 0.7f, 1f);
         [SerializeField] private Color activatedColour = Color.green;
 
@@ -39,6 +41,18 @@ namespace BlackoutProtocol.Interaction
                 indicatorRenderer = GetComponent<Renderer>();
             }
 
+            if (audioSource == null)
+            {
+                audioSource = GetComponent<AudioSource>();
+            }
+
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.playOnAwake = false;
+                audioSource.spatialBlend = 1f;
+            }
+
             UpdateIndicator();
         }
 
@@ -52,10 +66,9 @@ namespace BlackoutProtocol.Interaction
             IsActivated = true;
             UpdateIndicator();
 
-            if (audioSource != null && activationClip != null)
-            {
-                audioSource.PlayOneShot(activationClip);
-            }
+            audioSource.PlayOneShot(activationClip != null
+                ? activationClip
+                : ProceduralSfx.Click);
 
             Activated?.Invoke(user);
             onShutdownActivated?.Invoke();
@@ -67,11 +80,21 @@ namespace BlackoutProtocol.Interaction
 
         private void UpdateIndicator()
         {
-            if (indicatorRenderer != null)
+            Color colour = IsActivated ? activatedColour : readyColour;
+            UpdateIndicatorRenderer(indicatorRenderer, colour);
+            UpdateIndicatorRenderer(secondaryIndicatorRenderer, colour);
+        }
+
+        private static void UpdateIndicatorRenderer(Renderer renderer, Color colour)
+        {
+            if (renderer != null)
             {
-                indicatorRenderer.material.color = IsActivated
-                    ? activatedColour
-                    : readyColour;
+                Material material = renderer.material;
+                material.color = colour;
+                if (material.HasProperty("_EmissionColor"))
+                {
+                    material.SetColor("_EmissionColor", colour * 2f);
+                }
             }
         }
     }
