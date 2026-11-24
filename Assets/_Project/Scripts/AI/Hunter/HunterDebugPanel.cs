@@ -21,7 +21,7 @@ namespace BlackoutProtocol.AI.Hunter
         private float nextRefresh;
         private Vector2 scroll;
         private GUIStyle labelStyle;
-        private string header = "HUNTER / waiting for decision / F1 debug";
+        private string header = "HUNTER / waiting for decision / F1 debug / F3 UCS";
 
         public bool OverlayVisible => overlayVisible;
         public bool CompareOnRouteRequests => compareOnRouteRequests;
@@ -60,13 +60,15 @@ namespace BlackoutProtocol.AI.Hunter
         {
 #if ENABLE_INPUT_SYSTEM
             if (Keyboard.current != null && Keyboard.current.f1Key.wasPressedThisFrame) ToggleOverlay();
+            if (Keyboard.current != null && Keyboard.current.f3Key.wasPressedThisFrame) ToggleVivaComparison();
 #elif ENABLE_LEGACY_INPUT_MANAGER
             if (Input.GetKeyDown(KeyCode.F1)) ToggleOverlay();
+            if (Input.GetKeyDown(KeyCode.F3)) ToggleVivaComparison();
 #endif
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + 0.25f;
             if (overlayVisible) RefreshDisplay();
-            else if (brain != null) header = $"HUNTER / {brain.CurrentAction} / F1 debug";
+            else if (brain != null) header = $"HUNTER / {brain.CurrentAction} / F1 debug / F3 UCS";
         }
 
         public void ToggleOverlay()
@@ -74,6 +76,15 @@ namespace BlackoutProtocol.AI.Hunter
             overlayVisible = !overlayVisible;
             ApplyComparisonMode();
             nextRefresh = 0;
+        }
+
+        // Keyboard access while the FPS player owns the mouse. Opt-in only.
+        private void ToggleVivaComparison()
+        {
+            if (!overlayVisible) ToggleOverlay();
+            SetCompareOnRouteRequests(!compareOnRouteRequests);
+            if (compareOnRouteRequests) CompareLatestRoute();
+            else RefreshDisplay();
         }
 
         public void SetCompareOnRouteRequests(bool value)
@@ -105,7 +116,7 @@ namespace BlackoutProtocol.AI.Hunter
                 ScoreText = "Assign HunterBrain and HunterNavMeshPathfinder on this debug panel.";
                 return;
             }
-            header = $"HUNTER / {brain.CurrentAction} / F1 debug";
+            header = $"HUNTER / {brain.CurrentAction} / F1 debug / F3 UCS";
             DisplayedSelection = brain.LastSelection;
             DisplayedDecisionTime = brain.LastDecisionTime;
             HasDisplayedNoise = brain.HasSelectedNoise;

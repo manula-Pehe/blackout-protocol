@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BlackoutProtocol.Core;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Profiling;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -71,6 +72,8 @@ namespace BlackoutProtocol.Body
         [SerializeField, Min(0)] private float separationClearance = 0.15f;
         [SerializeField, Min(0.1f)] private float maximumSeparationDeviation = 0.75f;
         [SerializeField, Min(0.1f)] private float separationResponse = 3f;
+
+        private static readonly ProfilerMarker MovementMarker = new ProfilerMarker("Blackout.AgentBody.Movement");
 
         private readonly PathFollower follower = new PathFollower();
 
@@ -241,6 +244,7 @@ namespace BlackoutProtocol.Body
 
         private void Update()
         {
+            using var profile = MovementMarker.Auto();
             UpdateDebugToggle();
             usingLookAhead = false;
             steeringTarget = Position;

@@ -5,6 +5,7 @@ using BlackoutProtocol.Body;
 using BlackoutProtocol.Core;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Profiling;
 
 namespace BlackoutProtocol.AI.Hunter
 {
@@ -19,7 +20,7 @@ namespace BlackoutProtocol.AI.Hunter
         [SerializeField] private Transform[] wanderPoints = new Transform[0];
         [SerializeField] private LineRenderer pathDisplay;
         [SerializeField, Min(0.05f)] private float decisionInterval = 0.2f;
-        [SerializeField, Min(0.1f)] private float minimumRepathInterval = 0.75f;
+        [SerializeField, Min(0.25f)] private float minimumRepathInterval = 0.75f;
         [SerializeField, Min(0.1f)] private float movingTargetRepathDistance = 0.8f;
         [SerializeField, Range(0, 1)] private float hysteresisBonus = 0.08f;
         [Header("Evidence lifetime (seconds)")]
@@ -39,6 +40,7 @@ namespace BlackoutProtocol.AI.Hunter
         [Header("Acoustic uncertainty")]
         [SerializeField, Min(0f)] private float maximumSoundUncertainty = 6f;
 
+        private static readonly ProfilerMarker RouteMarker = new ProfilerMarker("Blackout.Hunter.RouteRequest");
         private readonly List<Vector3> path = new List<Vector3>(64);
         private HunterSoundMemory memory;
         private HunterUtilitySelector selector;
@@ -321,7 +323,8 @@ namespace BlackoutProtocol.AI.Hunter
         {
             if (Time.time < nextPath || Time.time < nextMove) return;
             if (routeActive && !forceRepath && Vector3.Distance(routeGoal, goal) < movingTargetRepathDistance) return;
-            nextPath = Time.time + Mathf.Max(0.1f, minimumRepathInterval);
+            using var profile = RouteMarker.Auto();
+            nextPath = HunterRouteThrottle.NextAllowed(Time.time, minimumRepathInterval);
             forceRepath = false;
             routeGoal = goal;
             HasDestination = true;
@@ -373,7 +376,7 @@ namespace BlackoutProtocol.AI.Hunter
             routeActive = false;
             forceRepath = true;
             if (stuckRetries == 0) pathfinder.InvalidateGraph();
-            nextPath = Time.time + Mathf.Max(0.1f, minimumRepathInterval);
+            nextPath = Mathf.Max(nextPath, HunterRouteThrottle.NextAllowed(Time.time, minimumRepathInterval));
             Status = "AgentBody stuck; delayed A* replan requested.";
             LastRuntimeEvent = "Stuck event accepted; duplicate events are suppressed during the replan cooldown.";
             if (++stuckRetries >= 2)
@@ -499,7 +502,7 @@ namespace BlackoutProtocol.AI.Hunter
             if (agentBody != null) agentBody.Stop();
             routeActive = false;
             forceRepath = true;
-            nextPath = Time.time;
+            nextPath = HunterRouteThrottle.AfterInvalidation(Time.time, nextPath);
             nextDecision = 0f;
             pendingReason = HunterDecisionReason.LevelChanged;
             LastRuntimeEvent = "NavMesh carving delay elapsed; cached graph invalidated and controlled replan requested.";

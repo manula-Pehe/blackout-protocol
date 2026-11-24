@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BlackoutProtocol.Core;
 using UnityEngine;
 
@@ -30,6 +31,15 @@ namespace BlackoutProtocol.Body
         private readonly Quaternion[] handRest = new Quaternion[32];
         private int handBoneCount, wristBoneCount;
         private Renderer[] modelRenderers;
+        private Transform hips, leftFoot, rightFoot, leftToe, rightToe;
+        private CharacterController capsule;
+        private SkinnedMeshRenderer[] skins;
+        private Mesh deathMesh;
+        private readonly List<Vector3> deathVertices = new List<Vector3>();
+        private float appliedGroundShift, livingGroundShift, deathGroundY, finalDeathShift;
+        private bool groundShiftApplied, deathGroundCaptured, deathGroundFinal;
+        private readonly RaycastHit[] visualGroundHits = new RaycastHit[16];
+        [SerializeField, Range(0f, 0.15f)] private float soleClearance = 0.04f;
         private AgentBody body;
         private Animator animator;
         private bool dead, ready, hasAttackRate, impactDelivered = true;
@@ -48,10 +58,17 @@ namespace BlackoutProtocol.Body
             animator = GetComponent<Animator>();
             body = GetComponentInParent<AgentBody>();
             modelRenderers = GetComponentsInChildren<Renderer>(true);
+            skins = GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            capsule = body != null ? body.GetComponent<CharacterController>() : null;
             // Capture the model-authored local wrist/finger rotations before animation evaluation.
             // No shoulder/elbow override: those remain driven by the retargeted humanoid clips.
             if (animator.avatar != null && animator.avatar.isValid && animator.avatar.isHuman)
             {
+                hips = animator.GetBoneTransform(HumanBodyBones.Hips);
+                leftFoot = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+                rightFoot = animator.GetBoneTransform(HumanBodyBones.RightFoot);
+                leftToe = animator.GetBoneTransform(HumanBodyBones.LeftToes);
+                rightToe = animator.GetBoneTransform(HumanBodyBones.RightToes);
                 CacheHand(HumanBodyBones.LeftHand);
                 CacheHand(HumanBodyBones.RightHand);
                 wristBoneCount = handBoneCount;
@@ -108,7 +125,87 @@ namespace BlackoutProtocol.Body
             CancelPendingAttack(); impactDelivered = true; attackEnd = -1f; scheduledCycle = 0;
             if (ready && animator != null && upperLayer >= 0 && upperLayer < animator.layerCount)
                 animator.SetLayerWeight(upperLayer, 0f);
+            RemoveGroundShift();
             ready = false;
+        }
+        private void OnDestroy()
+        {
+            if (deathMesh != null) Destroy(deathMesh);
+        }
+        private void Update()
+        {
+            // Undo only our previous correction before Mecanim evaluates again.
+            RemoveGroundShift();
+        }
+        private void RemoveGroundShift()
+        {
+            if (groundShiftApplied && hips != null)
+                hips.position -= Vector3.up * appliedGroundShift;
+            groundShiftApplied = false;
+        }
+        private bool ModelVisible()
+        {
+            for (int i = 0; i < modelRenderers.Length; i++)
+                if (modelRenderers[i] != null && modelRenderers[i].isVisible) return true;
+            return false;
+        }
+        private float GroundY()
+        {
+            if (capsule == null) return body.transform.position.y;
+            Vector3 foot = capsule.transform.TransformPoint(capsule.center) -
+                Vector3.up * (capsule.height * 0.5f * Mathf.Abs(capsule.transform.lossyScale.y));
+            float fallback = foot.y - capsule.skinWidth;
+            int count = Physics.RaycastNonAlloc(foot + Vector3.up * 0.3f, Vector3.down,
+                visualGroundHits, 0.65f, ~0, QueryTriggerInteraction.Ignore);
+            float nearest = float.PositiveInfinity, result = fallback;
+            for (int i = 0; i < count; i++)
+            {
+                var hit = visualGroundHits[i];
+                if (hit.collider == null || hit.collider.transform.IsChildOf(body.transform) ||
+                    hit.collider.GetComponentInParent<AgentBody>() != null || hit.normal.y < 0.65f) continue;
+                if (hit.distance < nearest) { nearest = hit.distance; result = hit.point.y; }
+            }
+            return result;
+        }
+        private static float Lowest(float y, Transform bone) => bone == null ? y : Mathf.Min(y, bone.position.y);
+        private void ApplyGroundShift(float shift)
+        {
+            if (hips == null || float.IsNaN(shift) || float.IsInfinity(shift)) return;
+            appliedGroundShift = Mathf.Clamp(shift, -2f, 2f);
+            hips.position += Vector3.up * appliedGroundShift;
+            groundShiftApplied = true;
+        }
+        private void GroundLivingPose()
+        {
+            if (hips == null || capsule == null) return;
+            float lowest = Lowest(Lowest(Lowest(Lowest(float.PositiveInfinity, leftFoot), rightFoot), leftToe), rightToe);
+            if (float.IsInfinity(lowest)) return;
+            livingGroundShift = Mathf.Clamp(GroundY() + soleClearance - lowest, -2f, 2f);
+            ApplyGroundShift(livingGroundShift);
+        }
+        private void GroundDeathPose(AnimatorStateInfo state)
+        {
+            if (hips == null || !deathGroundCaptured) return;
+            if (state.shortNameHash != DeathState)
+            { ApplyGroundShift(livingGroundShift); return; }
+            if (deathGroundFinal) { ApplyGroundShift(finalDeathShift); return; }
+            // Only during the short death animation, measure the actual deformed mesh.
+            // No skin baking in steady-state locomotion or after the final pose.
+            if (deathMesh == null) deathMesh = new Mesh { name = "Death grounding sample" };
+            float lowest = float.PositiveInfinity;
+            foreach (var skin in skins)
+            {
+                if (skin == null || !skin.enabled || !skin.gameObject.activeInHierarchy) continue;
+                skin.BakeMesh(deathMesh);
+                deathMesh.GetVertices(deathVertices);
+                Matrix4x4 matrix = skin.localToWorldMatrix;
+                for (int i = 0; i < deathVertices.Count; i++)
+                    lowest = Mathf.Min(lowest, matrix.MultiplyPoint3x4(deathVertices[i]).y);
+            }
+            float shift = float.IsInfinity(lowest) ? livingGroundShift : deathGroundY + 0.01f - lowest;
+            ApplyGroundShift(shift);
+            if (state.normalizedTime >= 1f)
+            { finalDeathShift = appliedGroundShift; deathGroundFinal = true; }
         }
         public bool TryPlayTimedAttack(float cycleSeconds, Action onImpact)
         {
@@ -127,7 +224,7 @@ namespace BlackoutProtocol.Body
             callback?.Invoke();
             AttackImpact?.Invoke();
         }
-        private static bool UpperAction(AnimatorStateInfo state) => state.shortNameHash == Attack || state.shortNameHash == Alert;
+        private static bool UpperAction(AnimatorStateInfo state) => state.shortNameHash == Attack;
         private void UpdateUpperBodyWeight()
         {
             bool active = UpperAction(animator.GetCurrentAnimatorStateInfo(upperLayer));
@@ -160,8 +257,9 @@ namespace BlackoutProtocol.Body
             if (!IsReady || !animator.isInitialized) return;
             if (dead)
             {
-                if (animator.GetCurrentAnimatorStateInfo(0).shortNameHash == DeathState &&
-                    animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+                var state = animator.GetCurrentAnimatorStateInfo(0);
+                GroundDeathPose(state);
+                if (deathGroundFinal)
                     animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
                 return;
             }
@@ -180,12 +278,14 @@ namespace BlackoutProtocol.Body
             float nominal = sneaking ? sneakReference : Mathf.Lerp(walkReference, runReference, blend);
             animator.SetFloat(Rate, speed <= 0.02f ? 1f : Mathf.Clamp(speed / Mathf.Max(0.1f, nominal), 0.35f, 2f), damping, Time.deltaTime);
             StabilizeHands();
+            GroundLivingPose();
         }
         private void OnAction(AgentAction action)
         {
             if (!IsReady || dead) return;
             if (action == AgentAction.Die)
             {
+                deathGroundY = GroundY(); deathGroundCaptured = true;
                 dead = true; CancelPendingAttack(); impactDelivered = true;
                 animator.ResetTrigger(Attack); animator.ResetTrigger(Hit); animator.ResetTrigger(Alert);
                 animator.SetTrigger(Die); animator.SetLayerWeight(upperLayer, 0f);

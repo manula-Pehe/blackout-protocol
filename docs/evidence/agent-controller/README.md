@@ -1,0 +1,14 @@
+# Agent controller performance evidence
+
+Run from the actual Main scene, not the technical sandbox. Start a fresh Play Mode session, keep all four original agents alive, avoid attacking or interacting, and keep the camera/resolution fixed. Choose Blackout Protocol > Performance > Run Main 4 vs 12 Agent Benchmark. The probe measures 5 seconds warmup + 15 seconds recording for each load. Eight temporary ground-body copies use the shared motor, steering, and animation with AI disabled; four original enemies retain their normal AI. This is a shared-controller workload comparison, **not** a 12 autonomous-brain AI benchmark. The extra robots use short validated NavMesh chords; their animation footstep noise may affect live Hunter. The probe aborts when safe spawn sites cannot be found or an original enemy is dead/disabled at the sample boundary. Restart Play Mode for another run. CSV reports mean FPS, frame time and average moving bodies; reject runs with few moving agents. Record editor/player, graphics API, resolution, hardware, quality and VSync. Do not commit invented values.
+
+## Profiler evidence
+- Window > Analysis > Profiler, CPU Usage, Hierarchy. Disable Deep Profile for the main capture. Profile the actual Main scene while moving.
+- Expand `Blackout.AgentBody.Movement` and check GC Alloc for several representative frames, including separation. Target 0 B in the steady-state movement marker, not the entire game or AI. First-use list growth and route/event callbacks may allocate; record them separately.
+- `Blackout.Hunter.RouteRequest` measures actual route attempts, including graph search and path execution. Hunter has a 0.25 s hard minimum between requests in scaled game time; default remains 0.75 s. Level-change invalidation cannot shorten the pending deadline. Capture several seconds including door changes and compare to a pre-patch capture if available; don't label the current capture as before/after unless both were measured.
+- Record Animator CPU with robots on-screen and off-screen, compare culling settings under equivalent conditions. Animation visual fixes are deferred; don't change controller assets for this measurement.
+- Capture FBX animation compression inspector and actual asset sizes. Imported FBX files and generated clips were not included in the final audit export; verify them locally.
+- Save screenshots and the actual CSV here. Run EditMode tests, including HunterRouteThrottleTests, from Window > General > Test Runner.
+
+## Outstanding evidence
+Per-type tuning and idle phase offsets still need verification. Existing motor uses physics-based bounded contact snapping rather than NavMesh.SamplePosition for contact correction; the route refinement uses NavMesh.SamplePosition. Confirm with lecturer if the exact snapping technique is required. Verify dynamic doors, decoys, simultaneous noise, death and all existing tests in Main. No runtime results are claimed by this package.
