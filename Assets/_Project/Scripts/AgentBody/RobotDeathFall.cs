@@ -77,11 +77,11 @@ namespace BlackoutProtocol.Body
                 foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
                     if (renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
                         lowest = Mathf.Min(lowest, renderer.bounds.min.y);
-                float lift = floorHit.point.y + 0.03f - lowest;
-                if (lift > 0f)
+                float correction = floorHit.point.y + 0.03f - lowest;
+                if (!float.IsInfinity(lowest) && Mathf.Abs(correction) > 0.001f)
                     foreach (Part part in parts)
                         if (part.Transform != null)
-                            part.Transform.position += Vector3.up * lift;
+                            part.Transform.position += Vector3.up * correction;
             }
             if (progress < 1f) return;
             finished = true;
