@@ -55,7 +55,6 @@ namespace BlackoutProtocol.AI.Hunter
         private float blockedPursuitUntil, nextStuckRecovery;
         private bool previouslyVisible;
         private double lastFreshNoiseTime = -1;
-        private float lastPlayerSoundTime = float.NegativeInfinity;
 
         public HunterAction CurrentAction { get; private set; } = HunterAction.Wander;
         public HunterUtilitySelection LastSelection { get; private set; }
@@ -142,11 +141,6 @@ namespace BlackoutProtocol.AI.Hunter
             float confidence = Mathf.Sqrt(Mathf.Clamp01(1f - (float)(distance / audibleRadius)));
             if (!memory.Record(new HunterNoiseObservation(noise.Position.x, noise.Position.y, noise.Position.z,
                 noise.Type, noise.Time, audibleRadius, confidence), now)) return;
-            IPlayerState sourcePlayer = PlayerRegistry.Current;
-            if (ValidTarget(sourcePlayer) && noise.Source != null &&
-                (noise.Source == sourcePlayer.Transform.gameObject ||
-                 noise.Source.transform.IsChildOf(sourcePlayer.Transform)))
-                lastPlayerSoundTime = now;
             AcceptedNoiseCount++;
             LastRuntimeEvent = "Noise observation accepted; next scheduled decision will evaluate it.";
         }
@@ -170,9 +164,11 @@ namespace BlackoutProtocol.AI.Hunter
             float now = Time.time;
             LastDecisionTime = now;
             DecisionCount++;
-            // The Hunter has no visual acquisition. It pursues only accepted sound evidence.
-            visibleTarget = null;
-            previouslyVisible = false;
+            IPlayerState candidate = PlayerRegistry.Current;
+            visibleTarget = CanSee(candidate) ? candidate : null;
+            if (HasVisibleTarget && !previouslyVisible)
+                pendingReason = HunterDecisionReason.VisiblePlayer;
+            previouslyVisible = HasVisibleTarget;
             bool previouslyRemembered = HasSelectedNoise;
             HasSelectedNoise = memory.TryGetMostRelevant(now, resolvedThroughTime, out HunterRememberedNoise noise);
             if (!HasSelectedNoise) HasSelectedNoise = memory.TryGetMostRelevant(now, out noise);
@@ -242,7 +238,7 @@ namespace BlackoutProtocol.AI.Hunter
             float proximity = hasTrail ? 1f - Vector3.Distance(agentBody.Position, trailPosition) /
                 (HasVisibleTarget ? Mathf.Max(1, sightRange) : Mathf.Max(1, noiseProximityRange)) : 0;
             LastContext = new HunterUtilityContext(
-                fresh ? SelectedNoise.SoundIntensity * SelectedNoise.Confidence : 0,
+                HasVisibleTarget ? 1 : fresh ? SelectedNoise.SoundIntensity * SelectedNoise.Confidence : 0,
                 HasVisibleTarget ? 1 : hasTrail && HasSelectedNoise ? SelectedNoise.Confidence : 0,
                 HasVisibleTarget ? 1 : HasSelectedNoise ? SelectedNoise.EffectiveTrust : 0,
                 proximity, searching ? 1 : 0, CanAttack(PlayerRegistry.Current) ? 1 : 0);
@@ -374,7 +370,7 @@ namespace BlackoutProtocol.AI.Hunter
                 agentBody.Stop();
                 routeActive = false;
                 pendingReason = HunterDecisionReason.TargetLostOrInvalid;
-                LastRuntimeEvent = "Attack cancelled: player sound is stale or target is blocked or out of range.";
+                LastRuntimeEvent = "Attack cancelled: player is blocked or out of range.";
                 nextDecision = 0;
                 return;
             }
@@ -387,11 +383,10 @@ namespace BlackoutProtocol.AI.Hunter
             IDamageable damageable = target.Transform.GetComponentInChildren<IDamageable>();
             if (damageable != null && !damageable.IsDead && attackDamage > 0)
                 damageable.TakeDamage(attackDamage, target.Position, gameObject);
-            Status = "Attack executed at a recently heard player within clear melee range.";
+            Status = "Attack executed against a visible player within clear melee range.";
         }
 
         private bool CanAttack(IPlayerState target) => ValidTarget(target) &&
-            Time.time - lastPlayerSoundTime <= 5f &&
             Vector3.Distance(agentBody.Position, target.Position) <= Mathf.Max(0.1f, attackRange) && CanSee(target);
 
         private bool CanSee(IPlayerState target)

@@ -1,3 +1,4 @@
+using BlackoutProtocol.Core;
 using UnityEngine;
 
 namespace BlackoutProtocol.Player
@@ -13,8 +14,12 @@ namespace BlackoutProtocol.Player
         [SerializeField] private Vector3 localEulerAngles = new Vector3(0f, 90f, 0f);
         [SerializeField, Min(0.01f)] private float visibleLength = 0.75f;
 
+        private GameObject rifle;
+        private PlayerHold playerHold;
+
         private void Awake()
         {
+            playerHold = GetComponent<PlayerHold>();
             if (playerCamera == null) playerCamera = GetComponentInChildren<Camera>();
             if (playerCamera == null || riflePrefab == null) return;
 
@@ -23,7 +28,7 @@ namespace BlackoutProtocol.Player
             anchor.localPosition = localPosition;
             anchor.localRotation = Quaternion.Euler(localEulerAngles);
 
-            GameObject rifle = Instantiate(riflePrefab, anchor);
+            rifle = Instantiate(riflePrefab, anchor);
             rifle.name = "Plasma Rifle View Model";
             rifle.transform.localPosition = Vector3.zero;
             rifle.transform.localRotation = Quaternion.identity;
@@ -42,6 +47,29 @@ namespace BlackoutProtocol.Player
             var muzzle = new GameObject("Muzzle").transform;
             muzzle.SetParent(playerCamera.transform, false);
             muzzle.localPosition = new Vector3(0.34f, -0.20f, 0.88f);
+        }
+
+        private void LateUpdate()
+        {
+            if (rifle == null || playerCamera == null)
+            {
+                return;
+            }
+
+            bool carrying = playerHold != null && playerHold.IsHoldingObject;
+            bool obstructed = !carrying && Physics.SphereCast(
+                playerCamera.transform.position,
+                0.22f,
+                playerCamera.transform.forward,
+                out _,
+                0.95f,
+                ~(1 << GameLayers.Player),
+                QueryTriggerInteraction.Ignore);
+            bool showRifle = !carrying && !obstructed;
+            if (rifle.activeSelf != showRifle)
+            {
+                rifle.SetActive(showRifle);
+            }
         }
     }
 }

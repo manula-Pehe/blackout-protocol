@@ -366,6 +366,12 @@ namespace BlackoutProtocol.AI.Flanker
         private void Hit()
         {
             body.PlayAction(AgentAction.Hit);
+            IPlayerState attacker = PlayerRegistry.Current;
+            if (attacker != null && attacker.IsAlive)
+            {
+                memory.Remember(FlankerNavMeshPathfinder.ToPoint(attacker.Position), Time.time, memorySeconds);
+                lastForward = attacker.Transform.forward;
+            }
             nextDecision = 0f;
         }
 

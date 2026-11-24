@@ -81,6 +81,7 @@ namespace BlackoutProtocol.AI.Sentinel
         /// <summary>The configured distance between the NavMesh surface and the drone pivot.</summary>
         public float HoverHeight => hoverHeight;
         public float CurrentHealth => currentHealth;
+        public float MaximumHealth => maximumHealth;
         public bool IsShotDown => shotDown;
         public bool IsDead => shotDown;
 

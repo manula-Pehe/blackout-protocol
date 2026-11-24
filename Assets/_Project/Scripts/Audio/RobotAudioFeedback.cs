@@ -31,11 +31,21 @@ namespace BlackoutProtocol.Audio
         private static void Install()
         {
             foreach (AgentBody body in Object.FindObjectsByType<AgentBody>(FindObjectsSortMode.None))
+            {
                 if (body.GetComponent<RobotAudioFeedback>() == null)
                     body.gameObject.AddComponent<RobotAudioFeedback>();
+                if (body.GetComponent<RobotAttackVisual>() == null)
+                    body.gameObject.AddComponent<RobotAttackVisual>();
+                if (body.GetComponent<EnemyHealthDisplay>() == null)
+                    body.gameObject.AddComponent<EnemyHealthDisplay>();
+            }
             foreach (SentinelDroneBody body in Object.FindObjectsByType<SentinelDroneBody>(FindObjectsSortMode.None))
+            {
                 if (body.GetComponent<RobotAudioFeedback>() == null)
                     body.gameObject.AddComponent<RobotAudioFeedback>();
+                if (body.GetComponent<EnemyHealthDisplay>() == null)
+                    body.gameObject.AddComponent<EnemyHealthDisplay>();
+            }
         }
 
         private void Awake()

@@ -12,6 +12,7 @@ namespace BlackoutProtocol.AI.Hunter
         private float currentHealth;
 
         public bool IsDead => currentHealth <= 0f;
+        public float HealthNormalized => Mathf.Clamp01(currentHealth / Mathf.Max(1f, maximumHealth));
 
         private void Awake() => currentHealth = Mathf.Max(1f, maximumHealth);
 
