@@ -42,6 +42,7 @@ namespace BlackoutProtocol.AI.Hunter
 
         private static readonly ProfilerMarker RouteMarker = new ProfilerMarker("Blackout.Hunter.RouteRequest");
         private readonly List<Vector3> path = new List<Vector3>(64);
+        private NavMeshPath wanderPath;
         private HunterSoundMemory memory;
         private HunterUtilitySelector selector;
         private IAgentBody agentBody;
@@ -93,6 +94,7 @@ namespace BlackoutProtocol.AI.Hunter
 
         private void Awake()
         {
+            wanderPath = new NavMeshPath();
             if (body == null) body = GetComponent<AgentBody>();
             if (pathfinder == null) pathfinder = GetComponent<HunterNavMeshPathfinder>();
             agentBody = body;
@@ -306,8 +308,22 @@ namespace BlackoutProtocol.AI.Hunter
             if (wanderPoints != null && wanderPoints.Length > 0 && wanderPoints[wanderIndex % wanderPoints.Length] != null)
                 desired = wanderPoints[wanderIndex % wanderPoints.Length].position;
             else desired = home + Quaternion.Euler(0, wanderIndex * 137.5f, 0) * Vector3.forward * 4;
-            if (TryGround(desired, out Vector3 grounded)) RequestPath(grounded, MoveStyle.Walk);
-            else { wanderIndex++; nextMove = Time.time + 1; Status = "No reachable wander point; waiting before retry."; }
+            if (!TryGround(desired, out Vector3 grounded) ||
+                !NavMesh.CalculatePath(agentBody.Position, grounded, NavMesh.AllAreas, wanderPath) ||
+                wanderPath.status != NavMeshPathStatus.PathComplete)
+            {
+                desired = agentBody.Position + Quaternion.Euler(0, wanderIndex * 137.5f, 0) * Vector3.forward * 4;
+                if (!TryGround(desired, out grounded) ||
+                    !NavMesh.CalculatePath(agentBody.Position, grounded, NavMesh.AllAreas, wanderPath) ||
+                    wanderPath.status != NavMeshPathStatus.PathComplete)
+                {
+                    wanderIndex++; nextMove = Time.time + 1;
+                    Status = "No reachable wander point; waiting before retry.";
+                    return;
+                }
+                LastRuntimeEvent = "Patrol marker disconnected; using a reachable local wander point.";
+            }
+            RequestPath(grounded, MoveStyle.Walk);
         }
 
         private void Search()

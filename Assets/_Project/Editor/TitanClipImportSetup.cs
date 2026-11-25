@@ -23,6 +23,9 @@ namespace BlackoutProtocol.EditorTools
         public static void Configure()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            var titanAvatar = AssetDatabase.LoadAllAssetsAtPath("Assets/_Project/ThirdParty/AgentBody/Titan/Titan_Rigged.fbx")
+                .OfType<Avatar>().FirstOrDefault(a => a.isValid && a.isHuman);
+            if (titanAvatar == null) { Debug.LogError("Titan_Rigged humanoid Avatar is missing or invalid."); return; }
             string[] paths = Names.Select(Find).ToArray();
             if (paths.Any(p => p == null))
             {
@@ -35,7 +38,11 @@ namespace BlackoutProtocol.EditorTools
                 var importer = AssetImporter.GetAtPath(paths[i]) as ModelImporter;
                 if (importer == null) { Debug.LogError("Not a model importer: " + paths[i]); continue; }
                 importer.animationType = ModelImporterAnimationType.Human;
-                importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+                // The Mixamo FBXs have different bind poses and proportions. Use the
+                // Titan Avatar so their muscle curves are authored for the game rig.
+                importer.avatarSetup = ModelImporterAvatarSetup.CopyFromOther;
+                importer.sourceAvatar = titanAvatar;
+                importer.useFileScale = true;
                 importer.importAnimation = true;
                 importer.SaveAndReimport();
                 importer = (ModelImporter)AssetImporter.GetAtPath(paths[i]);
@@ -57,7 +64,8 @@ namespace BlackoutProtocol.EditorTools
                 importer.clipAnimations = clips;
                 importer.SaveAndReimport();
                 var assets = AssetDatabase.LoadAllAssetsAtPath(paths[i]);
-                bool valid = assets.OfType<Avatar>().Any(a => a.isValid && a.isHuman) && assets.OfType<AnimationClip>().Any(c => c.humanMotion && !c.name.StartsWith("__preview__"));
+                bool valid = importer.sourceAvatar == titanAvatar &&
+                    assets.OfType<AnimationClip>().Any(c => c.humanMotion && !c.name.StartsWith("__preview__"));
                 if (valid) good++;
                 else Debug.LogError("Humanoid import needs inspection: " + paths[i]);
             }

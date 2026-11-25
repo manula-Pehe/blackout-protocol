@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-25 01:07:50Z" end-time="2026-11-25 01:08:12Z" duration="22.6008796">
+  <test-suite type="TestSuite" id="1000" name="Blackout Protocol" fullname="Blackout Protocol" runstate="Runnable" testcasecount="220" result="Failed" site="Child" start-time="2026-11-25 01:07:50Z" end-time="2026-11-25 01:08:12Z" duration="22.600880" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1267" name="BlackoutProtocol.Hunter.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Hunter.Tests.EditMode.dll" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:07:51Z" end-time="2026-11-25 01:08:12Z" duration="21.362062" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1268" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:07:52Z" end-time="2026-11-25 01:08:12Z" duration="20.398092" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <output><![CDATA[Breacher route inputs: alarm=False, doorOpen=False, doorLocked=True, doorPath=46.0, barricadeCleared=True, barricadeUnavailable=False, barricadePath=unreachable, playerPath=unreachable
+Searching for another route
+]]></output>
+        <test-suite type="TestSuite" id="1269" name="AI" fullname="BlackoutProtocol.AI" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:07:53Z" end-time="2026-11-25 01:08:12Z" duration="19.396447" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestSuite" id="1270" name="Hunter" fullname="BlackoutProtocol.AI.Hunter" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:07:54Z" end-time="2026-11-25 01:08:12Z" duration="18.394854" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-suite type="TestSuite" id="1271" name="Tests" fullname="BlackoutProtocol.AI.Hunter.Tests" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:07:55Z" end-time="2026-11-25 01:08:12Z" duration="17.394128" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-suite type="TestFixture" id="1201" name="HunterMainIntegrationTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" runstate="Runnable" testcasecount="1" result="Failed" site="Child" start-time="2026-11-25 01:07:56Z" end-time="2026-11-25 01:08:12Z" duration="16.392742" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <failure>
+                  <message><![CDATA[One or more child tests had errors]]></message>
+                </failure>
+                <test-case id="1202" name="Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests.Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" methodname="Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" classname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" runstate="Runnable" seed="1933271027" result="Failed" start-time="2026-11-25 01:07:35Z" end-time="2026-11-25 01:08:12Z" duration="37.184481" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Main integration timeout during door opening: action=Search, status=Chase: 2 A* waypoints, 2 nodes expanded., event=AgentBody reported arrival at the current destination..
+  Expected: True
+  But was:  False
+]]></message>
+                    <stack-trace><![CDATA[at BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests+<WaitFor>d__5.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/Hunter/HunterMainIntegrationTests.cs:123
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                  </failure>
+                  <output><![CDATA[Breacher route inputs: alarm=False, doorOpen=False, doorLocked=True, doorPath=35.0, barricadeCleared=True, barricadeUnavailable=False, barricadePath=unreachable, playerPath=unreachable
+Searching for another route
+Saving results to: /home/manula/.config/unity3d/Blackout Team/Blackout Protocol/TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

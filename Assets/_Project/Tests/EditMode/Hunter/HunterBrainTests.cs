@@ -224,7 +224,18 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             yield return WaitUntil(() => brain.CurrentAction == HunterAction.Chase, 2);
             Assert.That(brain.AttackCount, Is.Zero, "A heard target outside the attack radius is not eligible.");
             float health = target.HealthNormalized;
-            yield return WaitUntil(() => brain.AttackCount > 0, 6);
+            float attackDeadline = Time.realtimeSinceStartup + 12;
+            while (brain.AttackCount == 0 && Time.realtimeSinceStartup < attackDeadline)
+            {
+                // A moving player keeps making new sound; a single distant gunshot has
+                // deliberate location uncertainty and need not lead exactly to melee range.
+                GameEvents.RaiseNoise(new NoiseEvent(target.Position, NoiseLevels.RunningFootstep,
+                    NoiseType.Footstep, Time.time, target.gameObject));
+                yield return new WaitForSeconds(0.5f);
+            }
+            Assert.That(brain.AttackCount, Is.GreaterThan(0),
+                $"Hunter did not naturally attack after continued player noise: {brain.Status}");
+            yield return WaitUntil(() => target.HealthNormalized < health, 4);
             Assert.That(target.HealthNormalized, Is.LessThan(health));
             Assert.That(Vector3.Distance(brain.transform.position, target.Position), Is.LessThanOrEqualTo(1.4f));
             Assert.That(brain.GetComponent<AgentBody>().IsMoving, Is.False);

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-25 01:10:10Z" end-time="2026-11-25 01:10:35Z" duration="24.5779249">
+  <test-suite type="TestSuite" id="1000" name="Blackout Protocol" fullname="Blackout Protocol" runstate="Runnable" testcasecount="220" result="Passed" start-time="2026-11-25 01:10:10Z" end-time="2026-11-25 01:10:35Z" duration="24.577925" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1267" name="BlackoutProtocol.Hunter.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Hunter.Tests.EditMode.dll" runstate="Runnable" testcasecount="68" result="Passed" start-time="2026-11-25 01:10:11Z" end-time="2026-11-25 01:10:35Z" duration="23.348234" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1268" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="68" result="Passed" start-time="2026-11-25 01:10:12Z" end-time="2026-11-25 01:10:35Z" duration="22.389121" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <output><![CDATA[Breacher route inputs: alarm=False, doorOpen=False, doorLocked=True, doorPath=46.0, barricadeCleared=True, barricadeUnavailable=False, barricadePath=unreachable, playerPath=unreachable
+Searching for another route
+]]></output>
+        <test-suite type="TestSuite" id="1269" name="AI" fullname="BlackoutProtocol.AI" runstate="Runnable" testcasecount="68" result="Passed" start-time="2026-11-25 01:10:13Z" end-time="2026-11-25 01:10:35Z" duration="21.387925" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1270" name="Hunter" fullname="BlackoutProtocol.AI.Hunter" runstate="Runnable" testcasecount="68" result="Passed" start-time="2026-11-25 01:10:14Z" end-time="2026-11-25 01:10:35Z" duration="20.386642" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestSuite" id="1271" name="Tests" fullname="BlackoutProtocol.AI.Hunter.Tests" runstate="Runnable" testcasecount="68" result="Passed" start-time="2026-11-25 01:10:15Z" end-time="2026-11-25 01:10:35Z" duration="19.386382" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="TestFixture" id="1201" name="HunterMainIntegrationTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-11-25 01:10:16Z" end-time="2026-11-25 01:10:35Z" duration="18.379439" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1202" name="Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests.Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" methodname="Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" classname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" runstate="Runnable" seed="1717773132" result="Passed" start-time="2026-11-25 01:09:55Z" end-time="2026-11-25 01:10:34Z" duration="39.597563" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Breacher route inputs: alarm=False, doorOpen=False, doorLocked=True, doorPath=35.0, barricadeCleared=True, barricadeUnavailable=False, barricadePath=unreachable, playerPath=unreachable
+Searching for another route
+Saving results to: /home/manula/.config/unity3d/Blackout Team/Blackout Protocol/TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

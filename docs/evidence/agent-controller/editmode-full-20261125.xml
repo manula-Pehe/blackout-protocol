@@ -1,0 +1,1212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="220" result="Failed(Child)" total="220" passed="208" failed="12" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-25 00:23:45Z" end-time="2026-11-25 00:23:47Z" duration="1.8441809">
+  <test-suite type="TestSuite" id="1000" name="Blackout Protocol" fullname="Blackout Protocol" runstate="Runnable" testcasecount="220" result="Failed" site="Child" start-time="2026-11-25 00:23:45Z" end-time="2026-11-25 00:23:47Z" duration="1.844181" total="220" passed="208" failed="12" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1078" name="BlackoutProtocol.Body.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Body.Tests.EditMode.dll" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:14:15Z" end-time="2026-11-25 00:14:43Z" duration="28.411181" total="68" passed="58" failed="10" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1079" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:14:16Z" end-time="2026-11-25 00:14:43Z" duration="27.422678" total="68" passed="58" failed="10" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1080" name="Body" fullname="BlackoutProtocol.Body" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:14:17Z" end-time="2026-11-25 00:14:43Z" duration="26.423622" total="68" passed="58" failed="10" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestSuite" id="1081" name="Tests" fullname="BlackoutProtocol.Body.Tests" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:14:18Z" end-time="2026-11-25 00:14:43Z" duration="25.420666" total="68" passed="58" failed="10" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-suite type="TestFixture" id="1001" name="AgentAnimatorDriverTests" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" testcasecount="8" result="Failed" site="Child" start-time="2026-11-25 00:00:59Z" end-time="2026-11-25 00:01:15Z" duration="15.664778" total="8" passed="7" failed="1" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-case id="1009" name="BreacherActualBeginAndCancel_DriveMovementThenIdleParameter" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.BreacherActualBeginAndCancel_DriveMovementThenIdleParameter" methodname="BreacherActualBeginAndCancel_DriveMovementThenIdleParameter" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="1097018500" result="Passed" start-time="2026-11-24 23:58:46Z" end-time="2026-11-24 23:59:27Z" duration="41.653493" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1004" name="Damping_AcceleratesBrakesAndReturnsSmoothlyToExactIdle" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.Damping_AcceleratesBrakesAndReturnsSmoothlyToExactIdle" methodname="Damping_AcceleratesBrakesAndReturnsSmoothlyToExactIdle" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="1399252926" result="Passed" start-time="2026-11-24 23:59:27Z" end-time="2026-11-24 23:59:28Z" duration="1.030788" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1005" name="Damping_FramePartitionAndZeroDeltaPreserveHistory" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.Damping_FramePartitionAndZeroDeltaPreserveHistory" methodname="Damping_FramePartitionAndZeroDeltaPreserveHistory" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="126313936" result="Passed" start-time="2026-11-24 23:59:28Z" end-time="2026-11-24 23:59:29Z" duration="1.018846" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1008" name="HunterActualSoundResponse_UsesSameDriverWithoutBrainChanges" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.HunterActualSoundResponse_UsesSameDriverWithoutBrainChanges" methodname="HunterActualSoundResponse_UsesSameDriverWithoutBrainChanges" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="898946715" result="Passed" start-time="2026-11-24 23:59:29Z" end-time="2026-11-25 00:00:03Z" duration="33.583281" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <output><![CDATA[Hunter animator Wander pipeline: frame=12, dt=0.333333, Hunter=Wander, status=Wander: 2 A* waypoints, 3 nodes expanded., accepted=0, pathRequests=1, pathFailures=0, style=Walk, moving=True, grounded=True, waypoint=1/2, velocity=(0.10, 0.00, 0.39), binding=Ready, initialized=True, sampled=0.398439, target=0.398439, smoothed=0.384225, stored=0.384225
+Hunter animator sound/Chase pipeline: frame=13, dt=0.333333, Hunter=Chase, status=Chase: 2 A* waypoints, 3 nodes expanded., accepted=1, pathRequests=2, pathFailures=0, style=Run, moving=True, grounded=True, waypoint=1/2, velocity=(-0.44, 0.00, 2.63), binding=Ready, initialized=True, sampled=2.666667, target=2.666667, smoothed=2.585243, stored=2.585243
+Hunter animator cancelled/Idle pipeline: frame=17, dt=0.333333, Hunter=Chase, status=Chase: 2 A* waypoints, 3 nodes expanded., accepted=1, pathRequests=2, pathFailures=0, style=Idle, moving=False, grounded=True, waypoint=0/0, velocity=(0.00, 0.00, 0.00), binding=Ready, initialized=True, sampled=0.000000, target=0.000000, smoothed=0.000000, stored=0.000000
+]]></output>
+              </test-case>
+              <test-case id="1003" name="Mapping_InvalidValuesAreSafeAndFinite" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.Mapping_InvalidValuesAreSafeAndFinite" methodname="Mapping_InvalidValuesAreSafeAndFinite" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="651877623" result="Passed" start-time="2026-11-25 00:00:03Z" end-time="2026-11-25 00:00:04Z" duration="1.033665" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1002" name="Mapping_UsesHorizontalActualSpeedAndConfigurableReference" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.Mapping_UsesHorizontalActualSpeedAndConfigurableReference" methodname="Mapping_UsesHorizontalActualSpeedAndConfigurableReference" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="1183962267" result="Passed" start-time="2026-11-25 00:00:04Z" end-time="2026-11-25 00:00:05Z" duration="1.009921" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1007" name="MissingWrongDisabledAndSwappedAnimatorBindingsAreSafe" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.MissingWrongDisabledAndSwappedAnimatorBindingsAreSafe" methodname="MissingWrongDisabledAndSwappedAnimatorBindingsAreSafe" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="274763362" result="Passed" start-time="2026-11-25 00:00:05Z" end-time="2026-11-25 00:00:42Z" duration="36.928599" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1006" name="RealAnimator_ActualWalkRunBrakingStopAndReplacementDriveParameter" fullname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests.RealAnimator_ActualWalkRunBrakingStopAndReplacementDriveParameter" methodname="RealAnimator_ActualWalkRunBrakingStopAndReplacementDriveParameter" classname="BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests" runstate="Runnable" seed="678647072" result="Failed" start-time="2026-11-25 00:00:42Z" end-time="2026-11-25 00:01:15Z" duration="32.737112" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[Timed out waiting for the animation parameter pipeline. ]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.AgentAnimatorDriverTests+<Until>d__15.MoveNext () [0x00069] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/AgentAnimatorDriverTests.cs:353
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1010" name="AgentBodySteeringTests" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" testcasecount="11" result="Failed" site="Child" start-time="2026-11-25 00:09:28Z" end-time="2026-11-25 00:10:04Z" duration="35.632430" total="11" passed="6" failed="5" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-case id="1015" name="BreacherActualMoveAction_PollsArrivalAndCancelsSharedBody" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.BreacherActualMoveAction_PollsArrivalAndCancelsSharedBody" methodname="BreacherActualMoveAction_PollsArrivalAndCancelsSharedBody" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="2061401284" result="Passed" start-time="2026-11-25 00:01:16Z" end-time="2026-11-25 00:02:01Z" duration="45.600203" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1018" name="ContinuousBlockage_NotifiesOnceThenRearmsAfterProgressAndNewRouteRecovers" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.ContinuousBlockage_NotifiesOnceThenRearmsAfterProgressAndNewRouteRecovers" methodname="ContinuousBlockage_NotifiesOnceThenRearmsAfterProgressAndNewRouteRecovers" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="127648519" result="Passed" start-time="2026-11-25 00:02:01Z" end-time="2026-11-25 00:02:46Z" duration="45.192333" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1021" name="HunterSound_ReplacesActiveRouteWithoutObsoleteArrivalThenArrivesAndSearches" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.HunterSound_ReplacesActiveRouteWithoutObsoleteArrivalThenArrivesAndSearches" methodname="HunterSound_ReplacesActiveRouteWithoutObsoleteArrivalThenArrivesAndSearches" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="783543780" result="Passed" start-time="2026-11-25 00:02:47Z" end-time="2026-11-25 00:03:22Z" duration="35.204304" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1017" name="InterruptedReplacement_AccelerationSlowdownAndTurn_OnlyNewDestinationArrives" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.InterruptedReplacement_AccelerationSlowdownAndTurn_OnlyNewDestinationArrives" methodname="InterruptedReplacement_AccelerationSlowdownAndTurn_OnlyNewDestinationArrives" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="1809408232" result="Failed" start-time="2026-11-25 00:03:22Z" end-time="2026-11-25 00:04:05Z" duration="43.175086" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for movement integration. replacement phase 1: slow near old goal; position=(0.00, 0.08, 2.38), moving=False, arrived=True, speed=0.000, velocity=(0.00, 0.00, 0.00), waypoint=1, timeScale=1.000, deltaTime=0.3333
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.AgentBodySteeringTests+<Until>d__26.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/AgentBodySteeringTests.cs:527
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+              <test-case id="1016" name="InterruptedStop_MovingAndNearArrival_ClearsIntentVelocityAndLaterEvents" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.InterruptedStop_MovingAndNearArrival_ClearsIntentVelocityAndLaterEvents" methodname="InterruptedStop_MovingAndNearArrival_ClearsIntentVelocityAndLaterEvents" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="2073707745" result="Passed" start-time="2026-11-25 00:04:05Z" end-time="2026-11-25 00:04:39Z" duration="33.996648" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1011" name="OriginalSandbox_CompletesBothDirectionsWithoutStuck" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.OriginalSandbox_CompletesBothDirectionsWithoutStuck" methodname="OriginalSandbox_CompletesBothDirectionsWithoutStuck" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="773229686" result="Failed" start-time="2026-11-25 00:04:39Z" end-time="2026-11-25 00:06:11Z" duration="91.642022" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for movement integration.
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.AgentBodySteeringTests+<Until>d__26.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/AgentBodySteeringTests.cs:527
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+              <test-case id="1019" name="RealStuckAndArrivalCallbacks_ReentrantExecuteAndStopOwnTheFinalState" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.RealStuckAndArrivalCallbacks_ReentrantExecuteAndStopOwnTheFinalState" methodname="RealStuckAndArrivalCallbacks_ReentrantExecuteAndStopOwnTheFinalState" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="107515402" result="Failed" start-time="2026-11-25 00:06:11Z" end-time="2026-11-25 00:06:56Z" duration="44.953934" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for movement integration.
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.AgentBodySteeringTests+<Until>d__26.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/AgentBodySteeringTests.cs:527
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+              <test-case id="1012" name="Runtime_CornersAndFinalApproachAreConservative" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.Runtime_CornersAndFinalApproachAreConservative" methodname="Runtime_CornersAndFinalApproachAreConservative" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="267260246" result="Passed" start-time="2026-11-25 00:06:56Z" end-time="2026-11-25 00:07:33Z" duration="37.175155" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1014" name="Runtime_NormalSlowArrivalDoesNotStuckButSolidObstacleDoes" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.Runtime_NormalSlowArrivalDoesNotStuckButSolidObstacleDoes" methodname="Runtime_NormalSlowArrivalDoesNotStuckButSolidObstacleDoes" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="747410856" result="Failed" start-time="2026-11-25 00:07:33Z" end-time="2026-11-25 00:08:25Z" duration="51.964637" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for movement integration.
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.AgentBodySteeringTests+<Until>d__26.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/AgentBodySteeringTests.cs:527
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+              <test-case id="1013" name="Runtime_ReplacementStopInvalidAndReentrantArrivalRespectCommandLifetime" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.Runtime_ReplacementStopInvalidAndReentrantArrivalRespectCommandLifetime" methodname="Runtime_ReplacementStopInvalidAndReentrantArrivalRespectCommandLifetime" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="1530946156" result="Passed" start-time="2026-11-25 00:08:25Z" end-time="2026-11-25 00:09:12Z" duration="46.806566" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1020" name="VerySlowCornerArrivalAndTurnInPlace_AreProgressNotBlockage" fullname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests.VerySlowCornerArrivalAndTurnInPlace_AreProgressNotBlockage" methodname="VerySlowCornerArrivalAndTurnInPlace_AreProgressNotBlockage" classname="BlackoutProtocol.Body.Tests.AgentBodySteeringTests" runstate="Runnable" seed="92423332" result="Failed" start-time="2026-11-25 00:09:12Z" end-time="2026-11-25 00:10:04Z" duration="52.018948" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for movement integration.
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.AgentBodySteeringTests+<Until>d__26.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/AgentBodySteeringTests.cs:527
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1022" name="GroundingSeparationTests" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" testcasecount="7" result="Failed" site="Child" start-time="2026-11-25 00:13:40Z" end-time="2026-11-25 00:13:59Z" duration="19.664973" total="7" passed="3" failed="4" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-case id="1024" name="FlatAndDescendingSlope_KeepContact_AndLedgeStillFalls" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests.FlatAndDescendingSlope_KeepContact_AndLedgeStillFalls" methodname="FlatAndDescendingSlope_KeepContact_AndLedgeStillFalls" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" seed="3883661" result="Passed" start-time="2026-11-25 00:10:05Z" end-time="2026-11-25 00:10:30Z" duration="25.646995" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <output><![CDATA[Ground contact audit: descending grounded=150/150 max bottom gap=0.0962
+High-rate descent audit: grounded=1000/1000
+]]></output>
+              </test-case>
+              <test-case id="1029" name="HeadOnAgents_PassAndArriveWithoutOverlappingOrStuck" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests.HeadOnAgents_PassAndArriveWithoutOverlappingOrStuck" methodname="HeadOnAgents_PassAndArriveWithoutOverlappingOrStuck" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" seed="893919399" result="Failed" start-time="2026-11-25 00:10:30Z" end-time="2026-11-25 00:11:15Z" duration="44.522704" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Expected: 2
+  But was:  0
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.GroundingSeparationTests+<VerifyPassing>d__14.MoveNext () [0x002d6] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/GroundingSeparationTests.cs:278
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+                <output><![CDATA[Head-on audit: arrivals=0, stuck=0, min distance=0.944, max deviation=0.813
+]]></output>
+              </test-case>
+              <test-case id="1028" name="Separation_DoesNotChooseAnUnsupportedSidestepOffTheFloor" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests.Separation_DoesNotChooseAnUnsupportedSidestepOffTheFloor" methodname="Separation_DoesNotChooseAnUnsupportedSidestepOffTheFloor" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" seed="1326532013" result="Failed" start-time="2026-11-25 00:11:15Z" end-time="2026-11-25 00:11:52Z" duration="36.871398" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for the ground/crowd scenario.
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.GroundingSeparationTests+<Until>d__11.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/GroundingSeparationTests.cs:242
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+              <test-case id="1023" name="SeparationScoring_IsDeterministicBoundedAndRejectsInvalidOrBehindInputs" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests.SeparationScoring_IsDeterministicBoundedAndRejectsInvalidOrBehindInputs" methodname="SeparationScoring_IsDeterministicBoundedAndRejectsInvalidOrBehindInputs" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" seed="1601327187" result="Passed" start-time="2026-11-25 00:11:52Z" end-time="2026-11-25 00:11:53Z" duration="1.073961" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1027" name="StopAndReplacement_ClearLocalSteeringWithoutObsoleteEvents" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests.StopAndReplacement_ClearLocalSteeringWithoutObsoleteEvents" methodname="StopAndReplacement_ClearLocalSteeringWithoutObsoleteEvents" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" seed="908176712" result="Failed" start-time="2026-11-25 00:11:53Z" end-time="2026-11-25 00:12:36Z" duration="43.594119" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for the ground/crowd scenario.
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.GroundingSeparationTests+<Until>d__11.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/GroundingSeparationTests.cs:242
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+              <test-case id="1025" name="ThreeAgents_PassSuccessiveEncountersNearWallsWithoutOverlap" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests.ThreeAgents_PassSuccessiveEncountersNearWallsWithoutOverlap" methodname="ThreeAgents_PassSuccessiveEncountersNearWallsWithoutOverlap" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" seed="1639093389" result="Passed" start-time="2026-11-25 00:12:37Z" end-time="2026-11-25 00:13:22Z" duration="45.982002" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <output><![CDATA[Three-agent corridor: arrivals=3, stuck=0, minimum=0.949
+]]></output>
+              </test-case>
+              <test-case id="1026" name="TightCorridor_BlocksSafelyReportsStuckOnceAndNewRouteRecovers" fullname="BlackoutProtocol.Body.Tests.GroundingSeparationTests.TightCorridor_BlocksSafelyReportsStuckOnceAndNewRouteRecovers" methodname="TightCorridor_BlocksSafelyReportsStuckOnceAndNewRouteRecovers" classname="BlackoutProtocol.Body.Tests.GroundingSeparationTests" runstate="Runnable" seed="521863887" result="Failed" start-time="2026-11-25 00:13:23Z" end-time="2026-11-25 00:13:59Z" duration="36.895713" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <failure>
+                  <message><![CDATA[  Timed out waiting for the ground/crowd scenario.
+  Expected: True
+  But was:  False
+]]></message>
+                  <stack-trace><![CDATA[at BlackoutProtocol.Body.Tests.GroundingSeparationTests+<Until>d__11.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/AgentBody/GroundingSeparationTests.cs:242
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                </failure>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1030" name="PathFollowerTests" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" testcasecount="20" result="Passed" start-time="2026-11-25 00:13:59Z" end-time="2026-11-25 00:14:01Z" duration="1.092547" total="20" passed="20" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1036" name="Advance_IgnoresHeightDifference" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.Advance_IgnoresHeightDifference" methodname="Advance_IgnoresHeightDifference" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1578977878" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.005924" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1035" name="Advance_LastWaypointUsesTighterArrivalRadius" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.Advance_LastWaypointUsesTighterArrivalRadius" methodname="Advance_LastWaypointUsesTighterArrivalRadius" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="876362188" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.002211" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1034" name="Advance_SkipsWaypointsAlreadyReached" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.Advance_SkipsWaypointsAlreadyReached" methodname="Advance_SkipsWaypointsAlreadyReached" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="2064844017" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.014906" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1051" name="ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.005820" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1049" name="ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration(0.02f)" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration(0.02f)" methodname="ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1661911353" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.004080" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1050" name="ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration(0.2f)" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration(0.2f)" methodname="ArrivalEnvelope_SlowsAndStopsWithinToleranceWithLimitedAcceleration" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="447098685" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.000253" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1042" name="Bend_RequiresTightRadiusAndDoesNotJumpToLaterSegment" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.Bend_RequiresTightRadiusAndDoesNotJumpToLaterSegment" methodname="Bend_RequiresTightRadiusAndDoesNotJumpToLaterSegment" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1645175242" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.000594" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1041" name="Clear_RemovesPath" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.Clear_RemovesPath" methodname="Clear_RemovesPath" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1654465047" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.000363" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1052" name="Envelopes_PreserveCruiseOrderingAndHaveSafeZeroAndInvalidResults" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.Envelopes_PreserveCruiseOrderingAndHaveSafeZeroAndInvalidResults" methodname="Envelopes_PreserveCruiseOrderingAndHaveSafeZeroAndInvalidResults" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1482395906" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:00Z" duration="0.002273" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1048" name="InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-25 00:14:00Z" end-time="2026-11-25 00:14:01Z" duration="0.093322" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1046" name="InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt(float.NaN)" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt(float.NaN)" methodname="InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1474426133" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000833" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1047" name="InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt(float.PositiveInfinity)" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt(float.PositiveInfinity)" methodname="InvalidPoint_RejectsEntireRouteInsteadOfBridgingIt" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="153261806" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000225" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1038" name="LookAhead_AimsAlongNextSegmentWithoutSkippingCurrentWaypoint" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.LookAhead_AimsAlongNextSegmentWithoutSkippingCurrentWaypoint" methodname="LookAhead_AimsAlongNextSegmentWithoutSkippingCurrentWaypoint" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1274716868" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.003028" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1039" name="NearbyReplacementJoin_PreservesDestinationAndDoesNotMutateCallerPath" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.NearbyReplacementJoin_PreservesDestinationAndDoesNotMutateCallerPath" methodname="NearbyReplacementJoin_PreservesDestinationAndDoesNotMutateCallerPath" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="965669737" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.010214" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1040" name="NearbyReplacementJoin_RejectsOtherFloorAndDistantRoute" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.NearbyReplacementJoin_RejectsOtherFloorAndDistantRoute" methodname="NearbyReplacementJoin_RejectsOtherFloorAndDistantRoute" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1247450305" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001286" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1031" name="NewFollower_HasNoPathAndIsFinished" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.NewFollower_HasNoPathAndIsFinished" methodname="NewFollower_HasNoPathAndIsFinished" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="159819211" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000929" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1037" name="RemainingDistance_SumsRemainingSegments" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.RemainingDistance_SumsRemainingSegments" methodname="RemainingDistance_SumsRemainingSegments" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1996481142" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000967" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1044" name="RemainingRoute_DoesNotUseStraightLineAcrossCorner" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.RemainingRoute_DoesNotUseStraightLineAcrossCorner" methodname="RemainingRoute_DoesNotUseStraightLineAcrossCorner" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1674172848" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001347" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1032" name="SetPath_CopiesWaypoints" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.SetPath_CopiesWaypoints" methodname="SetPath_CopiesWaypoints" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="193056879" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.004057" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1033" name="SetPath_FromOwnReadOnlyView_DoesNotEraseReplacement" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.SetPath_FromOwnReadOnlyView_DoesNotEraseReplacement" methodname="SetPath_FromOwnReadOnlyView_DoesNotEraseReplacement" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1720719116" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001680" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1043" name="ShortBend_RadiusIsBoundedByAdjacentSegments" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.ShortBend_RadiusIsBoundedByAdjacentSegments" methodname="ShortBend_RadiusIsBoundedByAdjacentSegments" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1652374719" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001373" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1045" name="ZeroLengthAndDuplicateSegments_FinishWithoutLoop" fullname="BlackoutProtocol.Body.Tests.PathFollowerTests.ZeroLengthAndDuplicateSegments_FinishWithoutLoop" methodname="ZeroLengthAndDuplicateSegments_FinishWithoutLoop" classname="BlackoutProtocol.Body.Tests.PathFollowerTests" runstate="Runnable" seed="1845736456" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000652" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1053" name="TitanAnimationAssetTests" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" testcasecount="22" result="Passed" start-time="2026-11-25 00:14:19Z" end-time="2026-11-25 00:14:43Z" duration="24.367460" total="22" passed="22" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="1058" name="ClipsShareTitanAvatarAndLoopWithBakedRootMotion" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.ClipsShareTitanAvatarAndLoopWithBakedRootMotion" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.174064" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1055" name="ClipsShareTitanAvatarAndLoopWithBakedRootMotion(&quot;Idle&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.ClipsShareTitanAvatarAndLoopWithBakedRootMotion(&quot;Idle&quot;)" methodname="ClipsShareTitanAvatarAndLoopWithBakedRootMotion" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="2095874272" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.064980" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1056" name="ClipsShareTitanAvatarAndLoopWithBakedRootMotion(&quot;Walk&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.ClipsShareTitanAvatarAndLoopWithBakedRootMotion(&quot;Walk&quot;)" methodname="ClipsShareTitanAvatarAndLoopWithBakedRootMotion" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="595014507" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.004575" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1057" name="ClipsShareTitanAvatarAndLoopWithBakedRootMotion(&quot;Run&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.ClipsShareTitanAvatarAndLoopWithBakedRootMotion(&quot;Run&quot;)" methodname="ClipsShareTitanAvatarAndLoopWithBakedRootMotion" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1980894922" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.003356" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1071" name="CompletedActionClipsKeepNaturalArmSidesAndImpactEvent" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.CompletedActionClipsKeepNaturalArmSidesAndImpactEvent" methodname="CompletedActionClipsKeepNaturalArmSidesAndImpactEvent" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="515620805" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.028009" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1072" name="ControllerUsesOneSpeedBlendTreeWithIdleWalkRunThresholds" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.ControllerUsesOneSpeedBlendTreeWithIdleWalkRunThresholds" methodname="ControllerUsesOneSpeedBlendTreeWithIdleWalkRunThresholds" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1380732640" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.010687" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1070" name="DownloadedClipsUseTitanAvatarAtCorrectScale" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.011883" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1059" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Walking Backwards&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Walking Backwards&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1488788552" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001311" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1060" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Running Backward&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Running Backward&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="652489301" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001177" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1061" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Left Strafe Walking&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Left Strafe Walking&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="694521959" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000535" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1062" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Left Strafe&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Left Strafe&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1536742858" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001114" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1063" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Right Strafe Walking&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Right Strafe Walking&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="397733432" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000525" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1064" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Right Strafe&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Right Strafe&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="822502204" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.001094" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1065" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Sneak Walk&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Sneak Walk&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="563329522" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000505" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1066" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Mutant Punch&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Mutant Punch&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1350108160" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000479" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1067" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Hit Reaction&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Hit Reaction&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1669347189" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000475" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1068" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Death&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Death&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1654310989" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000461" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1069" name="DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Zombie Transition&quot;)" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.DownloadedClipsUseTitanAvatarAtCorrectScale(&quot;Zombie Transition&quot;)" methodname="DownloadedClipsUseTitanAvatarAtCorrectScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1195988587" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.000456" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1074" name="PackedSurfaceContainsMetallicRedAndInvertedRoughnessAlphaForEveryPixel" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.PackedSurfaceContainsMetallicRedAndInvertedRoughnessAlphaForEveryPixel" methodname="PackedSurfaceContainsMetallicRedAndInvertedRoughnessAlphaForEveryPixel" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="982385722" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:01Z" duration="0.265094" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1077" name="RealSandboxAnimatesWalkRunAndStopWithoutMovingTheVisualRoot" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.RealSandboxAnimatesWalkRunAndStopWithoutMovingTheVisualRoot" methodname="RealSandboxAnimatesWalkRunAndStopWithoutMovingTheVisualRoot" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1497278821" result="Passed" start-time="2026-11-25 00:14:01Z" end-time="2026-11-25 00:14:43Z" duration="42.237709" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+              </test-case>
+              <test-case id="1054" name="RiggedModelHasValidHumanoidAvatarAndConsistentImportScale" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.RiggedModelHasValidHumanoidAvatarAndConsistentImportScale" methodname="RiggedModelHasValidHumanoidAvatarAndConsistentImportScale" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="861979363" result="Passed" start-time="2026-11-25 00:14:43Z" end-time="2026-11-25 00:14:43Z" duration="0.007296" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1075" name="RunPoseLoopsContinuouslyAtStableScaleWithoutVisualRootTravel" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.RunPoseLoopsContinuouslyAtStableScaleWithoutVisualRootTravel" methodname="RunPoseLoopsContinuouslyAtStableScaleWithoutVisualRootTravel" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="870566097" result="Passed" start-time="2026-11-25 00:14:43Z" end-time="2026-11-25 00:14:43Z" duration="0.020099" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1073" name="SurfaceUsesOriginalMapsWithCorrectColorSpaceAndUrpKeywords" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.SurfaceUsesOriginalMapsWithCorrectColorSpaceAndUrpKeywords" methodname="SurfaceUsesOriginalMapsWithCorrectColorSpaceAndUrpKeywords" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1505668730" result="Passed" start-time="2026-11-25 00:14:43Z" end-time="2026-11-25 00:14:43Z" duration="0.014040" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1076" name="VisualPrefabIsReusableWithoutGroundMovementAndRootMotionIsOff" fullname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests.VisualPrefabIsReusableWithoutGroundMovementAndRootMotionIsOff" methodname="VisualPrefabIsReusableWithoutGroundMovementAndRootMotionIsOff" classname="BlackoutProtocol.Body.Tests.TitanAnimationAssetTests" runstate="Runnable" seed="1572523407" result="Passed" start-time="2026-11-25 00:14:43Z" end-time="2026-11-25 00:14:43Z" duration="0.000945" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1105" name="BlackoutProtocol.Breacher.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Breacher.Tests.EditMode.dll" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-11-25 00:14:43Z" end-time="2026-11-25 00:14:46Z" duration="2.397492" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1106" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-11-25 00:14:16Z" end-time="2026-11-25 00:14:43Z" duration="27.422678" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1107" name="AI" fullname="BlackoutProtocol.AI" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-11-25 00:14:45Z" end-time="2026-11-25 00:14:46Z" duration="0.489714" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1108" name="Breacher" fullname="BlackoutProtocol.AI.Breacher" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-11-25 00:14:45Z" end-time="2026-11-25 00:14:46Z" duration="0.486188" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestSuite" id="1109" name="Tests" fullname="BlackoutProtocol.AI.Breacher.Tests" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-11-25 00:14:45Z" end-time="2026-11-25 00:14:46Z" duration="0.384747" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="TestFixture" id="1082" name="BreacherActionTests" fullname="BlackoutProtocol.AI.Breacher.Tests.BreacherActionTests" classname="BlackoutProtocol.AI.Breacher.Tests.BreacherActionTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-25 00:14:45Z" end-time="2026-11-25 00:14:46Z" duration="0.136075" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1083" name="ConcreteActions_CreateDoorToAttackPlan" fullname="BlackoutProtocol.AI.Breacher.Tests.BreacherActionTests.ConcreteActions_CreateDoorToAttackPlan" methodname="ConcreteActions_CreateDoorToAttackPlan" classname="BlackoutProtocol.AI.Breacher.Tests.BreacherActionTests" runstate="Runnable" seed="1950320084" result="Passed" start-time="2026-11-25 00:14:45Z" end-time="2026-11-25 00:14:46Z" duration="0.032376" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1084" name="TakeCover_IsOnlyApplicableAtLowHealth" fullname="BlackoutProtocol.AI.Breacher.Tests.BreacherActionTests.TakeCover_IsOnlyApplicableAtLowHealth" methodname="TakeCover_IsOnlyApplicableAtLowHealth" classname="BlackoutProtocol.AI.Breacher.Tests.BreacherActionTests" runstate="Runnable" seed="4920443" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001006" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1085" name="GoapPlannerTests" fullname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests" classname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.009395" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1087" name="Planner_ChoosesCheaperValidPlan" fullname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests.Planner_ChoosesCheaperValidPlan" methodname="Planner_ChoosesCheaperValidPlan" classname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests" runstate="Runnable" seed="1378781467" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001084" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1086" name="Planner_FindsDoorToAttackSequence" fullname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests.Planner_FindsDoorToAttackSequence" methodname="Planner_FindsDoorToAttackSequence" classname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests" runstate="Runnable" seed="1803878055" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.002631" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1088" name="Planner_ReturnsFailureWhenGoalIsUnreachable" fullname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests.Planner_ReturnsFailureWhenGoalIsUnreachable" methodname="Planner_ReturnsFailureWhenGoalIsUnreachable" classname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests" runstate="Runnable" seed="1820155004" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001460" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1089" name="Planner_StopsAtExpansionLimit" fullname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests.Planner_StopsAtExpansionLimit" methodname="Planner_StopsAtExpansionLimit" classname="BlackoutProtocol.AI.Breacher.Tests.GoapPlannerTests" runstate="Runnable" seed="731747320" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000611" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1090" name="PathSearchTests" fullname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests" classname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.123772" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1091" name="AStar_FindsCheapestPath" fullname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests.AStar_FindsCheapestPath" methodname="AStar_FindsCheapestPath" classname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests" runstate="Runnable" seed="1333986515" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.022838" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1092" name="AStar_ReturnsFailureWhenGoalIsUnreachable" fullname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests.AStar_ReturnsFailureWhenGoalIsUnreachable" methodname="AStar_ReturnsFailureWhenGoalIsUnreachable" classname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests" runstate="Runnable" seed="1157786766" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001469" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1093" name="AStar_ReturnsStartWhenStartEqualsGoal" fullname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests.AStar_ReturnsStartWhenStartEqualsGoal" methodname="AStar_ReturnsStartWhenStartEqualsGoal" classname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests" runstate="Runnable" seed="214986416" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000929" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1094" name="AStarAndUcs_ReturnSameCost_ButAStarExpandsFewerNodes" fullname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests.AStarAndUcs_ReturnSameCost_ButAStarExpandsFewerNodes" methodname="AStarAndUcs_ReturnSameCost_ButAStarExpandsFewerNodes" classname="BlackoutProtocol.AI.Breacher.Tests.PathSearchTests" runstate="Runnable" seed="609642956" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.002440" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1095" name="PlanExecutorTests" fullname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests" classname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.010264" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1096" name="Executor_CompletesActionsInPlanOrder" fullname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests.Executor_CompletesActionsInPlanOrder" methodname="Executor_CompletesActionsInPlanOrder" classname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests" runstate="Runnable" seed="2009476381" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.003742" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1100" name="Executor_CompletesImmediatelyForEmptySuccessfulPlan" fullname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests.Executor_CompletesImmediatelyForEmptySuccessfulPlan" methodname="Executor_CompletesImmediatelyForEmptySuccessfulPlan" classname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests" runstate="Runnable" seed="847768124" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000714" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1097" name="Executor_RequestsReplanWhenActionFails" fullname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests.Executor_RequestsReplanWhenActionFails" methodname="Executor_RequestsReplanWhenActionFails" classname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests" runstate="Runnable" seed="1504140329" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001058" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1098" name="Executor_RequestsReplanWhenLevelChanges" fullname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests.Executor_RequestsReplanWhenLevelChanges" methodname="Executor_RequestsReplanWhenLevelChanges" classname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests" runstate="Runnable" seed="942921685" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000530" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1099" name="Executor_RequestsReplanWhenPreconditionDisappears" fullname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests.Executor_RequestsReplanWhenPreconditionDisappears" methodname="Executor_RequestsReplanWhenPreconditionDisappears" classname="BlackoutProtocol.AI.Breacher.Tests.PlanExecutorTests" runstate="Runnable" seed="177044008" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000525" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1101" name="WorldStateTests" fullname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests" classname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.100011" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1103" name="Apply_AddsAndRemovesExpectedFacts" fullname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests.Apply_AddsAndRemovesExpectedFacts" methodname="Apply_AddsAndRemovesExpectedFacts" classname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests" runstate="Runnable" seed="1352263322" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001805" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1104" name="CountMissing_ReturnsUnsatisfiedGoalFactCount" fullname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests.CountMissing_ReturnsUnsatisfiedGoalFactCount" methodname="CountMissing_ReturnsUnsatisfiedGoalFactCount" classname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests" runstate="Runnable" seed="1242109434" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000991" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1102" name="EqualStates_HaveEqualHashes" fullname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests.EqualStates_HaveEqualHashes" methodname="EqualStates_HaveEqualHashes" classname="BlackoutProtocol.AI.Breacher.Tests.WorldStateTests" runstate="Runnable" seed="124848046" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.002656" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1117" name="BlackoutProtocol.Core.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Core.Tests.EditMode.dll" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.229779" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1118" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-25 00:14:16Z" end-time="2026-11-25 00:14:43Z" duration="27.422678" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1119" name="Core" fullname="BlackoutProtocol.Core" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.127380" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1120" name="Tests" fullname="BlackoutProtocol.Core.Tests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.124793" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1110" name="CoreContractsTests" fullname="BlackoutProtocol.Core.Tests.CoreContractsTests" classname="BlackoutProtocol.Core.Tests.CoreContractsTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.023836" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1115" name="GameEvents_RaiseNoise_NotifiesSubscribers" fullname="BlackoutProtocol.Core.Tests.CoreContractsTests.GameEvents_RaiseNoise_NotifiesSubscribers" methodname="GameEvents_RaiseNoise_NotifiesSubscribers" classname="BlackoutProtocol.Core.Tests.CoreContractsTests" runstate="Runnable" seed="349285320" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.004732" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1116" name="GameLayers_SightBlockers_ExcludeAgentsAndPlayer" fullname="BlackoutProtocol.Core.Tests.CoreContractsTests.GameLayers_SightBlockers_ExcludeAgentsAndPlayer" methodname="GameLayers_SightBlockers_ExcludeAgentsAndPlayer" classname="BlackoutProtocol.Core.Tests.CoreContractsTests" runstate="Runnable" seed="1264618803" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.002019" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1112" name="MoveCommand_Destination_IsLastWaypoint" fullname="BlackoutProtocol.Core.Tests.CoreContractsTests.MoveCommand_Destination_IsLastWaypoint" methodname="MoveCommand_Destination_IsLastWaypoint" classname="BlackoutProtocol.Core.Tests.CoreContractsTests" runstate="Runnable" seed="2122600610" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.004658" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1113" name="MoveCommand_Hold_IsIdleWithoutPath" fullname="BlackoutProtocol.Core.Tests.CoreContractsTests.MoveCommand_Hold_IsIdleWithoutPath" methodname="MoveCommand_Hold_IsIdleWithoutPath" classname="BlackoutProtocol.Core.Tests.CoreContractsTests" runstate="Runnable" seed="1615071060" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001730" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1111" name="MoveCommand_WithNullPath_HasEmptyPath" fullname="BlackoutProtocol.Core.Tests.CoreContractsTests.MoveCommand_WithNullPath_HasEmptyPath" methodname="MoveCommand_WithNullPath_HasEmptyPath" classname="BlackoutProtocol.Core.Tests.CoreContractsTests" runstate="Runnable" seed="460471621" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001134" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1114" name="NoiseEvent_NegativeLoudness_IsClampedToZero" fullname="BlackoutProtocol.Core.Tests.CoreContractsTests.NoiseEvent_NegativeLoudness_IsClampedToZero" methodname="NoiseEvent_NegativeLoudness_IsClampedToZero" classname="BlackoutProtocol.Core.Tests.CoreContractsTests" runstate="Runnable" seed="1193901875" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000520" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1165" name="BlackoutProtocol.Flanker.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Flanker.Tests.EditMode.dll" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:47Z" duration="0.672663" total="37" passed="37" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1166" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-11-25 00:14:16Z" end-time="2026-11-25 00:14:43Z" duration="27.422678" total="37" passed="37" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1167" name="AI" fullname="BlackoutProtocol.AI" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-11-25 00:14:45Z" end-time="2026-11-25 00:14:46Z" duration="0.489714" total="37" passed="37" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1168" name="Flanker" fullname="BlackoutProtocol.AI.Flanker" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:47Z" duration="0.485042" total="37" passed="37" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestSuite" id="1169" name="Tests" fullname="BlackoutProtocol.AI.Flanker.Tests" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:47Z" duration="0.479416" total="37" passed="37" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="TestFixture" id="1121" name="FlankerBehaviourTests" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" testcasecount="22" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:47Z" duration="0.231656" total="22" passed="22" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1139" name="CoverPrefersRearAnglesAndRetreatDistance" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.CoverPrefersRearAnglesAndRetreatDistance" methodname="CoverPrefersRearAnglesAndRetreatDistance" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1313850024" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.004281" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1138" name="CoverRejectsOccupiedUnreachableAndFrontalCandidates" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.CoverRejectsOccupiedUnreachableAndFrontalCandidates" methodname="CoverRejectsOccupiedUnreachableAndFrontalCandidates" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="688622511" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.002843" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1134" name="DeathAbortsOnceAndNeverExecutesActions" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.DeathAbortsOnceAndNeverExecutesActions" methodname="DeathAbortsOnceAndNeverExecutesActions" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="310955034" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.008367" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1133" name="FailedFlankReleasesBeforeInvestigating" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.FailedFlankReleasesBeforeInvestigating" methodname="FailedFlankReleasesBeforeInvestigating" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1409757222" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001051" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1137" name="HealthIgnoresInvalidDamageAndCannotResurrect" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.HealthIgnoresInvalidDamageAndCannotResurrect" methodname="HealthIgnoresInvalidDamageAndCannotResurrect" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="501158356" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001773" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1132" name="HigherPriorityAbortsBeforeNewActionAndUnchangedActionIsNotAborted" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.HigherPriorityAbortsBeforeNewActionAndUnchangedActionIsNotAborted" methodname="HigherPriorityAbortsBeforeNewActionAndUnchangedActionIsNotAborted" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1880175078" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000985" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1135" name="LostEvidenceFallsBackToPatrol" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.LostEvidenceFallsBackToPatrol" methodname="LostEvidenceFallsBackToPatrol" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="2013388241" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001911" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1136" name="MemoryExpiresWithoutTrackingTheLivePlayer" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.MemoryExpiresWithoutTrackingTheLivePlayer" methodname="MemoryExpiresWithoutTrackingTheLivePlayer" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="995985129" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.001157" asserts="0">
+                  <properties />
+                </test-case>
+                <test-suite type="ParameterizedMethod" id="1131" name="PlayerHealthThresholdIsStrict" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PlayerHealthThresholdIsStrict" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.077730" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1129" name="PlayerHealthThresholdIsStrict(0.349f,Punish)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PlayerHealthThresholdIsStrict(0.349f,Punish)" methodname="PlayerHealthThresholdIsStrict" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1956256250" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.002064" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1130" name="PlayerHealthThresholdIsStrict(0.35f,Hold)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PlayerHealthThresholdIsStrict(0.35f,Hold)" methodname="PlayerHealthThresholdIsStrict" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="728213235" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000719" asserts="0">
+                    <properties />
+                  </test-case>
+                </test-suite>
+                <test-suite type="ParameterizedMethod" id="1128" name="PrioritiesUsePerceivedFacts" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PrioritiesUsePerceivedFacts" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.013322" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1122" name="PrioritiesUsePerceivedFacts(0.29f,True,True,True,True,Retreat)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PrioritiesUsePerceivedFacts(0.29f,True,True,True,True,Retreat)" methodname="PrioritiesUsePerceivedFacts" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1862715818" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.002011" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1123" name="PrioritiesUsePerceivedFacts(0.3f,True,True,True,True,Punish)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PrioritiesUsePerceivedFacts(0.3f,True,True,True,True,Punish)" methodname="PrioritiesUsePerceivedFacts" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="886049256" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000738" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1124" name="PrioritiesUsePerceivedFacts(1.0f,True,False,True,True,Hold)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PrioritiesUsePerceivedFacts(1.0f,True,False,True,True,Hold)" methodname="PrioritiesUsePerceivedFacts" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1148421147" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000693" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1125" name="PrioritiesUsePerceivedFacts(1.0f,True,False,False,True,Flank)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PrioritiesUsePerceivedFacts(1.0f,True,False,False,True,Flank)" methodname="PrioritiesUsePerceivedFacts" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1081719693" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000555" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1126" name="PrioritiesUsePerceivedFacts(1.0f,False,True,True,True,Investigate)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PrioritiesUsePerceivedFacts(1.0f,False,True,True,True,Investigate)" methodname="PrioritiesUsePerceivedFacts" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1127438366" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000517" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1127" name="PrioritiesUsePerceivedFacts(1.0f,False,True,True,False,Patrol)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.PrioritiesUsePerceivedFacts(1.0f,False,True,True,False,Patrol)" methodname="PrioritiesUsePerceivedFacts" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="769046923" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:46Z" duration="0.000594" asserts="0">
+                    <properties />
+                  </test-case>
+                </test-suite>
+                <test-suite type="ParameterizedMethod" id="1146" name="RouteReplacementWaitsForACornerAndMeaningfulGoalChange" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.RouteReplacementWaitsForACornerAndMeaningfulGoalChange" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-25 00:14:46Z" end-time="2026-11-25 00:14:47Z" duration="0.101964" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1140" name="RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,0.0f,True,10.0d,0.0d,True)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,0.0f,True,10.0d,0.0d,True)" methodname="RouteReplacementWaitsForACornerAndMeaningfulGoalChange" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="978377927" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.002291" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1141" name="RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,5.0f,False,10.0d,0.0d,True)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,5.0f,False,10.0d,0.0d,True)" methodname="RouteReplacementWaitsForACornerAndMeaningfulGoalChange" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1466094433" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000525" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1142" name="RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,5.0f,True,10.0d,11.0d,True)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,5.0f,True,10.0d,11.0d,True)" methodname="RouteReplacementWaitsForACornerAndMeaningfulGoalChange" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="708843468" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000464" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1143" name="RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,5.0f,True,10.0d,9.0d,False)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,True,5.0f,True,10.0d,9.0d,False)" methodname="RouteReplacementWaitsForACornerAndMeaningfulGoalChange" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1464405056" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000465" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1144" name="RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,False,0.0f,True,10.0d,0.0d,False)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.RouteReplacementWaitsForACornerAndMeaningfulGoalChange(True,False,0.0f,True,10.0d,0.0d,False)" methodname="RouteReplacementWaitsForACornerAndMeaningfulGoalChange" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="880167233" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000761" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1145" name="RouteReplacementWaitsForACornerAndMeaningfulGoalChange(False,True,0.0f,True,10.0d,0.0d,False)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests.RouteReplacementWaitsForACornerAndMeaningfulGoalChange(False,True,0.0f,True,10.0d,0.0d,False)" methodname="RouteReplacementWaitsForACornerAndMeaningfulGoalChange" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerBehaviourTests" runstate="Runnable" seed="1272983061" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000479" asserts="0">
+                    <properties />
+                  </test-case>
+                </test-suite>
+              </test-suite>
+              <test-suite type="TestFixture" id="1147" name="FlankerIntegrationTests" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.015962" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1149" name="AbortingMovementReleasesActualCoverClaim" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests.AbortingMovementReleasesActualCoverClaim" methodname="AbortingMovementReleasesActualCoverClaim" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests" runstate="Runnable" seed="1825760435" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.005771" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1148" name="DamageAdapterRaisesDeathOnlyOnce" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests.DamageAdapterRaisesDeathOnlyOnce" methodname="DamageAdapterRaisesDeathOnlyOnce" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests" runstate="Runnable" seed="1588890964" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.001975" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1150" name="DeathReleasesCoverStopsBodyAndDisablesCollision" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests.DeathReleasesCoverStopsBodyAndDisablesCollision" methodname="DeathReleasesCoverStopsBodyAndDisablesCollision" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerIntegrationTests" runstate="Runnable" seed="825580825" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.003265" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1151" name="FlankerNavigationTests" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.129357" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-suite type="ParameterizedMethod" id="1156" name="AdmissibleAStarMatchesUniformCost" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.AdmissibleAStarMatchesUniformCost" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.008836" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1153" name="AdmissibleAStarMatchesUniformCost(0.0f)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.AdmissibleAStarMatchesUniformCost(0.0f)" methodname="AdmissibleAStarMatchesUniformCost" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="706263209" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.006031" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1154" name="AdmissibleAStarMatchesUniformCost(1.0f)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.AdmissibleAStarMatchesUniformCost(1.0f)" methodname="AdmissibleAStarMatchesUniformCost" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="334560364" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000274" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1155" name="AdmissibleAStarMatchesUniformCost(5.0f)" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.AdmissibleAStarMatchesUniformCost(5.0f)" methodname="AdmissibleAStarMatchesUniformCost" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="1095631940" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000268" asserts="0">
+                    <properties />
+                  </test-case>
+                </test-suite>
+                <test-case id="1164" name="ConcaveCentroidConnectionUsesTheSharedPortalInsteadOfDisconnecting" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.ConcaveCentroidConnectionUsesTheSharedPortalInsteadOfDisconnecting" methodname="ConcaveCentroidConnectionUsesTheSharedPortalInsteadOfDisconnecting" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="1462811419" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.017417" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1152" name="ExposureSelectsTheLongerConcealedRoute" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.ExposureSelectsTheLongerConcealedRoute" methodname="ExposureSelectsTheLongerConcealedRoute" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="1440067715" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000974" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1163" name="NonManifoldEdgeIsNotConnected" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.NonManifoldEdgeIsNotConnected" methodname="NonManifoldEdgeIsNotConnected" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="602227361" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.001005" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1159" name="SameNodeIsAValidOnePointPath" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.SameNodeIsAValidOnePointPath" methodname="SameNodeIsAValidOnePointPath" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="2106889354" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000676" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1158" name="SearchFailureClearsOldRouteAndHonoursBudget" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.SearchFailureClearsOldRouteAndHonoursBudget" methodname="SearchFailureClearsOldRouteAndHonoursBudget" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="1612414544" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.001080" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1160" name="SearchRejectsNegativeOrNonfinitePenalties" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.SearchRejectsNegativeOrNonfinitePenalties" methodname="SearchRejectsNegativeOrNonfinitePenalties" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="1282597614" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.002301" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1157" name="SeededWeightedGraphsMatchUniformCostForEveryEndpointPair" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.SeededWeightedGraphsMatchUniformCostForEveryEndpointPair" methodname="SeededWeightedGraphsMatchUniformCostForEveryEndpointPair" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="173205868" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.006144" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1161" name="TriangulationWeldsDuplicateVerticesAcrossFullEdges" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.TriangulationWeldsDuplicateVerticesAcrossFullEdges" methodname="TriangulationWeldsDuplicateVerticesAcrossFullEdges" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="1235504288" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000721" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1162" name="VertexContactAndDegenerateTrianglesDoNotCreateConnections" fullname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests.VertexContactAndDegenerateTrianglesDoNotCreateConnections" methodname="VertexContactAndDegenerateTrianglesDoNotCreateConnections" classname="BlackoutProtocol.AI.Flanker.Tests.FlankerNavigationTests" runstate="Runnable" seed="1234986434" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000600" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1184" name="BlackoutProtocol.GameFlow.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.GameFlow.Tests.EditMode.dll" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.391944" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1185" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-25 00:14:16Z" end-time="2026-11-25 00:14:43Z" duration="27.422678" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1186" name="GameFlow" fullname="BlackoutProtocol.GameFlow" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.331332" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1187" name="Tests" fullname="BlackoutProtocol.GameFlow.Tests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.230329" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1170" name="GameFlowStateTests" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.227000" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1171" name="CompleteSequenceWinsOnlyAfterConsole" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.CompleteSequenceWinsOnlyAfterConsole" methodname="CompleteSequenceWinsOnlyAfterConsole" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="1344130839" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.009114" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1176" name="DeadPlayerCannotExtractEvenAfterUnlock" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.DeadPlayerCannotExtractEvenAfterUnlock" methodname="DeadPlayerCannotExtractEvenAfterUnlock" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="1924479291" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.001450" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1175" name="DeathLosesAtEveryNonterminalPhase" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.DeathLosesAtEveryNonterminalPhase" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.008081" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1172" name="DeathLosesAtEveryNonterminalPhase(ReachCore)" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.DeathLosesAtEveryNonterminalPhase(ReachCore)" methodname="DeathLosesAtEveryNonterminalPhase" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="1743556966" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.002160" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1173" name="DeathLosesAtEveryNonterminalPhase(ActivateConsole)" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.DeathLosesAtEveryNonterminalPhase(ActivateConsole)" methodname="DeathLosesAtEveryNonterminalPhase" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="140134903" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000591" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1174" name="DeathLosesAtEveryNonterminalPhase(ExitUnlocked)" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.DeathLosesAtEveryNonterminalPhase(ExitUnlocked)" methodname="DeathLosesAtEveryNonterminalPhase" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="482381266" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000473" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1177" name="DuplicateActivationDoesNotRepeatNotifications" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.DuplicateActivationDoesNotRepeatNotifications" methodname="DuplicateActivationDoesNotRepeatNotifications" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="309989031" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.001450" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1183" name="RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.097523" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1181" name="RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry(True)" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry(True)" methodname="RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="655439705" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.002819" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1182" name="RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry(False)" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry(False)" methodname="RestartIsTerminalOnlyAndDeduplicatedWithFailureRetry" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="1343832678" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000479" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="1180" name="TerminalOutcomeCannotBeChanged" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.TerminalOutcomeCannotBeChanged" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.004988" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1178" name="TerminalOutcomeCannotBeChanged(True)" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.TerminalOutcomeCannotBeChanged(True)" methodname="TerminalOutcomeCannotBeChanged" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="2128808103" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.001467" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1179" name="TerminalOutcomeCannotBeChanged(False)" fullname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests.TerminalOutcomeCannotBeChanged(False)" methodname="TerminalOutcomeCannotBeChanged" classname="BlackoutProtocol.GameFlow.Tests.GameFlowStateTests" runstate="Runnable" seed="250773127" result="Passed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:14:47Z" duration="0.000388" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1267" name="BlackoutProtocol.Hunter.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Hunter.Tests.EditMode.dll" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:23:46Z" end-time="2026-11-25 00:23:47Z" duration="1.247725" total="68" passed="66" failed="2" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1268" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:23:46Z" end-time="2026-11-25 00:23:47Z" duration="1.235612" total="68" passed="66" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1269" name="AI" fullname="BlackoutProtocol.AI" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:23:46Z" end-time="2026-11-25 00:23:47Z" duration="1.219374" total="68" passed="66" failed="2" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestSuite" id="1270" name="Hunter" fullname="BlackoutProtocol.AI.Hunter" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:23:46Z" end-time="2026-11-25 00:23:47Z" duration="1.202723" total="68" passed="66" failed="2" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-suite type="TestSuite" id="1271" name="Tests" fullname="BlackoutProtocol.AI.Hunter.Tests" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 00:23:46Z" end-time="2026-11-25 00:23:47Z" duration="1.185973" total="68" passed="66" failed="2" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-suite type="TestFixture" id="1188" name="HunterBrainTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" testcasecount="6" result="Failed" site="Child" start-time="2026-11-25 00:17:46Z" end-time="2026-11-25 00:18:05Z" duration="19.396317" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <failure>
+                  <message><![CDATA[One or more child tests had errors]]></message>
+                </failure>
+                <test-case id="1194" name="Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests.Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange" methodname="Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" seed="40826675" result="Failed" start-time="2026-11-25 00:14:47Z" end-time="2026-11-25 00:15:24Z" duration="36.641333" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Timed out: action=Chase, status=Chase: 2 A* waypoints, 3 nodes expanded., event=AgentBody reported arrival at the current destination., accepted=1, requests=2, failures=0.
+  Expected: True
+  But was:  False
+]]></message>
+                    <stack-trace><![CDATA[at BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests+<WaitUntil>d__12.MoveNext () [0x00062] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/Hunter/HunterBrainTests.cs:247
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                  </failure>
+                </test-case>
+                <test-case id="1190" name="Autonomy_WandersInvestigatesAroundWallAndRecoversFromStuck" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests.Autonomy_WandersInvestigatesAroundWallAndRecoversFromStuck" methodname="Autonomy_WandersInvestigatesAroundWallAndRecoversFromStuck" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" seed="539452201" result="Passed" start-time="2026-11-25 00:15:24Z" end-time="2026-11-25 00:16:27Z" duration="62.598176" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                  <output><![CDATA[Hunter Stage B verification: investigated around wall, arrived at (7.34, 0.03, -1.65), maximum Z=5.72, stuck recoveries=1.
+]]></output>
+                </test-case>
+                <test-case id="1193" name="LevelChangesAreDebounced_AndSentinelAlarmBecomesOneAcousticObservation" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests.LevelChangesAreDebounced_AndSentinelAlarmBecomesOneAcousticObservation" methodname="LevelChangesAreDebounced_AndSentinelAlarmBecomesOneAcousticObservation" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" seed="624150191" result="Passed" start-time="2026-11-25 00:16:27Z" end-time="2026-11-25 00:16:57Z" duration="30.097795" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1192" name="Lifecycle_RejectsInvalidAndUnreachableNoiseAndUnsubscribes" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests.Lifecycle_RejectsInvalidAndUnreachableNoiseAndUnsubscribes" methodname="Lifecycle_RejectsInvalidAndUnreachableNoiseAndUnsubscribes" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" seed="1064568524" result="Passed" start-time="2026-11-25 00:16:57Z" end-time="2026-11-25 00:17:26Z" duration="29.430538" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1189" name="ResolvedLoudObservation_DoesNotHideANewerQuieterObservation" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests.ResolvedLoudObservation_DoesNotHideANewerQuieterObservation" methodname="ResolvedLoudObservation_DoesNotHideANewerQuieterObservation" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" seed="1831479952" result="Passed" start-time="2026-11-25 00:17:26Z" end-time="2026-11-25 00:17:27Z" duration="1.035218" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1191" name="SoundDecay_SelectsChaseThenSearchThenWanderWithoutRediscoveringOldSound" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests.SoundDecay_SelectsChaseThenSearchThenWanderWithoutRediscoveringOldSound" methodname="SoundDecay_SelectsChaseThenSearchThenWanderWithoutRediscoveringOldSound" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" seed="1516485393" result="Passed" start-time="2026-11-25 00:17:27Z" end-time="2026-11-25 00:18:05Z" duration="37.817614" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1195" name="HunterDebugTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-25 00:19:58Z" end-time="2026-11-25 00:20:14Z" duration="16.409187" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1200" name="DestroyedRegisteredTarget_CancelsAttackWithoutDereferencingDestroyedTransform" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests.DestroyedRegisteredTarget_CancelsAttackWithoutDereferencingDestroyedTransform" methodname="DestroyedRegisteredTarget_CancelsAttackWithoutDereferencingDestroyedTransform" classname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests" runstate="Runnable" seed="597220618" result="Passed" start-time="2026-11-25 00:18:06Z" end-time="2026-11-25 00:18:37Z" duration="30.539020" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1198" name="ExpiredSound_LeavesSafeEmptyDebugSnapshotAndFiniteScores" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests.ExpiredSound_LeavesSafeEmptyDebugSnapshotAndFiniteScores" methodname="ExpiredSound_LeavesSafeEmptyDebugSnapshotAndFiniteScores" classname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests" runstate="Runnable" seed="1644361931" result="Passed" start-time="2026-11-25 00:18:37Z" end-time="2026-11-25 00:19:08Z" duration="31.378611" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1197" name="Panel_CopiesActualScoresComparesCachedRouteAndHandlesF1" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests.Panel_CopiesActualScoresComparesCachedRouteAndHandlesF1" methodname="Panel_CopiesActualScoresComparesCachedRouteAndHandlesF1" classname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests" runstate="Runnable" seed="679152194" result="Passed" start-time="2026-11-25 00:19:08Z" end-time="2026-11-25 00:19:38Z" duration="29.615080" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1199" name="RepeatedStuckAndUnreachableSound_CoolDownAndSearchLocallyWithoutRebuildSpam" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests.RepeatedStuckAndUnreachableSound_CoolDownAndSearchLocallyWithoutRebuildSpam" methodname="RepeatedStuckAndUnreachableSound_CoolDownAndSearchLocallyWithoutRebuildSpam" classname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests" runstate="Runnable" seed="1823871587" result="Passed" start-time="2026-11-25 00:19:38Z" end-time="2026-11-25 00:20:13Z" duration="35.355423" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1196" name="TransitionHistory_IsBoundedNewestFirstAndStoresActualSelections" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests.TransitionHistory_IsBoundedNewestFirstAndStoresActualSelections" methodname="TransitionHistory_IsBoundedNewestFirstAndStoresActualSelections" classname="BlackoutProtocol.AI.Hunter.Tests.HunterDebugTests" runstate="Runnable" seed="628459931" result="Passed" start-time="2026-11-25 00:20:13Z" end-time="2026-11-25 00:20:14Z" duration="1.002402" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1201" name="HunterMainIntegrationTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" runstate="Runnable" testcasecount="1" result="Failed" site="Child" start-time="2026-11-25 00:20:34Z" end-time="2026-11-25 00:20:56Z" duration="22.360718" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <failure>
+                  <message><![CDATA[One or more child tests had errors]]></message>
+                </failure>
+                <test-case id="1202" name="Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests.Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" methodname="Main_HunterHearsNearbyPlayerNoiseAnimatesAndRebuildsAfterRealDoorChange" classname="BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests" runstate="Runnable" seed="341844637" result="Failed" start-time="2026-11-25 00:20:14Z" end-time="2026-11-25 00:20:56Z" duration="41.762098" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Main integration timeout: action=Wander, status=Unreachable graph goal or search expansion limit reached., event=A* route failed; retries are throttled..
+  Expected: True
+  But was:  False
+]]></message>
+                    <stack-trace><![CDATA[at BlackoutProtocol.AI.Hunter.Tests.HunterMainIntegrationTests+<WaitFor>d__4.MoveNext () [0x0005c] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/Hunter/HunterMainIntegrationTests.cs:109
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                  </failure>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1203" name="HunterNavigationTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-25 00:20:56Z" end-time="2026-11-25 00:20:57Z" duration="0.959678" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1215" name="AcousticDijkstra_ClosedDoorConnectsComponentsWithPenalty" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.AcousticDijkstra_ClosedDoorConnectsComponentsWithPenalty" methodname="AcousticDijkstra_ClosedDoorConnectsComponentsWithPenalty" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="186199029" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.029260" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1216" name="AcousticDijkstra_InvalidInputsFailSafely" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.AcousticDijkstra_InvalidInputsFailSafely" methodname="AcousticDijkstra_InvalidInputsFailSafely" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="711336790" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000611" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1214" name="AcousticDijkstra_UsesDistanceAndRejectsInsufficientLoudness" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.AcousticDijkstra_UsesDistanceAndRejectsInsufficientLoudness" methodname="AcousticDijkstra_UsesDistanceAndRejectsInsufficientLoudness" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="758729238" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.001764" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1208" name="AStarAndUcsAgreeOnCost_AndAStarExpandsNoMoreOnConsistentGraph" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.AStarAndUcsAgreeOnCost_AndAStarExpandsNoMoreOnConsistentGraph" methodname="AStarAndUcsAgreeOnCost_AndAStarExpandsNoMoreOnConsistentGraph" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="724630712" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.002514" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1206" name="CheapestRouteCanUseMoreHopsThanDirectRoute" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.CheapestRouteCanUseMoreHopsThanDirectRoute" methodname="CheapestRouteCanUseMoreHopsThanDirectRoute" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="317596651" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.005749" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1205" name="DirectAndMultistepPaths_ReconstructInStartToGoalOrder" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.DirectAndMultistepPaths_ReconstructInStartToGoalOrder" methodname="DirectAndMultistepPaths_ReconstructInStartToGoalOrder" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="824640736" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000631" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1209" name="EqualCostRoutesUseDeterministicNodeIdTieBreak" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.EqualCostRoutesUseDeterministicNodeIdTieBreak" methodname="EqualCostRoutesUseDeterministicNodeIdTieBreak" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="1423443194" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000666" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1210" name="GraphRejectsMalformedNodesAndEdges" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.GraphRejectsMalformedNodesAndEdges" methodname="GraphRejectsMalformedNodesAndEdges" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="622481202" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000500" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1212" name="MalformedTriangulationProducesSafeEmptyOrPartialGraph" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.MalformedTriangulationProducesSafeEmptyOrPartialGraph" methodname="MalformedTriangulationProducesSafeEmptyOrPartialGraph" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="1032425509" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000568" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1213" name="PriorityQueueOrdersByFThenHThenNodeAndHandlesEmpty" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.PriorityQueueOrdersByFThenHThenNodeAndHandlesEmpty" methodname="PriorityQueueOrdersByFThenHThenNodeAndHandlesEmpty" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="1711965006" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000786" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1204" name="StartEqualsGoal_ReturnsSingleNodeWithoutExpansion" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.StartEqualsGoal_ReturnsSingleNodeWithoutExpansion" methodname="StartEqualsGoal_ReturnsSingleNodeWithoutExpansion" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="212037217" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000613" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1211" name="TriangulationConnectsOnlySharedWalkableEdges" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.TriangulationConnectsOnlySharedWalkableEdges" methodname="TriangulationConnectsOnlySharedWalkableEdges" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="1623750062" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.001160" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1207" name="UnreachableAndInvalidNodesReturnFailure" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests.UnreachableAndInvalidNodesReturnFailure" methodname="UnreachableAndInvalidNodesReturnFailure" classname="BlackoutProtocol.AI.Hunter.Tests.HunterNavigationTests" runstate="Runnable" seed="900881176" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000537" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1217" name="HunterRouteThrottleTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.107409" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1222" name="LevelChangeCannotBypassPendingCooldown" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests.LevelChangeCannotBypassPendingCooldown" methodname="LevelChangeCannotBypassPendingCooldown" classname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests" runstate="Runnable" seed="382041514" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000776" asserts="0">
+                  <properties />
+                </test-case>
+                <test-suite type="ParameterizedMethod" id="1221" name="RouteIntervalNeverFallsBelowFourHz" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests.RouteIntervalNeverFallsBelowFourHz" classname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.104449" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1218" name="RouteIntervalNeverFallsBelowFourHz(0.01f,10.25f)" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests.RouteIntervalNeverFallsBelowFourHz(0.01f,10.25f)" methodname="RouteIntervalNeverFallsBelowFourHz" classname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests" runstate="Runnable" seed="1549410178" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.002438" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1219" name="RouteIntervalNeverFallsBelowFourHz(0.25f,10.25f)" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests.RouteIntervalNeverFallsBelowFourHz(0.25f,10.25f)" methodname="RouteIntervalNeverFallsBelowFourHz" classname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests" runstate="Runnable" seed="1273376674" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000456" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1220" name="RouteIntervalNeverFallsBelowFourHz(0.75f,10.75f)" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests.RouteIntervalNeverFallsBelowFourHz(0.75f,10.75f)" methodname="RouteIntervalNeverFallsBelowFourHz" classname="BlackoutProtocol.AI.Hunter.Tests.HunterRouteThrottleTests" runstate="Runnable" seed="618095519" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:20:57Z" duration="0.000331" asserts="0">
+                    <properties />
+                  </test-case>
+                </test-suite>
+              </test-suite>
+              <test-suite type="TestFixture" id="1223" name="HunterSandboxTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSandboxTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSandboxTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-25 00:21:45Z" end-time="2026-11-25 00:22:26Z" duration="40.392025" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1225" name="RouteDriver_ReportsMissingReferencesMissingBakeAndUnreachableGoal" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSandboxTests.RouteDriver_ReportsMissingReferencesMissingBakeAndUnreachableGoal" methodname="RouteDriver_ReportsMissingReferencesMissingBakeAndUnreachableGoal" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSandboxTests" runstate="Runnable" seed="1602241395" result="Passed" start-time="2026-11-25 00:20:57Z" end-time="2026-11-25 00:21:24Z" duration="27.386697" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                  <output><![CDATA[Hunter sandbox: Hunter A* could not calculate a route. Check that start and destination are on the same connected baked NavMesh; rebake after geometry changes.
+Hunter sandbox: Missing baked NavMesh data. Open HunterSandbox and use Tools > Hunter > Bake Open Hunter Sandbox, then save the scene and its NavMesh asset.
+Hunter sandbox: Missing component references. Assign AgentBody, HunterNavMeshPathfinder, Destination and Navigation Surface on the route driver.
+]]></output>
+                </test-case>
+                <test-case id="1224" name="SavedSandbox_ReopensAndHunterWalksAroundCornerToGoal" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSandboxTests.SavedSandbox_ReopensAndHunterWalksAroundCornerToGoal" methodname="SavedSandbox_ReopensAndHunterWalksAroundCornerToGoal" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSandboxTests" runstate="Runnable" seed="75898332" result="Passed" start-time="2026-11-25 00:21:24Z" end-time="2026-11-25 00:22:25Z" duration="61.050382" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                  <output><![CDATA[Hunter sandbox: Arrived at the green goal using Hunter A* and the shared AgentBody.
+Hunter sandbox verification: ARRIVED, position=(5.94, 0.03, -2.92), detour maxZ=4.096, waypoints=3, graph nodes=18.
+]]></output>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1226" name="HunterSoundMemoryTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.941554" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1239" name="Capacity_RemainsBoundedUnderManyObservations" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.Capacity_RemainsBoundedUnderManyObservations" methodname="Capacity_RemainsBoundedUnderManyObservations" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="836825365" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.004271" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1228" name="Confidence_HalvesAfterConfiguredHalfLife" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.Confidence_HalvesAfterConfiguredHalfLife" methodname="Confidence_HalvesAfterConfiguredHalfLife" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="479984554" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.001535" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1227" name="CredibleSound_IsRememberedWithDebugValues" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.CredibleSound_IsRememberedWithDebugValues" methodname="CredibleSound_IsRememberedWithDebugValues" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="1475816712" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.001078" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1232" name="DistantImpacts_DoNotShareHabituation" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.DistantImpacts_DoNotShareHabituation" methodname="DistantImpacts_DoNotShareHabituation" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="984059052" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000992" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1236" name="EmptyMemory_ReturnsSafeNoTarget" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.EmptyMemory_ReturnsSafeNoTarget" methodname="EmptyMemory_ReturnsSafeNoTarget" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="361253588" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000665" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1241" name="EqualPriority_PrefersNewerObservation" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.EqualPriority_PrefersNewerObservation" methodname="EqualPriority_PrefersNewerObservation" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="1863644770" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000438" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1242" name="EqualPriorityAndTime_PrefersEarlierInsertion" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.EqualPriorityAndTime_PrefersEarlierInsertion" methodname="EqualPriorityAndTime_PrefersEarlierInsertion" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="54890883" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000361" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1230" name="ExpiredObservations_AreRemoved" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.ExpiredObservations_AreRemoved" methodname="ExpiredObservations_AreRemoved" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="1536756276" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000374" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1238" name="ExtremeFiniteTime_ProducesFiniteScores" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.ExtremeFiniteTime_ProducesFiniteScores" methodname="ExtremeFiniteTime_ProducesFiniteScores" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="1366147164" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000776" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1240" name="FullMemory_KeepsMoreRelevantSound" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.FullMemory_KeepsMoreRelevantSound" methodname="FullMemory_KeepsMoreRelevantSound" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="2057477465" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000720" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1235" name="Habituation_RecoversAfterImpactsStop" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.Habituation_RecoversAfterImpactsStop" methodname="Habituation_RecoversAfterImpactsStop" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="1542329063" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000674" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1237" name="InvalidObservationsAndTimes_AreRejectedWithoutChangingMemory" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.InvalidObservationsAndTimes_AreRejectedWithoutChangingMemory" methodname="InvalidObservationsAndTimes_AreRejectedWithoutChangingMemory" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="52934629" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000610" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1233" name="MovingImpactChain_DoesNotSpreadHabituationAcrossRoom" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.MovingImpactChain_DoesNotSpreadHabituationAcrossRoom" methodname="MovingImpactChain_DoesNotSpreadHabituationAcrossRoom" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="150162256" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000439" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1231" name="RepeatedNearbyImpacts_ReduceOnlyImpactTrust" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.RepeatedNearbyImpacts_ReduceOnlyImpactTrust" methodname="RepeatedNearbyImpacts_ReduceOnlyImpactTrust" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="2051233894" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000536" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1234" name="RepetitiveImpacts_DoNotSuppressGunshotsOrAlarms" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.RepetitiveImpacts_DoNotSuppressGunshotsOrAlarms" methodname="RepetitiveImpacts_DoNotSuppressGunshotsOrAlarms" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="1112490590" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000642" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1229" name="StrongRecentSound_OutranksWeakOlderSound" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests.StrongRecentSound_OutranksWeakOlderSound" methodname="StrongRecentSound_OutranksWeakOlderSound" classname="BlackoutProtocol.AI.Hunter.Tests.HunterSoundMemoryTests" runstate="Runnable" seed="491658849" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000611" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1243" name="HunterUtilitySelectorTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.011788" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1246" name="ConfidentNearbyTrail_SelectsChase" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.ConfidentNearbyTrail_SelectsChase" methodname="ConfidentNearbyTrail_SelectsChase" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="1491851032" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.001664" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1248" name="EligibleNearbyTarget_SelectsAttack" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.EligibleNearbyTarget_SelectsAttack" methodname="EligibleNearbyTarget_SelectsAttack" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="329020249" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000354" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1252" name="ExactTie_UsesFixedThreatPriority" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.ExactTie_UsesFixedThreatPriority" methodname="ExactTie_UsesFixedThreatPriority" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="1500413953" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000504" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1251" name="Hysteresis_DoesNotHideClearlySuperiorAction" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.Hysteresis_DoesNotHideClearlySuperiorAction" methodname="Hysteresis_DoesNotHideClearlySuperiorAction" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="216523512" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000635" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1250" name="Hysteresis_RetainsCurrentActionWhenScoresAreClose" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.Hysteresis_RetainsCurrentActionWhenScoresAreClose" methodname="Hysteresis_RetainsCurrentActionWhenScoresAreClose" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="87101363" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000421" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1254" name="InvalidCurrentAction_IsIgnoredSafely" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.InvalidCurrentAction_IsIgnoredSafely" methodname="InvalidCurrentAction_IsIgnoredSafely" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="1087791088" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000309" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1253" name="InvalidInputs_AreNormalizedAndProduceFiniteScores" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.InvalidInputs_AreNormalizedAndProduceFiniteScores" methodname="InvalidInputs_AreNormalizedAndProduceFiniteScores" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="1355989774" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000937" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1247" name="LostTrailWithUrgency_SelectsSearch" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.LostTrailWithUrgency_SelectsSearch" methodname="LostTrailWithUrgency_SelectsSearch" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="717613713" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000258" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1255" name="Scores_AreExposedForEveryAction" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.Scores_AreExposedForEveryAction" methodname="Scores_AreExposedForEveryAction" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="565804075" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000502" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1244" name="Silence_SelectsWander" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.Silence_SelectsWander" methodname="Silence_SelectsWander" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="794008558" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000300" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1245" name="StrongTrustedDistantNoise_SelectsInvestigate" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.StrongTrustedDistantNoise_SelectsInvestigate" methodname="StrongTrustedDistantNoise_SelectsInvestigate" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="1332932325" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000315" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1249" name="StrongUntrustedNoise_DoesNotSelectNoiseDrivenAction" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests.StrongUntrustedNoise_DoesNotSelectNoiseDrivenAction" methodname="StrongUntrustedNoise_DoesNotSelectNoiseDrivenAction" classname="BlackoutProtocol.AI.Hunter.Tests.HunterUtilitySelectorTests" runstate="Runnable" seed="517102302" result="Passed" start-time="2026-11-25 00:22:26Z" end-time="2026-11-25 00:22:26Z" duration="0.000293" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1256" name="ManulaTechnicalDemoTests" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-11-25 00:23:46Z" end-time="2026-11-25 00:23:47Z" duration="1.141848" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1264" name="Alarm_FollowsCornerDetourArrivesSearchesAndReturnsToWander" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.Alarm_FollowsCornerDetourArrivesSearchesAndReturnsToWander" methodname="Alarm_FollowsCornerDetourArrivesSearchesAndReturnsToWander" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="1427515095" result="Passed" start-time="2026-11-25 00:22:27Z" end-time="2026-11-25 00:22:57Z" duration="29.981327" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-suite type="ParameterizedMethod" id="1261" name="ControlLayout_StaysVisibleAndNonOverlapping" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.ControlLayout_StaysVisibleAndNonOverlapping" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:22:57Z" end-time="2026-11-25 00:22:57Z" duration="0.420029" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1258" name="ControlLayout_StaysVisibleAndNonOverlapping(1280,800)" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.ControlLayout_StaysVisibleAndNonOverlapping(1280,800)" methodname="ControlLayout_StaysVisibleAndNonOverlapping" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="494114631" result="Passed" start-time="2026-11-25 00:22:57Z" end-time="2026-11-25 00:22:57Z" duration="0.146345" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1259" name="ControlLayout_StaysVisibleAndNonOverlapping(1920,1080)" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.ControlLayout_StaysVisibleAndNonOverlapping(1920,1080)" methodname="ControlLayout_StaysVisibleAndNonOverlapping" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="943653284" result="Passed" start-time="2026-11-25 00:22:57Z" end-time="2026-11-25 00:22:57Z" duration="0.131791" asserts="0">
+                    <properties />
+                  </test-case>
+                  <test-case id="1260" name="ControlLayout_StaysVisibleAndNonOverlapping(800,600)" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.ControlLayout_StaysVisibleAndNonOverlapping(800,600)" methodname="ControlLayout_StaysVisibleAndNonOverlapping" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="299918312" result="Passed" start-time="2026-11-25 00:22:57Z" end-time="2026-11-25 00:22:57Z" duration="0.127462" asserts="0">
+                    <properties />
+                  </test-case>
+                </test-suite>
+                <test-case id="1263" name="ImpactsHabituate_WhileGunshotSelectsChaseAndRunAnimation" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.ImpactsHabituate_WhileGunshotSelectsChaseAndRunAnimation" methodname="ImpactsHabituate_WhileGunshotSelectsChaseAndRunAnimation" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="1874649300" result="Passed" start-time="2026-11-25 00:22:57Z" end-time="2026-11-25 00:23:08Z" duration="11.185284" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1265" name="PauseStopsToIdle_ResumeRecovers_WithoutObsoleteArrivalOrCameraCommandsMovingBody" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.PauseStopsToIdle_ResumeRecovers_WithoutObsoleteArrivalOrCameraCommandsMovingBody" methodname="PauseStopsToIdle_ResumeRecovers_WithoutObsoleteArrivalOrCameraCommandsMovingBody" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="1065895744" result="Passed" start-time="2026-11-25 00:23:08Z" end-time="2026-11-25 00:23:20Z" duration="12.196530" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1257" name="SavedComposition_ReopensWithOwnedVisualAndBakeWithoutTeamSystems" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.SavedComposition_ReopensWithOwnedVisualAndBakeWithoutTeamSystems" methodname="SavedComposition_ReopensWithOwnedVisualAndBakeWithoutTeamSystems" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="1035150716" result="Passed" start-time="2026-11-25 00:23:20Z" end-time="2026-11-25 00:23:21Z" duration="1.026206" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1266" name="SimulatedTarget_SelectsAttackWithoutRealPlayer_AndHideRecovers" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.SimulatedTarget_SelectsAttackWithoutRealPlayer_AndHideRecovers" methodname="SimulatedTarget_SelectsAttackWithoutRealPlayer_AndHideRecovers" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="1100385842" result="Passed" start-time="2026-11-25 00:23:21Z" end-time="2026-11-25 00:23:36Z" duration="14.292721" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                  </properties>
+                </test-case>
+                <test-case id="1262" name="Wander_UsesRealTexturedTitanAnimationAndCachedSearchComparison" fullname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests.Wander_UsesRealTexturedTitanAnimationAndCachedSearchComparison" methodname="Wander_UsesRealTexturedTitanAnimationAndCachedSearchComparison" classname="BlackoutProtocol.AI.Hunter.Tests.ManulaTechnicalDemoTests" runstate="Runnable" seed="401394052" result="Passed" start-time="2026-11-25 00:23:36Z" end-time="2026-11-25 00:23:47Z" duration="11.256248" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1289" name="BlackoutProtocol.Sentinel.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Sentinel.Tests.EditMode.dll" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.185378" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1290" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.173206" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1291" name="AI" fullname="BlackoutProtocol.AI" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.158364" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1292" name="Sentinel" fullname="BlackoutProtocol.AI.Sentinel" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.144119" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestSuite" id="1293" name="Tests" fullname="BlackoutProtocol.AI.Sentinel.Tests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.129042" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="TestFixture" id="1272" name="SentinelDamageTests" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDamageTests" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDamageTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.039224" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1273" name="LethalDamageStopsBrainAndLetsDroneFallUnderGravity" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDamageTests.LethalDamageStopsBrainAndLetsDroneFallUnderGravity" methodname="LethalDamageStopsBrainAndLetsDroneFallUnderGravity" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDamageTests" runstate="Runnable" seed="1776333836" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.023295" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1274" name="SentinelDecisionLogicTests" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.025988" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1279" name="AlarmCooldown_SuppressesRepeatedAlarmsAndAllowsOneAfterExpiry" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests.AlarmCooldown_SuppressesRepeatedAlarmsAndAllowsOneAfterExpiry" methodname="AlarmCooldown_SuppressesRepeatedAlarmsAndAllowsOneAfterExpiry" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests" runstate="Runnable" seed="1354924266" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.000751" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1275" name="PatrolSelection_PrefersLeastRecentlyVisitedReachableWaypointAfterTravelPenalty" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests.PatrolSelection_PrefersLeastRecentlyVisitedReachableWaypointAfterTravelPenalty" methodname="PatrolSelection_PrefersLeastRecentlyVisitedReachableWaypointAfterTravelPenalty" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests" runstate="Runnable" seed="1906847293" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.001348" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1276" name="PatrolSelection_SkipsCurrentWaypointWhenAlternativesExist" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests.PatrolSelection_SkipsCurrentWaypointWhenAlternativesExist" methodname="PatrolSelection_SkipsCurrentWaypointWhenAlternativesExist" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests" runstate="Runnable" seed="1575302007" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.000438" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1277" name="SearchPrediction_RanksForwardPredictionBeforeFlanksAndLastSeenPosition" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests.SearchPrediction_RanksForwardPredictionBeforeFlanksAndLastSeenPosition" methodname="SearchPrediction_RanksForwardPredictionBeforeFlanksAndLastSeenPosition" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests" runstate="Runnable" seed="1519419281" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.005722" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1278" name="SearchSkipsUnreachablePredictionsAndSelectsNextReachablePoint" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests.SearchSkipsUnreachablePredictionsAndSelectsNextReachablePoint" methodname="SearchSkipsUnreachablePredictionsAndSelectsNextReachablePoint" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelDecisionLogicTests" runstate="Runnable" seed="620569416" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.003235" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1280" name="SentinelGraphSearchTests" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.026501" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1282" name="AStar_StartEqualsGoal_ReturnsOneNodeAtZeroCost" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests.AStar_StartEqualsGoal_ReturnsOneNodeAtZeroCost" methodname="AStar_StartEqualsGoal_ReturnsOneNodeAtZeroCost" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests" runstate="Runnable" seed="1205736597" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.007443" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1281" name="AStarAndUniformCost_ReturnEqualRouteCostAndAStarExpandsNoMoreOnStraightGoalGraph" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests.AStarAndUniformCost_ReturnEqualRouteCostAndAStarExpandsNoMoreOnStraightGoalGraph" methodname="AStarAndUniformCost_ReturnEqualRouteCostAndAStarExpandsNoMoreOnStraightGoalGraph" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests" runstate="Runnable" seed="1082213963" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.002429" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1283" name="GraphSearch_ReturnsFailureForDisconnectedGoal" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests.GraphSearch_ReturnsFailureForDisconnectedGoal" methodname="GraphSearch_ReturnsFailureForDisconnectedGoal" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelGraphSearchTests" runstate="Runnable" seed="1776253493" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.002110" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1284" name="SentinelHsmTests" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.020765" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1287" name="ExitsActiveChildWhenContactParentExits" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests.ExitsActiveChildWhenContactParentExits" methodname="ExitsActiveChildWhenContactParentExits" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests" runstate="Runnable" seed="558473674" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.003240" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1288" name="PlayerDeathReturnsSentinelDirectlyToPatrol" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests.PlayerDeathReturnsSentinelDirectlyToPatrol" methodname="PlayerDeathReturnsSentinelDirectlyToPatrol" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests" runstate="Runnable" seed="1375136497" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.000815" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1286" name="ReacquiringPlayerDuringSearchReturnsToAlert" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests.ReacquiringPlayerDuringSearchReturnsToAlert" methodname="ReacquiringPlayerDuringSearchReturnsToAlert" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests" runstate="Runnable" seed="1064277897" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.001638" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1285" name="TransitionsThroughAlertTrackSearchReturnAndPatrol" fullname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests.TransitionsThroughAlertTrackSearchReturnAndPatrol" methodname="TransitionsThroughAlertTrackSearchReturnAndPatrol" classname="BlackoutProtocol.AI.Sentinel.Tests.SentinelHsmTests" runstate="Runnable" seed="168863912" result="Passed" start-time="2026-11-25 00:23:47Z" end-time="2026-11-25 00:23:47Z" duration="0.004652" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Saving results to: /home/manula/.config/unity3d/Blackout Team/Blackout Protocol/TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -76,7 +76,7 @@ namespace BlackoutProtocol.EditorTools
             var die = machine.AddState("Death"); die.motion = motions[12]; Any(machine, die, "Die");
             var mask = new AvatarMask(); mask.name = "Upper Body";
             for (int i = 0; i < (int)AvatarMaskBodyPart.LastBodyPart; i++) mask.SetHumanoidBodyPartActive((AvatarMaskBodyPart)i, false);
-            foreach (var part in new[] { AvatarMaskBodyPart.Body, AvatarMaskBodyPart.Head, AvatarMaskBodyPart.LeftArm, AvatarMaskBodyPart.RightArm, AvatarMaskBodyPart.LeftFingers, AvatarMaskBodyPart.RightFingers }) mask.SetHumanoidBodyPartActive(part, true);
+            foreach (var part in new[] { AvatarMaskBodyPart.Root, AvatarMaskBodyPart.Body, AvatarMaskBodyPart.Head, AvatarMaskBodyPart.LeftArm, AvatarMaskBodyPart.RightArm, AvatarMaskBodyPart.LeftFingers, AvatarMaskBodyPart.RightFingers }) mask.SetHumanoidBodyPartActive(part, true);
             AssetDatabase.CreateAsset(mask, AssetDatabase.GenerateUniqueAssetPath(Folder + "/UpperBody.mask"));
             c.AddLayer("Upper Body"); var layers = c.layers; layers[1].avatarMask = mask; layers[1].defaultWeight = 0; layers[1].blendingMode = AnimatorLayerBlendingMode.Override; c.layers = layers;
             var upper = layers[1].stateMachine; var empty = upper.AddState("No Action"); upper.defaultState = empty; empty.writeDefaultValues = false;

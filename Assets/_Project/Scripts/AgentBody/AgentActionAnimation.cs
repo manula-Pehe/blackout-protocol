@@ -192,7 +192,7 @@ namespace BlackoutProtocol.Body
             // Only during the short death animation, measure the actual deformed mesh.
             // No skin baking in steady-state locomotion or after the final pose.
             if (deathMesh == null) deathMesh = new Mesh { name = "Death grounding sample" };
-            float lowest = float.PositiveInfinity;
+            float lowest = float.PositiveInfinity, meshScaleY = 1f;
             foreach (var skin in skins)
             {
                 if (skin == null || !skin.enabled || !skin.gameObject.activeInHierarchy) continue;
@@ -200,9 +200,15 @@ namespace BlackoutProtocol.Body
                 deathMesh.GetVertices(deathVertices);
                 Matrix4x4 matrix = skin.localToWorldMatrix;
                 for (int i = 0; i < deathVertices.Count; i++)
-                    lowest = Mathf.Min(lowest, matrix.MultiplyPoint3x4(deathVertices[i]).y);
+                {
+                    float y = matrix.MultiplyPoint3x4(deathVertices[i]).y;
+                    if (y < lowest) { lowest = y; meshScaleY = Mathf.Abs(skin.transform.lossyScale.y); }
+                }
             }
-            float shift = float.IsInfinity(lowest) ? livingGroundShift : deathGroundY + 0.01f - lowest;
+            // Baked vertices already respond to the visual's scale; the matrix above
+            // applies that scale again. Divide the correction for scaled visuals.
+            float shift = float.IsInfinity(lowest) ? livingGroundShift :
+                (deathGroundY + 0.01f - lowest) / Mathf.Max(0.01f, meshScaleY);
             ApplyGroundShift(shift);
             if (state.normalizedTime >= 1f)
             { finalDeathShift = appliedGroundShift; deathGroundFinal = true; }
@@ -224,7 +230,7 @@ namespace BlackoutProtocol.Body
             callback?.Invoke();
             AttackImpact?.Invoke();
         }
-        private static bool UpperAction(AnimatorStateInfo state) => state.shortNameHash == Attack;
+        private static bool UpperAction(AnimatorStateInfo state) => state.shortNameHash == Attack || state.shortNameHash == Alert;
         private void UpdateUpperBodyWeight()
         {
             bool active = UpperAction(animator.GetCurrentAnimatorStateInfo(upperLayer));
@@ -277,7 +283,7 @@ namespace BlackoutProtocol.Body
             float blend = Mathf.InverseLerp(walkReference, runReference, speed);
             float nominal = sneaking ? sneakReference : Mathf.Lerp(walkReference, runReference, blend);
             animator.SetFloat(Rate, speed <= 0.02f ? 1f : Mathf.Clamp(speed / Mathf.Max(0.1f, nominal), 0.35f, 2f), damping, Time.deltaTime);
-            StabilizeHands();
+            // Let the humanoid Animator control wrist and finger poses.
             GroundLivingPose();
         }
         private void OnAction(AgentAction action)
