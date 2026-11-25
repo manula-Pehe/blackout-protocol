@@ -42,6 +42,8 @@ namespace BlackoutProtocol.AI.Flanker
         private float nextDecision;
         private float nextPath;
         private float nextShot;
+        private IPlayerState pendingShotTarget;
+        private System.Action timedShotImpact;
         private float nextCover;
         private int patrolIndex;
         private CharacterController controller;
@@ -96,6 +98,8 @@ namespace BlackoutProtocol.AI.Flanker
 
         private void OnDisable()
         {
+            if (body is IAgentTimedAttack timing) timing.CancelTimedAttack();
+            pendingShotTarget = null;
             if (health != null)
             {
                 health.Died -= Die;
@@ -309,18 +313,41 @@ namespace BlackoutProtocol.AI.Flanker
             return Physics.Linecast(point.Position + Vector3.up * 0.9f, threatEye, GameLayers.SightBlockers, QueryTriggerInteraction.Ignore);
         }
 
+        private bool CanShoot() => playerVisible && player != null && player.IsAlive && playerDamageable != null && !playerDamageable.IsDead &&
+                Vector3.Distance(Eye, player.Position + Vector3.up * 0.6f) <= attackRange &&
+                !Physics.Linecast(Eye, player.Position + Vector3.up * 0.6f, GameLayers.SightBlockers, QueryTriggerInteraction.Ignore);
+
         private bool Shoot()
         {
-            if (!playerVisible || player == null || !player.IsAlive || playerDamageable == null || playerDamageable.IsDead ||
-                Vector3.Distance(Eye, player.Position + Vector3.up * 0.6f) > attackRange ||
-                Physics.Linecast(Eye, player.Position + Vector3.up * 0.6f, GameLayers.SightBlockers, QueryTriggerInteraction.Ignore)) return false;
+            if (!CanShoot()) return false;
             body.Execute(MoveCommand.Hold(LookTarget));
             if (Time.time < nextShot) return true;
+            if (body is IAgentTimedAttack timing && timing.HasTimedAttack)
+            {
+                if (timedShotImpact == null) timedShotImpact = ResolveTimedShot;
+                if (!timing.TryPlayTimedAttack(attackInterval, timedShotImpact)) return true;
+                pendingShotTarget = player;
+            }
+            else
+            {
+                body.PlayAction(AgentAction.Attack);
+                ApplyShotDamage();
+            }
             nextShot = Time.time + Mathf.Max(0.1f, attackInterval);
-            body.PlayAction(AgentAction.Attack);
+            return true;
+        }
+
+        private void ResolveTimedShot()
+        {
+            IPlayerState target = pendingShotTarget; pendingShotTarget = null;
+            if (!isActiveAndEnabled || health.IsDead || !ReferenceEquals(target, player) || !CanShoot()) return;
+            ApplyShotDamage();
+        }
+
+        private void ApplyShotDamage()
+        {
             playerDamageable.TakeDamage(attackDamage, player.Position, gameObject);
             GameEvents.RaiseNoise(new NoiseEvent(Eye, NoiseLevels.Gunshot, NoiseType.Gunshot, Time.time, gameObject));
-            return true;
         }
 
         private Vector3 PatrolDestination()
@@ -356,6 +383,8 @@ namespace BlackoutProtocol.AI.Flanker
 
         private void PlayerChanged(IPlayerState current)
         {
+            if (body is IAgentTimedAttack timing) timing.CancelTimedAttack();
+            pendingShotTarget = null;
             tree.Abort(this);
             ReleaseCover();
             memory.Clear();

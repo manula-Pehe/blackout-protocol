@@ -469,12 +469,15 @@ namespace BlackoutProtocol.Body.Tests
             int previousRequests = Requests(), previousArrivals = Arrivals();
             Vector3 newGoal = new Vector3(-6, 0, -0.5f);
             GameEvents.RaiseNoise(new NoiseEvent(newGoal, 100, NoiseType.Alarm, Time.time));
-            yield return Until(() => Requests() > previousRequests && PathFollower.HorizontalDistance(Destination(), newGoal) < 0.1f && body.IsMoving, 4,
+            yield return Until(() => Requests() > previousRequests && body.IsMoving, 4,
                 () => $"hunter: replace route; requests={Requests()}, destination={Destination()}; {BodyState(body)}");
+            Vector3 perceivedGoal = Destination();
+            Assert.Less(PathFollower.HorizontalDistance(perceivedGoal, newGoal), 3f,
+                "Acoustic uncertainty may offset the goal but must keep it near the new sound.");
             Assert.AreEqual(previousArrivals, Arrivals());
             yield return Until(() => Arrivals() > previousArrivals, 15,
                 () => $"hunter: arrive at new goal; arrivals={Arrivals()}, action={ActionName()}; {BodyState(body)}");
-            Assert.Less(PathFollower.HorizontalDistance(body.Position, newGoal), 0.3f);
+            Assert.Less(PathFollower.HorizontalDistance(body.Position, perceivedGoal), 0.3f);
             yield return Until(() => ActionName() == "Search", 3,
                 () => $"hunter: enter search; action={ActionName()}; {BodyState(body)}");
             Assert.AreEqual(previousArrivals + 1, Arrivals());

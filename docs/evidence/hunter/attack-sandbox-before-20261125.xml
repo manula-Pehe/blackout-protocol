@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-25 01:11:07Z" end-time="2026-11-25 01:11:33Z" duration="25.5750898">
+  <test-suite type="TestSuite" id="1000" name="Blackout Protocol" fullname="Blackout Protocol" runstate="Runnable" testcasecount="220" result="Failed" site="Child" start-time="2026-11-25 01:11:07Z" end-time="2026-11-25 01:11:33Z" duration="25.575090" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1267" name="BlackoutProtocol.Hunter.Tests.EditMode.dll" fullname="/home/manula/Projects/University/blackout-protocol/Library/ScriptAssemblies/BlackoutProtocol.Hunter.Tests.EditMode.dll" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:11:09Z" end-time="2026-11-25 01:11:33Z" duration="24.348472" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="370159" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1268" name="BlackoutProtocol" fullname="BlackoutProtocol" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:11:10Z" end-time="2026-11-25 01:11:33Z" duration="23.390770" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1269" name="AI" fullname="BlackoutProtocol.AI" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:11:11Z" end-time="2026-11-25 01:11:33Z" duration="22.389256" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestSuite" id="1270" name="Hunter" fullname="BlackoutProtocol.AI.Hunter" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:11:12Z" end-time="2026-11-25 01:11:33Z" duration="21.387178" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-suite type="TestSuite" id="1271" name="Tests" fullname="BlackoutProtocol.AI.Hunter.Tests" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-11-25 01:11:13Z" end-time="2026-11-25 01:11:33Z" duration="20.386286" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-suite type="TestFixture" id="1188" name="HunterBrainTests" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" testcasecount="6" result="Failed" site="Child" start-time="2026-11-25 01:11:14Z" end-time="2026-11-25 01:11:33Z" duration="19.381738" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <failure>
+                  <message><![CDATA[One or more child tests had errors]]></message>
+                </failure>
+                <test-case id="1194" name="Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange" fullname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests.Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange" methodname="Attack_RequiresRecentlyHeardLiveRegisteredTargetAndActualRange" classname="BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests" runstate="Runnable" seed="565048370" result="Failed" start-time="2026-11-25 01:10:53Z" end-time="2026-11-25 01:11:33Z" duration="39.931296" asserts="0">
+                  <properties>
+                    <property name="_JOINTYPE" value="UnityCombinatorial" />
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Timed out: action=Chase, status=Chase: 2 A* waypoints, 0 nodes expanded., event=AgentBody reported arrival at the current destination., accepted=1, requests=3, failures=0.
+  Expected: True
+  But was:  False
+]]></message>
+                    <stack-trace><![CDATA[at BlackoutProtocol.AI.Hunter.Tests.HunterBrainTests+<WaitUntil>d__12.MoveNext () [0x00062] in /home/manula/Projects/University/blackout-protocol/Assets/_Project/Tests/EditMode/Hunter/HunterBrainTests.cs:247
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@0bd5c5194236/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+]]></stack-trace>
+                  </failure>
+                  <output><![CDATA[Saving results to: /home/manula/.config/unity3d/Blackout Team/Blackout Protocol/TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

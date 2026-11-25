@@ -160,6 +160,90 @@ namespace BlackoutProtocol.Body
             return radius;
         }
 
+        /// <summary>Horizontal bend angle. The initial point is a conservative approach.</summary>
+        public float CurrentTurnAngle
+        {
+            get
+            {
+                if (IsFinished || IsOnLastWaypoint) return 0f;
+                if (CurrentIndex == 0) return 180f;
+                Vector3 incoming = waypoints[CurrentIndex] - waypoints[CurrentIndex - 1];
+                Vector3 outgoing = waypoints[CurrentIndex + 1] - waypoints[CurrentIndex];
+                incoming.y = outgoing.y = 0f;
+                return Vector3.Angle(incoming, outgoing);
+            }
+        }
+
+        /// <summary>Find a point on the next segment without bypassing current waypoint acceptance.</summary>
+        public bool TryGetLookAhead(Vector3 position, float distance, float acceptance, out Vector3 target)
+        {
+            target = default;
+            if (IsFinished || IsOnLastWaypoint || !Finite(distance) || !Finite(acceptance) ||
+                distance <= 0f || acceptance <= 0f) return false;
+            Vector3 corner = CurrentWaypoint;
+            Vector3 next = waypoints[CurrentIndex + 1];
+            float remaining = distance - HorizontalDistance(position, corner);
+            float outgoingLength = HorizontalDistance(corner, next);
+            if (remaining <= 0f || outgoingLength <= 0.0001f) return false;
+            // Never aim beyond the next segment. Shrink the chord until it passes
+            // comfortably inside the acceptance disk of the current point.
+            float fraction = Mathf.Min(0.75f, remaining / outgoingLength);
+            for (int attempt = 0; attempt < 6 && fraction > 0.0001f; attempt++, fraction *= 0.5f)
+            {
+                Vector3 candidate = Vector3.Lerp(corner, next, fraction);
+                float t = HorizontalProjection(position, candidate, corner);
+                if (t <= 0f) continue;
+                Vector3 closest = Vector3.Lerp(position, candidate, t);
+                if (HorizontalDistance(closest, corner) > acceptance * 0.5f) continue;
+                target = candidate;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>Find a nearby forward segment for an optional replacement-route join.</summary>
+        public bool TryGetNearestJoin(Vector3 position, float maxDistance, out int segment, out Vector3 point)
+        {
+            segment = -1;
+            point = default;
+            if (waypoints.Count < 2 || !Finite(maxDistance) || maxDistance <= 0f) return false;
+            float initialDistance = HorizontalDistance(position, waypoints[0]);
+            // A normal route that starts at the body already needs no repair.
+            if (initialDistance <= 0.1f) return false;
+            float best = Mathf.Min(maxDistance, initialDistance - 0.05f);
+            for (int i = 0; i < waypoints.Count - 1; i++)
+            {
+                Vector3 a = waypoints[i], b = waypoints[i + 1];
+                if (HorizontalDistance(a, b) < 0.0001f) continue;
+                Vector3 candidate = Vector3.Lerp(a, b, HorizontalProjection(a, b, position));
+                // Avoid joining a different floor even when its XZ projection overlaps.
+                if (Mathf.Abs(candidate.y - position.y) > 0.35f) continue;
+                float gap = HorizontalDistance(position, candidate);
+                if (gap >= best) continue; // Earlier segment wins ties.
+                best = gap;
+                segment = i;
+                point = candidate;
+            }
+            return segment >= 0;
+        }
+
+        /// <summary>Commit a join only after the movement owner validates its NavMesh connection.</summary>
+        public void JoinAtSegment(int segment, Vector3 point)
+        {
+            if (segment < 0 || segment >= waypoints.Count - 1)
+                throw new ArgumentOutOfRangeException(nameof(segment));
+            waypoints[segment] = point;
+            CurrentIndex = segment;
+        }
+
+        private static float HorizontalProjection(Vector3 a, Vector3 b, Vector3 point)
+        {
+            Vector3 line = b - a, offset = point - a;
+            line.y = offset.y = 0f;
+            return line.sqrMagnitude > 0.000001f
+                ? Mathf.Clamp01(Vector3.Dot(offset, line) / line.sqrMagnitude) : 0f;
+        }
+
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
         /// <summary>

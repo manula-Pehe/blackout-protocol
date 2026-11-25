@@ -149,7 +149,8 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             int heard = demo.Hunter.AcceptedNoiseCount, arrivals = demo.Hunter.ArrivalCount;
             demo.ExecuteControl(ManulaTechnicalDemo.Control.Alarm);
             Assert.AreEqual(heard + 1, demo.Hunter.AcceptedNoiseCount);
-            yield return Until(() => demo.Hunter.CurrentAction == HunterAction.Investigate && demo.Hunter.HasActiveRoute, 4);
+            yield return Until(() => (demo.Hunter.CurrentAction == HunterAction.Investigate ||
+                demo.Hunter.CurrentAction == HunterAction.Chase) && demo.Hunter.HasActiveRoute, 4);
             Assert.IsTrue(NavMesh.Raycast(body.Position, demo.Hunter.Destination, out _, NavMesh.AllAreas));
             float end = Time.realtimeSinceStartup + 55, highest = body.Position.z;
             while (demo.Hunter.ArrivalCount == arrivals && Time.realtimeSinceStartup < end)

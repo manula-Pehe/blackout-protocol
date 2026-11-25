@@ -373,6 +373,13 @@ namespace BlackoutProtocol.AI.Hunter.Logic
                 IsFinite(observation.Loudness) && observation.Loudness > 0f &&
                 IsFinite(observation.InitialConfidence) &&
                 observation.InitialConfidence > 0f &&
+                IsFinite(observation.SourceX) && IsFinite(observation.SourceY) &&
+                IsFinite(observation.SourceZ) && IsFinite(observation.OriginalLoudness) &&
+                observation.OriginalLoudness > 0f && IsFinite(observation.PerceivedLoudness) &&
+                observation.PerceivedLoudness > 0f && IsFinite(observation.AcousticDistance) &&
+                observation.AcousticDistance >= 0f && IsFinite(observation.IncomingX) &&
+                IsFinite(observation.IncomingY) && IsFinite(observation.IncomingZ) &&
+                IsFinite(observation.UncertaintyRadius) && observation.UncertaintyRadius >= 0f &&
                 observation.Category >= NoiseType.Gunshot &&
                 observation.Category <= NoiseType.Alarm;
         }

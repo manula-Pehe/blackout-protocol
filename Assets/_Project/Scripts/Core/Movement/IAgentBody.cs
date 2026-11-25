@@ -40,4 +40,11 @@ namespace BlackoutProtocol.Core
         /// <summary>Plays a one-shot action such as an attack or hit reaction.</summary>
         void PlayAction(AgentAction action);
     }
+    /// <summary>Optional animation-backed attack timing. Legacy/test bodies retain PlayAction.</summary>
+    public interface IAgentTimedAttack
+    {
+        bool HasTimedAttack { get; }
+        bool TryPlayTimedAttack(float cycleSeconds, Action onImpact);
+        void CancelTimedAttack();
+    }
 }

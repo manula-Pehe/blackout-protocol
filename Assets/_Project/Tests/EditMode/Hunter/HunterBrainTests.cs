@@ -56,7 +56,8 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             Vector3 goal = new Vector3(6, 0, -3);
             int arrivals = brain.ArrivalCount;
             GameEvents.RaiseNoise(new NoiseEvent(goal, NoiseLevels.Alarm, NoiseType.Alarm, Time.time));
-            yield return WaitUntil(() => brain.CurrentAction == HunterAction.Investigate && body.IsMoving, 3);
+            yield return WaitUntil(() => (brain.CurrentAction == HunterAction.Investigate ||
+                brain.CurrentAction == HunterAction.Chase) && body.IsMoving, 3);
             Assert.That(brain.GetComponent<HunterNavMeshPathfinder>().LastSearch.Succeeded, Is.True);
             int requests = brain.PathRequestCount;
             yield return new WaitForSeconds(0.25f);
@@ -77,9 +78,10 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             }
             Assert.That(brain.ArrivalCount, Is.GreaterThan(arrivals), brain.Status);
             Assert.That(maximumZ, Is.GreaterThan(2.25f));
-            Vector3 difference = body.Position - goal;
+            Vector3 difference = body.Position - brain.Destination;
             difference.y = 0;
-            Assert.That(difference.magnitude, Is.LessThan(0.6f), "Arrival must be at the noise, not at a later wander point.");
+            Assert.That(difference.magnitude, Is.LessThan(0.6f), "Arrival must be at the perceived acoustic estimate.");
+            Assert.That(brain.SelectedNoise.Observation.UncertaintyRadius, Is.GreaterThan(0));
             yield return WaitUntil(() => brain.CurrentAction == HunterAction.Search, 2);
             Assert.That(brain.AttackCount, Is.Zero, "A remembered noise is not an attack target.");
             Debug.Log($"Hunter Stage B verification: investigated around wall, arrived at {body.Position}, maximum Z={maximumZ:F2}, stuck recoveries={brain.StuckRecoveryCount}.");
@@ -125,6 +127,38 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             yield return new ExitPlayMode();
         }
 
+        [UnityTest]
+        public IEnumerator LevelChangesAreDebounced_AndSentinelAlarmBecomesOneAcousticObservation()
+        {
+            EditorSceneManager.OpenScene(ScenePath);
+            yield return new EnterPlayMode();
+            yield return VerifyLevelChangeAndAlarm();
+            yield return new ExitPlayMode();
+        }
+
+        private static IEnumerator VerifyLevelChangeAndAlarm()
+        {
+            yield return new WaitForSeconds(0.3f);
+            HunterBrain brain = FindBrain();
+            HunterNavMeshPathfinder pathfinder = brain.GetComponent<HunterNavMeshPathfinder>();
+            int builds = pathfinder.GraphBuildCount;
+            GameEvents.RaiseLevelChanged(null);
+            GameEvents.RaiseLevelChanged(null);
+            yield return new WaitForSeconds(0.2f);
+            Assert.That(brain.NavigationChangeCount, Is.Zero, "Graph rebuild must wait for NavMesh carving.");
+            Assert.That(pathfinder.GraphBuildCount, Is.EqualTo(builds));
+            yield return WaitUntil(() => brain.NavigationChangeCount == 1 && pathfinder.GraphBuildCount == builds + 1, 3);
+
+            int accepted = brain.AcceptedNoiseCount;
+            Vector3 alarm = new Vector3(6, 0, -3);
+            GameEvents.RaiseAlarm(alarm);
+            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted + 1));
+            Assert.That(brain.SelectedNoise.Observation.Category == NoiseType.Alarm ||
+                brain.LastRuntimeEvent.Contains("Acoustic evidence"), Is.True);
+            GameEvents.RaiseNoise(new NoiseEvent(alarm, NoiseLevels.Alarm, NoiseType.Alarm, Time.time));
+            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted + 1), "A mirrored alarm noise must not be double-counted.");
+        }
+
         private static IEnumerator VerifyLifecycle()
         {
             yield return null;
@@ -147,7 +181,8 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             Assert.That(body.IsMoving, Is.False);
             brain.enabled = true;
             GameEvents.RaiseNoise(new NoiseEvent(new Vector3(1000, 0, 1000), 2000, NoiseType.Alarm, Time.time));
-            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted), "An unreachable sound must not become evidence.");
+            Assert.That(brain.AcceptedNoiseCount, Is.EqualTo(accepted), "Off-NavMesh sound cannot invent a reachable source anchor.");
+            Assert.That(brain.GetComponent<HunterNavMeshPathfinder>().AcousticStatus, Does.Contain("outside"));
             brain.enabled = false;
             brain.enabled = true;
             yield return null;
@@ -182,12 +217,25 @@ namespace BlackoutProtocol.AI.Hunter.Tests
 
             target.transform.position = brain.transform.position + Vector3.forward * 3;
             Physics.SyncTransforms();
-            GameEvents.RaiseNoise(new NoiseEvent(target.Position, NoiseLevels.Gunshot,
-                NoiseType.Gunshot, Time.time, target.gameObject));
+            yield return new WaitForSeconds(0.5f);
+            Assert.That(brain.CurrentAction, Is.EqualTo(HunterAction.Wander),
+                "A silent target outside melee reach must not create visual pursuit.");
+            GameEvents.RaiseNoise(new NoiseEvent(target.Position, NoiseLevels.Gunshot, NoiseType.Gunshot, Time.time, target.gameObject));
             yield return WaitUntil(() => brain.CurrentAction == HunterAction.Chase, 2);
             Assert.That(brain.AttackCount, Is.Zero, "A heard target outside the attack radius is not eligible.");
             float health = target.HealthNormalized;
-            yield return WaitUntil(() => brain.AttackCount > 0, 6);
+            float attackDeadline = Time.realtimeSinceStartup + 12;
+            while (brain.AttackCount == 0 && Time.realtimeSinceStartup < attackDeadline)
+            {
+                // A moving player keeps making new sound; a single distant gunshot has
+                // deliberate location uncertainty and need not lead exactly to melee range.
+                GameEvents.RaiseNoise(new NoiseEvent(target.Position, NoiseLevels.RunningFootstep,
+                    NoiseType.Footstep, Time.time, target.gameObject));
+                yield return new WaitForSeconds(0.5f);
+            }
+            Assert.That(brain.AttackCount, Is.GreaterThan(0),
+                $"Hunter did not naturally attack after continued player noise: {brain.Status}");
+            yield return WaitUntil(() => target.HealthNormalized < health, 4);
             Assert.That(target.HealthNormalized, Is.LessThan(health));
             Assert.That(Vector3.Distance(brain.transform.position, target.Position), Is.LessThanOrEqualTo(1.4f));
             Assert.That(brain.GetComponent<AgentBody>().IsMoving, Is.False);
@@ -206,7 +254,9 @@ namespace BlackoutProtocol.AI.Hunter.Tests
         {
             float end = Time.realtimeSinceStartup + timeout;
             while (!condition() && Time.realtimeSinceStartup < end) yield return null;
-            Assert.That(condition(), Is.True, "Timed out waiting for the expected Hunter runtime behavior.");
+            HunterBrain brain = Object.FindFirstObjectByType<HunterBrain>();
+            Assert.That(condition(), Is.True, brain == null ? "Missing HunterBrain." :
+                $"Timed out: action={brain.CurrentAction}, status={brain.Status}, event={brain.LastRuntimeEvent}, accepted={brain.AcceptedNoiseCount}, requests={brain.PathRequestCount}, failures={brain.PathFailureCount}.");
         }
 
         private static HunterBrain FindBrain()

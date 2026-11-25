@@ -7,15 +7,18 @@ public sealed class EnemyVisualGrounding : MonoBehaviour
 
     private Vector3 originalLocalPosition;
     private bool hasOriginalPosition;
+    private BlackoutProtocol.Body.AgentActionAnimation completedAnimation;
 
     private void OnEnable()
     {
+        completedAnimation = GetComponentInParent<BlackoutProtocol.Body.AgentActionAnimation>();
         originalLocalPosition = transform.localPosition;
         hasOriginalPosition = true;
     }
 
     private void LateUpdate()
     {
+        if (completedAnimation != null && completedAnimation.IsReady) return;
         if (!hasOriginalPosition)
         {
             originalLocalPosition = transform.localPosition;

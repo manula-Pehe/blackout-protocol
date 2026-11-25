@@ -18,6 +18,7 @@ namespace BlackoutProtocol.Body
 
         private readonly List<Part> parts = new List<Part>();
         private AgentBody body;
+        private AgentActionAnimation humanoid;
         private float attackStarted = float.NegativeInfinity;
         private bool attacking;
         private const float Duration = 0.35f;
@@ -25,6 +26,7 @@ namespace BlackoutProtocol.Body
         private void Awake()
         {
             body = GetComponent<AgentBody>();
+            humanoid = GetComponentInChildren<AgentActionAnimation>(true);
             foreach (Transform child in transform)
             {
                 if (!child.gameObject.activeInHierarchy) continue;
@@ -48,11 +50,13 @@ namespace BlackoutProtocol.Body
         private void OnDisable()
         {
             if (body != null) body.ActionRequested -= OnAction;
-            Restore();
+            if (attacking) Restore();
+            attacking = false;
         }
 
         private void OnAction(AgentAction action)
         {
+            if (humanoid != null && humanoid.IsReady) return;
             if (action == AgentAction.Attack)
             {
                 if (attacking) Restore();
@@ -67,7 +71,7 @@ namespace BlackoutProtocol.Body
                 attackStarted = Time.time;
                 attacking = true;
             }
-            else if (action == AgentAction.Die) { attacking = false; Restore(); }
+            else if (action == AgentAction.Die && attacking) { attacking = false; Restore(); }
         }
 
         private void LateUpdate()

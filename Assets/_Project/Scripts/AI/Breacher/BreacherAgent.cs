@@ -52,6 +52,9 @@ namespace BlackoutProtocol.AI.Breacher
         private readonly List<Vector3> movementPath = new List<Vector3>();
         private GoapPlanResult currentPlan;
         private float attackTimer;
+        private float nextAnimatedAttack;
+        private bool animatedAttack;
+        private System.Action timedAttackImpact;
         private float nextReplanTime;
         private bool currentActionFailed;
         private bool barricadeUnavailable;
@@ -105,6 +108,8 @@ namespace BlackoutProtocol.AI.Breacher
 
         private void OnDisable()
         {
+            if (agentBody is IAgentTimedAttack timing) timing.CancelTimedAttack();
+            animatedAttack = false;
             GameEvents.LevelChanged -= HandleLevelChanged;
             GameEvents.AlarmRaised -= HandleAlarmRaised;
 
@@ -477,7 +482,9 @@ namespace BlackoutProtocol.AI.Breacher
             if (action is AttackAction)
             {
                 attackTimer = 0f;
-                agentBody.PlayAction(AgentAction.Attack);
+                nextAnimatedAttack = Time.time;
+                animatedAttack = agentBody is IAgentTimedAttack timing && timing.HasTimedAttack;
+                if (!animatedAttack) agentBody.PlayAction(AgentAction.Attack);
             }
         }
 
@@ -549,6 +556,20 @@ namespace BlackoutProtocol.AI.Breacher
                     return ActionExecutionStatus.Succeeded;
                 }
 
+                if (animatedAttack)
+                {
+                    if (!CanMeleePlayer()) return ActionExecutionStatus.Failed;
+                    if (!(agentBody is IAgentTimedAttack timing) || !timing.HasTimedAttack)
+                        return ActionExecutionStatus.Failed;
+                    if (Time.time >= nextAnimatedAttack)
+                    {
+                        if (timedAttackImpact == null) timedAttackImpact = ResolveTimedAttack;
+                        if (timing.TryPlayTimedAttack(attackDuration, timedAttackImpact))
+                            nextAnimatedAttack = Time.time + Mathf.Max(0.35f, attackDuration);
+                    }
+                    return ActionExecutionStatus.Running;
+                }
+
                 attackTimer += Time.deltaTime;
 
                 if (attackTimer < attackDuration)
@@ -580,8 +601,25 @@ namespace BlackoutProtocol.AI.Breacher
             return ActionExecutionStatus.Failed;
         }
 
+        private bool CanMeleePlayer() => player != null && playerDamageable != null && !playerDamageable.IsDead &&
+            HorizontalDistance(transform.position, player.position) <= attackRange &&
+            !Physics.Linecast(transform.position + Vector3.up, player.position + Vector3.up,
+                GameLayers.SightBlockers, QueryTriggerInteraction.Ignore);
+
+        private void ResolveTimedAttack()
+        {
+            if (!animatedAttack || !isActiveAndEnabled || breacherHealth.IsDead) return;
+            if (!CanMeleePlayer()) { currentActionFailed = true; return; }
+            playerDamageable.TakeDamage(attackDamage, player.position + Vector3.up, gameObject);
+        }
+
         public void Cancel(GoapAction action)
         {
+            if (action is AttackAction)
+            {
+                animatedAttack = false;
+                if (agentBody is IAgentTimedAttack timing) timing.CancelTimedAttack();
+            }
             if (action is MoveToAction || action is TakeCoverAction)
             {
                 agentBody.Stop();

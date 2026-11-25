@@ -155,5 +155,58 @@ namespace BlackoutProtocol.AI.Hunter.Tests
             Assert.That(queue.TryDequeue(out HunterPriorityQueue.Entry fourth) && fourth.Node == 2, Is.True);
             Assert.That(queue.TryDequeue(out _), Is.False);
         }
+
+        [Test]
+        public void AcousticDijkstra_UsesDistanceAndRejectsInsufficientLoudness()
+        {
+            var graph = new HunterNavGraph();
+            int source = graph.AddNode(P(0, 0));
+            int middle = graph.AddNode(P(4, 0));
+            int listener = graph.AddNode(P(9, 0));
+            graph.TryConnectBoth(source, middle, 4);
+            graph.TryConnectBoth(middle, listener, 5);
+
+            HunterSoundPropagationResult heard = HunterSoundPropagation.Propagate(graph, source, listener, 12);
+            Assert.That(heard.Heard, Is.True);
+            Assert.That(heard.TravelDistance, Is.EqualTo(9).Within(1e-6));
+            Assert.That(heard.PerceivedLoudness, Is.EqualTo(3).Within(1e-6));
+            Assert.That(heard.IncomingPoint.X, Is.EqualTo(4).Within(1e-6));
+
+            HunterSoundPropagationResult quiet = HunterSoundPropagation.Propagate(graph, source, listener, 9);
+            Assert.That(quiet.Heard, Is.False);
+        }
+
+        [Test]
+        public void AcousticDijkstra_ClosedDoorConnectsComponentsWithPenalty()
+        {
+            var graph = new HunterNavGraph();
+            int source = graph.AddNode(P(0, 0));
+            int sourceDoor = graph.AddNode(P(2, 0));
+            int listenerDoor = graph.AddNode(P(3, 0));
+            int listener = graph.AddNode(P(5, 0));
+            graph.TryConnectBoth(source, sourceDoor, 2);
+            graph.TryConnectBoth(listenerDoor, listener, 2);
+            var open = new[] { new HunterAcousticPortal(sourceDoor, listenerDoor, 1, 0, false) };
+            var closed = new[] { new HunterAcousticPortal(sourceDoor, listenerDoor, 1, 4, true) };
+
+            HunterSoundPropagationResult openResult = HunterSoundPropagation.Propagate(graph, source, listener, 12, 1, open);
+            HunterSoundPropagationResult closedResult = HunterSoundPropagation.Propagate(graph, source, listener, 12, 1, closed);
+            Assert.That(openResult.Heard && closedResult.Heard, Is.True);
+            Assert.That(openResult.PerceivedLoudness, Is.EqualTo(7).Within(1e-6));
+            Assert.That(closedResult.PerceivedLoudness, Is.EqualTo(3).Within(1e-6));
+            Assert.That(closedResult.ClosedDoors, Is.EqualTo(1));
+            Assert.That(HunterSoundPropagation.Propagate(graph, source, listener, 8, 1, closed).Heard, Is.False);
+        }
+
+        [Test]
+        public void AcousticDijkstra_InvalidInputsFailSafely()
+        {
+            var graph = new HunterNavGraph();
+            int node = graph.AddNode(P(0, 0));
+            Assert.That(HunterSoundPropagation.Propagate(null, 0, 0, 10).Heard, Is.False);
+            Assert.That(HunterSoundPropagation.Propagate(graph, -1, node, 10).Heard, Is.False);
+            Assert.That(HunterSoundPropagation.Propagate(graph, node, node, float.NaN).Heard, Is.False);
+            Assert.That(HunterSoundPropagation.Propagate(graph, node, node, 10, double.PositiveInfinity).Heard, Is.False);
+        }
     }
 }

@@ -5,6 +5,7 @@ using BlackoutProtocol.Body;
 using BlackoutProtocol.Core;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Profiling;
 
 namespace BlackoutProtocol.AI.Hunter
 {
@@ -19,7 +20,7 @@ namespace BlackoutProtocol.AI.Hunter
         [SerializeField] private Transform[] wanderPoints = new Transform[0];
         [SerializeField] private LineRenderer pathDisplay;
         [SerializeField, Min(0.05f)] private float decisionInterval = 0.2f;
-        [SerializeField, Min(0.1f)] private float minimumRepathInterval = 0.75f;
+        [SerializeField, Min(0.25f)] private float minimumRepathInterval = 0.75f;
         [SerializeField, Min(0.1f)] private float movingTargetRepathDistance = 0.8f;
         [SerializeField, Range(0, 1)] private float hysteresisBonus = 0.08f;
         [Header("Evidence lifetime (seconds)")]
@@ -28,17 +29,20 @@ namespace BlackoutProtocol.AI.Hunter
         [SerializeField, Range(0.05f, 1)] private float minimumTrailConfidence = 0.35f;
         [SerializeField, Min(0.1f)] private float searchDuration = 8f;
         [SerializeField, Min(0.1f)] private float searchRadius = 1.5f;
-        [Header("Visual target and attack")]
-        [SerializeField, Min(1)] private float sightRange = 20f;
+        [Header("Blind close-range attack")]
         [SerializeField, Min(1)] private float noiseProximityRange = 24f;
         [SerializeField] private LayerMask sightMask = ~0;
         [SerializeField, Min(0.1f)] private float attackRange = 1.4f;
         [SerializeField, Min(0.1f)] private float attackCooldown = 1.2f;
         [SerializeField, Min(0)] private float attackDamage = 10f;
+        [Header("Dynamic navigation")]
+        [SerializeField, Min(0.05f)] private float navMeshChangeDelay = 0.4f;
+        [Header("Acoustic uncertainty")]
+        [SerializeField, Min(0f)] private float maximumSoundUncertainty = 6f;
 
+        private static readonly ProfilerMarker RouteMarker = new ProfilerMarker("Blackout.Hunter.RouteRequest");
         private readonly List<Vector3> path = new List<Vector3>(64);
-        private readonly List<Vector3> soundPath = new List<Vector3>(64);
-        private readonly RaycastHit[] soundOccluders = new RaycastHit[16];
+        private NavMeshPath wanderPath;
         private HunterSoundMemory memory;
         private HunterUtilitySelector selector;
         private IAgentBody agentBody;
@@ -55,6 +59,15 @@ namespace BlackoutProtocol.AI.Hunter
         private float blockedPursuitUntil, nextStuckRecovery;
         private bool previouslyVisible;
         private double lastFreshNoiseTime = -1;
+        private bool navigationChangePending;
+        private float navigationRefreshAt;
+        private float activeSearchRadius;
+        private Vector3 lastAlarmPosition;
+        private float lastAlarmTime = -10f;
+        private IPlayerState lastHeardPlayer;
+        private IPlayerState pendingAttackTarget;
+        private System.Action timedAttackImpact;
+        private float lastPlayerSoundTime = float.NegativeInfinity;
 
         public HunterAction CurrentAction { get; private set; } = HunterAction.Wander;
         public HunterUtilitySelection LastSelection { get; private set; }
@@ -77,12 +90,16 @@ namespace BlackoutProtocol.AI.Hunter
         public bool HasDestination { get; private set; }
         public Vector3 Destination => routeGoal;
         public string LastRuntimeEvent { get; private set; } = "No runtime events yet.";
+        public int NavigationChangeCount { get; private set; }
 
         private void Awake()
         {
+            wanderPath = new NavMeshPath();
             if (body == null) body = GetComponent<AgentBody>();
             if (pathfinder == null) pathfinder = GetComponent<HunterNavMeshPathfinder>();
             agentBody = body;
+            // Hunter owns ordinary geometric routes, unlike exposure/interaction paths.
+            if (body != null) body.EnableRouteRefinement = true;
             routeFinder = pathfinder;
             memory = new HunterSoundMemory(confidenceHalfLife: memoryHalfLife, maximumAge: memoryMaximumAge);
             selector = new HunterUtilitySelector(hysteresisBonus);
@@ -94,6 +111,8 @@ namespace BlackoutProtocol.AI.Hunter
             if (!Application.isPlaying || agentBody == null || subscribed) return;
             if (TryGetComponent(out HunterSandboxRouteDriver driver)) driver.enabled = false;
             GameEvents.Noise += OnNoise;
+            GameEvents.LevelChanged += OnLevelChanged;
+            GameEvents.AlarmRaised += OnAlarmRaised;
             agentBody.Arrived += OnArrived;
             agentBody.Stuck += OnStuck;
             subscribed = true;
@@ -103,50 +122,81 @@ namespace BlackoutProtocol.AI.Hunter
 
         private void OnDisable()
         {
+            if (agentBody is IAgentTimedAttack timing) timing.CancelTimedAttack();
+            pendingAttackTarget = null;
             if (!subscribed) return;
             GameEvents.Noise -= OnNoise;
+            GameEvents.LevelChanged -= OnLevelChanged;
+            GameEvents.AlarmRaised -= OnAlarmRaised;
             agentBody.Arrived -= OnArrived;
             agentBody.Stuck -= OnStuck;
             subscribed = false;
             if (body != null) agentBody.Stop();
             routeActive = false;
             visibleTarget = null;
+            lastHeardPlayer = null;
+            lastPlayerSoundTime = float.NegativeInfinity;
             if (pathDisplay != null) pathDisplay.positionCount = 0;
         }
 
         private void OnNoise(NoiseEvent noise)
         {
             float now = Time.time;
-            if (body == null || !Finite(noise.Position) || !Finite(noise.Loudness) || noise.Loudness <= 0 ||
+            if (body == null || pathfinder == null || !Finite(noise.Position) || !Finite(noise.Loudness) || noise.Loudness <= 0 ||
                 !Finite(noise.Time) || noise.Time < 0 || noise.Time > now ||
                 (noise.Source != null && (noise.Source == gameObject || noise.Source.transform.IsChildOf(transform)))) return;
-            double directDistance = HunterNavPoint.Distance(ToPoint(agentBody.Position), ToPoint(noise.Position));
-            if (directDistance >= noise.Loudness) return;
-            float audibleRadius = noise.Loudness;
-            Vector3 direction = noise.Position - agentBody.Position;
-            int hitCount = Physics.RaycastNonAlloc(agentBody.Position + Vector3.up, direction.normalized,
-                soundOccluders, direction.magnitude, ~0, QueryTriggerInteraction.Ignore);
-            for (int i = 0; i < hitCount; i++)
+            if (noise.Type == NoiseType.Alarm && now - lastAlarmTime < 0.15f &&
+                Vector3.Distance(noise.Position, lastAlarmPosition) < 0.25f) return;
+            if (!pathfinder.TryPropagateSound(noise.Position, agentBody.Position, noise.Loudness,
+                out HunterSoundPropagationResult propagation)) return;
+            float confidence = Mathf.Sqrt(Mathf.Clamp01(propagation.PerceivedLoudness / noise.Loudness));
+            float distanceFactor = Mathf.Clamp01((float)propagation.TravelDistance / Mathf.Max(1f, noise.Loudness));
+            float attenuationFactor = 1f - Mathf.Clamp01(propagation.PerceivedLoudness / noise.Loudness);
+            float uncertainty = maximumSoundUncertainty * Mathf.Clamp01(0.65f * distanceFactor + 0.35f * attenuationFactor);
+            Vector3 estimated = EstimateSoundPosition(noise.Position, noise.Time, noise.Type, uncertainty);
+            if (!TryGround(estimated, out estimated) && !TryGround(noise.Position, out estimated)) return;
+            HunterNavPoint incoming = propagation.IncomingPoint;
+            if (!memory.Record(new HunterNoiseObservation(estimated.x, estimated.y, estimated.z,
+                noise.Position.x, noise.Position.y, noise.Position.z, noise.Type, noise.Time,
+                propagation.PerceivedLoudness, noise.Loudness, confidence,
+                (float)propagation.TravelDistance, propagation.ClosedDoors,
+                incoming.X, incoming.Y, incoming.Z, uncertainty), now)) return;
+            if (noise.Type == NoiseType.Alarm)
             {
-                foreach (MonoBehaviour component in soundOccluders[i].collider.GetComponentsInParent<MonoBehaviour>())
-                    if (component is IDoor door && !door.IsOpen) audibleRadius *= 0.5f;
+                lastAlarmPosition = noise.Position;
+                lastAlarmTime = now;
             }
-            if (directDistance >= audibleRadius || pathfinder == null ||
-                !pathfinder.TryFindPath(agentBody.Position, noise.Position, soundPath)) return;
-            double distance = 0;
-            for (int i = 1; i < soundPath.Count; i++) distance += Vector3.Distance(soundPath[i - 1], soundPath[i]);
-            if (distance >= audibleRadius) return;
-            // Loudness is an audible radius, not volume. The square-root falloff retains
-            // useful evidence in the middle of the radius while confidence reaches zero at its edge.
-            float confidence = Mathf.Sqrt(Mathf.Clamp01(1f - (float)(distance / audibleRadius)));
-            if (!memory.Record(new HunterNoiseObservation(noise.Position.x, noise.Position.y, noise.Position.z,
-                noise.Type, noise.Time, audibleRadius, confidence), now)) return;
+            // Only accepted acoustic evidence from the actual player arms melee.
+            IPlayerState sourcePlayer = PlayerRegistry.Current;
+            if (ValidTarget(sourcePlayer) && noise.Source != null &&
+                (noise.Source == sourcePlayer.Transform.gameObject ||
+                 noise.Source.transform.IsChildOf(sourcePlayer.Transform)))
+            {
+                if (!ReferenceEquals(lastHeardPlayer, sourcePlayer))
+                    lastPlayerSoundTime = float.NegativeInfinity;
+                lastHeardPlayer = sourcePlayer;
+                lastPlayerSoundTime = Mathf.Max(lastPlayerSoundTime, noise.Time);
+            }
             AcceptedNoiseCount++;
-            LastRuntimeEvent = "Noise observation accepted; next scheduled decision will evaluate it.";
+            LastRuntimeEvent = $"Acoustic evidence accepted: {propagation.PerceivedLoudness:F1}/{noise.Loudness:F1} loudness, uncertainty {uncertainty:F1} m.";
+        }
+
+        private void OnAlarmRaised(Vector3 position)
+        {
+            if (!Finite(position)) return;
+            OnNoise(new NoiseEvent(position, NoiseLevels.Alarm, NoiseType.Alarm, Time.time));
+        }
+
+        private void OnLevelChanged(Collider changedObject)
+        {
+            navigationChangePending = true;
+            navigationRefreshAt = Mathf.Max(navigationRefreshAt, Time.time + Mathf.Max(0.05f, navMeshChangeDelay));
+            LastRuntimeEvent = "Level changed; waiting briefly for NavMesh carving before rebuilding the Hunter graph.";
         }
 
         private void Update()
         {
+            if (navigationChangePending && Time.time >= navigationRefreshAt) ApplyNavigationChange();
             if (Time.time < nextDecision) return;
             nextDecision = Time.time + Mathf.Max(0.05f, decisionInterval);
             if (body == null || pathfinder == null || !body.isActiveAndEnabled || !pathfinder.isActiveAndEnabled)
@@ -164,10 +214,16 @@ namespace BlackoutProtocol.AI.Hunter
             float now = Time.time;
             LastDecisionTime = now;
             DecisionCount++;
-            IPlayerState candidate = PlayerRegistry.Current;
-            visibleTarget = CanSee(candidate) ? candidate : null;
-            if (HasVisibleTarget && !previouslyVisible)
-                pendingReason = HunterDecisionReason.VisiblePlayer;
+            // The Hunter is blind. PlayerRegistry is consulted only for a final, obstructed
+            // melee-range validation; it never creates a long-range pursuit trail.
+            visibleTarget = PlayerRegistry.Current;
+            if (!CanAttack(visibleTarget)) visibleTarget = null;
+            if (previouslyVisible && !HasVisibleTarget)
+            {
+                pendingReason = HunterDecisionReason.TargetLostOrInvalid;
+                LastRuntimeEvent = "Target lost, invalid, or temporarily excluded after failed pursuit.";
+            }
+            else if (!previouslyVisible && HasVisibleTarget) pendingReason = HunterDecisionReason.VisiblePlayer;
             previouslyVisible = HasVisibleTarget;
             bool previouslyRemembered = HasSelectedNoise;
             HasSelectedNoise = memory.TryGetMostRelevant(now, resolvedThroughTime, out HunterRememberedNoise noise);
@@ -186,9 +242,10 @@ namespace BlackoutProtocol.AI.Hunter
                 if (!HasVisibleTarget) pendingReason = HunterDecisionReason.TrustedSound;
             }
 
-            if (fresh || HasVisibleTarget)
+            if (fresh)
             {
-                trailPosition = HasVisibleTarget ? visibleTarget.Position : NoisePosition(noise);
+                trailPosition = NoisePosition(noise);
+                activeSearchRadius = searchRadius + noise.Observation.UncertaintyRadius;
                 hasTrail = true;
                 searching = false;
             }
@@ -236,12 +293,12 @@ namespace BlackoutProtocol.AI.Hunter
         private void BuildContext(bool fresh)
         {
             float proximity = hasTrail ? 1f - Vector3.Distance(agentBody.Position, trailPosition) /
-                (HasVisibleTarget ? Mathf.Max(1, sightRange) : Mathf.Max(1, noiseProximityRange)) : 0;
+                Mathf.Max(1, noiseProximityRange) : 0;
             LastContext = new HunterUtilityContext(
-                HasVisibleTarget ? 1 : fresh ? SelectedNoise.SoundIntensity * SelectedNoise.Confidence : 0,
-                HasVisibleTarget ? 1 : hasTrail && HasSelectedNoise ? SelectedNoise.Confidence : 0,
-                HasVisibleTarget ? 1 : HasSelectedNoise ? SelectedNoise.EffectiveTrust : 0,
-                proximity, searching ? 1 : 0, CanAttack(PlayerRegistry.Current) ? 1 : 0);
+                fresh ? SelectedNoise.SoundIntensity * SelectedNoise.Confidence : 0,
+                hasTrail && HasSelectedNoise ? SelectedNoise.Confidence : 0,
+                HasSelectedNoise ? SelectedNoise.EffectiveTrust : 0,
+                proximity, searching ? 1 : 0, CanAttack(visibleTarget) ? 1 : 0);
         }
 
         private void Wander()
@@ -251,15 +308,29 @@ namespace BlackoutProtocol.AI.Hunter
             if (wanderPoints != null && wanderPoints.Length > 0 && wanderPoints[wanderIndex % wanderPoints.Length] != null)
                 desired = wanderPoints[wanderIndex % wanderPoints.Length].position;
             else desired = home + Quaternion.Euler(0, wanderIndex * 137.5f, 0) * Vector3.forward * 4;
-            if (TryGround(desired, out Vector3 grounded)) RequestPath(grounded, MoveStyle.Walk);
-            else { wanderIndex++; nextMove = Time.time + 1; Status = "No reachable wander point; waiting before retry."; }
+            if (!TryGround(desired, out Vector3 grounded) ||
+                !NavMesh.CalculatePath(agentBody.Position, grounded, NavMesh.AllAreas, wanderPath) ||
+                wanderPath.status != NavMeshPathStatus.PathComplete)
+            {
+                desired = agentBody.Position + Quaternion.Euler(0, wanderIndex * 137.5f, 0) * Vector3.forward * 4;
+                if (!TryGround(desired, out grounded) ||
+                    !NavMesh.CalculatePath(agentBody.Position, grounded, NavMesh.AllAreas, wanderPath) ||
+                    wanderPath.status != NavMeshPathStatus.PathComplete)
+                {
+                    wanderIndex++; nextMove = Time.time + 1;
+                    Status = "No reachable wander point; waiting before retry.";
+                    return;
+                }
+                LastRuntimeEvent = "Patrol marker disconnected; using a reachable local wander point.";
+            }
+            RequestPath(grounded, MoveStyle.Walk);
         }
 
         private void Search()
         {
             if (routeActive || Time.time < nextMove) return;
             Vector3 center = TryGround(trailPosition, out Vector3 grounded) ? grounded : agentBody.Position;
-            Vector3 offset = Quaternion.Euler(0, searchIndex * 90, 0) * Vector3.forward * searchRadius;
+            Vector3 offset = Quaternion.Euler(0, searchIndex * 90, 0) * Vector3.forward * Mathf.Max(searchRadius, activeSearchRadius);
             if (TryGround(center + offset, out Vector3 point)) RequestPath(point, MoveStyle.Sneak);
             else { searchIndex++; nextMove = Time.time + 0.5f; }
         }
@@ -268,7 +339,8 @@ namespace BlackoutProtocol.AI.Hunter
         {
             if (Time.time < nextPath || Time.time < nextMove) return;
             if (routeActive && !forceRepath && Vector3.Distance(routeGoal, goal) < movingTargetRepathDistance) return;
-            nextPath = Time.time + Mathf.Max(0.1f, minimumRepathInterval);
+            using var profile = RouteMarker.Auto();
+            nextPath = HunterRouteThrottle.NextAllowed(Time.time, minimumRepathInterval);
             forceRepath = false;
             routeGoal = goal;
             HasDestination = true;
@@ -276,16 +348,6 @@ namespace BlackoutProtocol.AI.Hunter
             if (!routeFinder.TryFindPath(agentBody.Position, goal, path))
             {
                 PathFailureCount++;
-                if (CurrentAction == HunterAction.Chase && HasVisibleTarget && CanSee(visibleTarget))
-                {
-                    path.Clear();
-                    path.Add(agentBody.Position);
-                    path.Add(goal);
-                    routeActive = true;
-                    agentBody.Execute(new MoveCommand(path, style, visibleTarget.Transform));
-                    Status = "Visible player: direct local pursuit while A* route is unavailable.";
-                    return;
-                }
                 routeActive = false;
                 agentBody.Stop();
                 Status = pathfinder.NavigationStatus;
@@ -330,7 +392,7 @@ namespace BlackoutProtocol.AI.Hunter
             routeActive = false;
             forceRepath = true;
             if (stuckRetries == 0) pathfinder.InvalidateGraph();
-            nextPath = Time.time + Mathf.Max(0.1f, minimumRepathInterval);
+            nextPath = Mathf.Max(nextPath, HunterRouteThrottle.NextAllowed(Time.time, minimumRepathInterval));
             Status = "AgentBody stuck; delayed A* replan requested.";
             LastRuntimeEvent = "Stuck event accepted; duplicate events are suppressed during the replan cooldown.";
             if (++stuckRetries >= 2)
@@ -380,28 +442,53 @@ namespace BlackoutProtocol.AI.Hunter
                 agentBody.Stop();
                 routeActive = false;
                 pendingReason = HunterDecisionReason.TargetLostOrInvalid;
-                LastRuntimeEvent = "Attack cancelled: player is blocked or out of range.";
+                LastRuntimeEvent = "Attack cancelled: player sound is stale or target is blocked or out of range.";
                 nextDecision = 0;
                 return;
             }
             if (agentBody.IsMoving) agentBody.Stop();
             routeActive = false;
             if (Time.time < nextAttack) return;
+            if (agentBody is IAgentTimedAttack timing && timing.HasTimedAttack)
+            {
+                if (timedAttackImpact == null) timedAttackImpact = ResolveTimedAttack;
+                if (!timing.TryPlayTimedAttack(attackCooldown, timedAttackImpact)) return;
+                pendingAttackTarget = target;
+                Status = "Attack windup: waiting for animation impact.";
+            }
+            else
+            {
+                agentBody.PlayAction(AgentAction.Attack);
+                ApplyAttackDamage(target);
+            }
             nextAttack = Time.time + Mathf.Max(0.1f, attackCooldown);
-            agentBody.PlayAction(AgentAction.Attack);
             AttackCount++;
+        }
+
+        private void ResolveTimedAttack()
+        {
+            IPlayerState target = pendingAttackTarget;
+            pendingAttackTarget = null;
+            if (!isActiveAndEnabled || !ReferenceEquals(target, PlayerRegistry.Current) || !CanAttack(target)) return;
+            ApplyAttackDamage(target);
+        }
+
+        private void ApplyAttackDamage(IPlayerState target)
+        {
             IDamageable damageable = target.Transform.GetComponentInChildren<IDamageable>();
             if (damageable != null && !damageable.IsDead && attackDamage > 0)
                 damageable.TakeDamage(attackDamage, target.Position, gameObject);
-            Status = "Attack executed against a visible player within clear melee range.";
+            Status = "Attack executed at a recently heard player within clear melee range.";
         }
 
         private bool CanAttack(IPlayerState target) => ValidTarget(target) &&
+            ReferenceEquals(lastHeardPlayer, target) &&
+            Time.time - lastPlayerSoundTime <= 5f &&
             Vector3.Distance(agentBody.Position, target.Position) <= Mathf.Max(0.1f, attackRange) && CanSee(target);
 
         private bool CanSee(IPlayerState target)
         {
-            if (!ValidTarget(target) || Vector3.Distance(agentBody.Position, target.Position) > sightRange) return false;
+            if (!ValidTarget(target) || Vector3.Distance(agentBody.Position, target.Position) > attackRange) return false;
             if (!Physics.Linecast(agentBody.Position + Vector3.up * 1.2f, target.Position + Vector3.up * 1.2f,
                 out RaycastHit hit, sightMask, QueryTriggerInteraction.Ignore)) return true;
             return hit.transform == target.Transform || hit.transform.IsChildOf(target.Transform);
@@ -421,6 +508,33 @@ namespace BlackoutProtocol.AI.Hunter
             if (!Finite(point) || !NavMesh.SamplePosition(point, out NavMeshHit hit, 1.5f, NavMesh.AllAreas)) return false;
             result = hit.position;
             return true;
+        }
+
+        private void ApplyNavigationChange()
+        {
+            navigationChangePending = false;
+            NavigationChangeCount++;
+            pathfinder.InvalidateGraph();
+            if (agentBody != null) agentBody.Stop();
+            routeActive = false;
+            forceRepath = true;
+            nextPath = HunterRouteThrottle.AfterInvalidation(Time.time, nextPath);
+            nextDecision = 0f;
+            pendingReason = HunterDecisionReason.LevelChanged;
+            LastRuntimeEvent = "NavMesh carving delay elapsed; cached graph invalidated and controlled replan requested.";
+        }
+
+        private static Vector3 EstimateSoundPosition(Vector3 source, float time, NoiseType type, float uncertainty)
+        {
+            if (uncertainty <= 0.001f) return source;
+            // A stable phase makes the error repeatable for tests and viva explanation,
+            // while preventing exact long-range source knowledge.
+            // Repeated impacts at one location should retain a stable perceived
+            // direction so uncertainty does not defeat location-based habituation.
+            float temporalPhase = type == NoiseType.Impact ? 0f : time * 37.13f;
+            float phase = temporalPhase + (int)type * 71.7f + source.x * 11.3f + source.z * 17.9f;
+            Vector3 direction = new Vector3(Mathf.Sin(phase), 0f, Mathf.Cos(phase));
+            return source + direction * uncertainty * 0.65f;
         }
 
         private void OnDrawGizmos()

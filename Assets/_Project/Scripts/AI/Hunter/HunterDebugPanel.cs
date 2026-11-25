@@ -21,7 +21,7 @@ namespace BlackoutProtocol.AI.Hunter
         private float nextRefresh;
         private Vector2 scroll;
         private GUIStyle labelStyle;
-        private string header = "HUNTER / waiting for decision / F1 debug";
+        private string header = "HUNTER / waiting for decision / F1 debug / F3 UCS";
 
         public bool OverlayVisible => overlayVisible;
         public bool CompareOnRouteRequests => compareOnRouteRequests;
@@ -60,13 +60,15 @@ namespace BlackoutProtocol.AI.Hunter
         {
 #if ENABLE_INPUT_SYSTEM
             if (Keyboard.current != null && Keyboard.current.f1Key.wasPressedThisFrame) ToggleOverlay();
+            if (Keyboard.current != null && Keyboard.current.f3Key.wasPressedThisFrame) ToggleVivaComparison();
 #elif ENABLE_LEGACY_INPUT_MANAGER
             if (Input.GetKeyDown(KeyCode.F1)) ToggleOverlay();
+            if (Input.GetKeyDown(KeyCode.F3)) ToggleVivaComparison();
 #endif
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + 0.25f;
             if (overlayVisible) RefreshDisplay();
-            else if (brain != null) header = $"HUNTER / {brain.CurrentAction} / F1 debug";
+            else if (brain != null) header = $"HUNTER / {brain.CurrentAction} / F1 debug / F3 UCS";
         }
 
         public void ToggleOverlay()
@@ -74,6 +76,15 @@ namespace BlackoutProtocol.AI.Hunter
             overlayVisible = !overlayVisible;
             ApplyComparisonMode();
             nextRefresh = 0;
+        }
+
+        // Keyboard access while the FPS player owns the mouse. Opt-in only.
+        private void ToggleVivaComparison()
+        {
+            if (!overlayVisible) ToggleOverlay();
+            SetCompareOnRouteRequests(!compareOnRouteRequests);
+            if (compareOnRouteRequests) CompareLatestRoute();
+            else RefreshDisplay();
         }
 
         public void SetCompareOnRouteRequests(bool value)
@@ -105,7 +116,7 @@ namespace BlackoutProtocol.AI.Hunter
                 ScoreText = "Assign HunterBrain and HunterNavMeshPathfinder on this debug panel.";
                 return;
             }
-            header = $"HUNTER / {brain.CurrentAction} / F1 debug";
+            header = $"HUNTER / {brain.CurrentAction} / F1 debug / F3 UCS";
             DisplayedSelection = brain.LastSelection;
             DisplayedDecisionTime = brain.LastDecisionTime;
             HasDisplayedNoise = brain.HasSelectedNoise;
@@ -133,7 +144,14 @@ namespace BlackoutProtocol.AI.Hunter
                     .Append(" / age ").Append(DisplayedNoiseAge.ToString("F2")).Append(" s at decision\nconfidence ")
                     .Append(DisplayedNoise.Confidence.ToString("F3")).Append(" / trust ")
                     .Append(DisplayedNoise.EffectiveTrust.ToString("F3")).Append(" / priority ")
-                    .Append(DisplayedNoise.Priority.ToString("F3"));
+                    .Append(DisplayedNoise.Priority.ToString("F3"))
+                    .Append("\nloudness perceived/original ").Append(DisplayedNoise.Observation.PerceivedLoudness.ToString("F1"))
+                    .Append(" / ").Append(DisplayedNoise.Observation.OriginalLoudness.ToString("F1"))
+                    .Append(" / acoustic route ").Append(DisplayedNoise.Observation.AcousticDistance.ToString("F1")).Append(" m")
+                    .Append("\nclosed doors ").Append(DisplayedNoise.Observation.ClosedDoors)
+                    .Append(" / uncertainty ").Append(DisplayedNoise.Observation.UncertaintyRadius.ToString("F1")).Append(" m")
+                    .Append("\nestimated ").Append(NoisePoint(DisplayedNoise.Observation.X, DisplayedNoise.Observation.Y, DisplayedNoise.Observation.Z))
+                    .Append(" / incoming ").Append(NoisePoint(DisplayedNoise.Observation.IncomingX, DisplayedNoise.Observation.IncomingY, DisplayedNoise.Observation.IncomingZ));
             }
             MemoryText = text.ToString();
 
@@ -143,7 +161,9 @@ namespace BlackoutProtocol.AI.Hunter
                 .Append(" / waypoints ").Append(brain.Waypoints.Count)
                 .Append("\nrequests ").Append(brain.PathRequestCount).Append(" / failures ").Append(brain.PathFailureCount)
                 .Append(" / stuck recoveries ").Append(brain.StuckRecoveryCount)
-                .Append("\n").Append(pathfinder.NavigationStatus).Append("\n").Append(brain.Status)
+                .Append(" / level replans ").Append(brain.NavigationChangeCount)
+                .Append("\n").Append(pathfinder.NavigationStatus).Append("\nAcoustics: ").Append(pathfinder.AcousticStatus)
+                .Append("\n").Append(brain.Status)
                 .Append("\nEvent: ").Append(brain.LastRuntimeEvent);
             NavigationText = text.ToString();
 
@@ -189,6 +209,8 @@ namespace BlackoutProtocol.AI.Hunter
                 .Append(" / ").Append(result.ElapsedMilliseconds.ToString("F3")).Append(" ms\n");
         }
 
+        private static string NoisePoint(float x, float y, float z) => $"({x:F1}, {y:F1}, {z:F1})";
+
         private static string Explain(HunterDecisionReason reason)
         {
             switch (reason)
@@ -202,6 +224,7 @@ namespace BlackoutProtocol.AI.Hunter
                 case HunterDecisionReason.UnreachablePursuit: return "A* pursuit failed; local search";
                 case HunterDecisionReason.RepeatedStuck: return "repeated stuck; pursuit cooldown";
                 case HunterDecisionReason.SearchCompleted: return "search duration completed";
+                case HunterDecisionReason.LevelChanged: return "door / barricade changed; graph rebuilt";
                 default: return "utility scores / hysteresis";
             }
         }

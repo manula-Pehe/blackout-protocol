@@ -95,6 +95,45 @@ namespace BlackoutProtocol.Body.Tests
         }
 
         [Test]
+        public void LookAhead_AimsAlongNextSegmentWithoutSkippingCurrentWaypoint()
+        {
+            var follower = new PathFollower();
+            follower.SetPath(new[] { Vector3.zero, Vector3.forward * 2f, new Vector3(2f, 0f, 2f) });
+            follower.Advance(Vector3.zero, Acceptance, Arrival, 0.08f);
+            Vector3 position = new Vector3(0f, 0f, 1.8f);
+            Assert.IsTrue(follower.TryGetLookAhead(position, 0.8f, 0.08f, out Vector3 target));
+            Assert.Greater(target.x, 0f);
+            Assert.AreEqual(2f, target.z, 0.0001f);
+            Assert.AreEqual(1, follower.CurrentIndex);
+            Assert.IsFalse(follower.TryGetLookAhead(Vector3.zero, 0.8f, 0.08f, out _));
+        }
+
+        [Test]
+        public void NearbyReplacementJoin_PreservesDestinationAndDoesNotMutateCallerPath()
+        {
+            var path = new[] { Vector3.zero, Vector3.forward * 2f, Vector3.forward * 4f };
+            var follower = new PathFollower();
+            follower.SetPath(path);
+            Assert.IsFalse(follower.TryGetNearestJoin(Vector3.zero, 0.35f, out _, out _));
+            Assert.IsTrue(follower.TryGetNearestJoin(new Vector3(0.1f, 0f, 3f), 0.35f,
+                out int segment, out Vector3 point));
+            Assert.AreEqual(1, segment);
+            follower.JoinAtSegment(segment, point);
+            Assert.AreEqual(Vector3.forward * 3f, follower.CurrentWaypoint);
+            Assert.AreEqual(Vector3.forward * 4f, follower.Destination);
+            Assert.AreEqual(Vector3.forward * 2f, path[1]);
+        }
+
+        [Test]
+        public void NearbyReplacementJoin_RejectsOtherFloorAndDistantRoute()
+        {
+            var follower = new PathFollower();
+            follower.SetPath(new[] { Vector3.zero, Vector3.forward * 4f });
+            Assert.IsFalse(follower.TryGetNearestJoin(new Vector3(0f, 2f, 2f), 0.35f, out _, out _));
+            Assert.IsFalse(follower.TryGetNearestJoin(new Vector3(2f, 0f, 2f), 0.35f, out _, out _));
+        }
+
+        [Test]
         public void Clear_RemovesPath()
         {
             var follower = new PathFollower();

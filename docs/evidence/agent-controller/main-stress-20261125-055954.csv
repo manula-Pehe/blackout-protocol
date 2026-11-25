@@ -1,0 +1,3 @@
+agent_count,frames,seconds,mean_fps,mean_frame_ms,mean_moving_agents
+4,315,15.0065,20.99,47.64,2.94
+12,572,15.0176,38.09,26.25,10.13

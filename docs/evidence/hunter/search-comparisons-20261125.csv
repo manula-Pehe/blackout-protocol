@@ -1,0 +1,6 @@
+scene,graph_nodes,start_x,start_y,start_z,goal_x,goal_y,goal_z,astar_success,ucs_success,astar_graph_cost,ucs_graph_cost,astar_expanded,ucs_expanded,astar_search_ms,ucs_search_ms
+Main,291,8.00,1.08,8.00,8.00,0.08,11.17,true,true,2.592,2.592,2,3,0.018,0.008
+Main,291,8.00,1.08,8.00,10.28,0.08,11.17,true,true,1.889,1.889,2,2,0.010,0.009
+Main,291,8.00,1.08,8.00,4.28,0.08,11.17,true,true,2.592,2.592,2,3,0.010,0.005
+Main,291,8.00,1.08,8.00,10.00,0.08,8.00,true,true,1.889,1.889,2,2,0.004,0.003
+Main,291,8.00,1.08,8.00,5.00,0.08,8.00,true,true,7.901,7.901,4,10,0.008,0.006

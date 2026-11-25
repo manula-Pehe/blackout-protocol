@@ -57,6 +57,62 @@ namespace BlackoutProtocol.Body.Tests
             Assert.That(clip.length, Is.GreaterThan(0));
         }
 
+        [TestCase("Walking Backwards")]
+        [TestCase("Running Backward")]
+        [TestCase("Left Strafe Walking")]
+        [TestCase("Left Strafe")]
+        [TestCase("Right Strafe Walking")]
+        [TestCase("Right Strafe")]
+        [TestCase("Sneak Walk")]
+        [TestCase("Mutant Punch")]
+        [TestCase("Hit Reaction")]
+        [TestCase("Death")]
+        [TestCase("Zombie Transition")]
+        public void DownloadedClipsUseTitanAvatarAtCorrectScale(string name)
+        {
+            var avatar = AssetDatabase.LoadAllAssetsAtPath(Source + "Titan_Rigged.fbx").OfType<Avatar>().Single();
+            var importer = (ModelImporter)AssetImporter.GetAtPath(Owned + name + ".fbx");
+            Assert.That(importer.animationType, Is.EqualTo(ModelImporterAnimationType.Human));
+            Assert.That(importer.avatarSetup, Is.EqualTo(ModelImporterAvatarSetup.CopyFromOther));
+            Assert.That(importer.sourceAvatar, Is.EqualTo(avatar));
+            Assert.That(importer.useFileScale, Is.True, "Mixamo clips need their centimetre file scale");
+        }
+
+        [Test]
+        public void CompletedActionClipsKeepNaturalArmSidesAndImpactEvent()
+        {
+            var mask = AssetDatabase.LoadAssetAtPath<AvatarMask>(Owned + "Completed/UpperBody.mask");
+            Assert.That(mask.GetHumanoidBodyPartActive(AvatarMaskBodyPart.Root), Is.True,
+                "The action layer must include root pose to preserve arm placement");
+            var attack = AssetDatabase.LoadAssetAtPath<AnimationClip>(Owned + "Completed/Attack.anim");
+            Assert.That(AnimationUtility.GetAnimationEvents(attack).Single().functionName, Is.EqualTo("AnimationAttackImpact"));
+            var model = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Owned + "TitanVisual.prefab"));
+            var animator = model.GetComponent<Animator>();
+            animator.runtimeAnimatorController = null;
+            try
+            {
+                foreach (var item in new[] { ("Attack", .5f), ("Alert", 0f), ("Run Left", 0f) })
+                {
+                    var clip = Object.Instantiate(AssetDatabase.LoadAssetAtPath<AnimationClip>(Owned + "Completed/" + item.Item1 + ".anim"));
+                    var graph = PlayableGraph.Create("Titan arm pose regression");
+                    try
+                    {
+                        AnimationUtility.SetAnimationEvents(clip, System.Array.Empty<AnimationEvent>());
+                        graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
+                        var motion = AnimationClipPlayable.Create(graph, clip);
+                        AnimationPlayableOutput.Create(graph, "pose", animator).SetSourcePlayable(motion);
+                        graph.Play(); motion.SetTime(clip.length * item.Item2); graph.Evaluate(0);
+                        float left = model.transform.InverseTransformPoint(animator.GetBoneTransform(HumanBodyBones.LeftHand).position).x;
+                        float right = model.transform.InverseTransformPoint(animator.GetBoneTransform(HumanBodyBones.RightHand).position).x;
+                        Assert.That(left, Is.LessThan(-0.05f), item.Item1 + " left hand crossed the body");
+                        Assert.That(right, Is.GreaterThan(0.05f), item.Item1 + " right hand crossed the body");
+                    }
+                    finally { graph.Destroy(); Object.DestroyImmediate(clip); }
+                }
+            }
+            finally { Object.DestroyImmediate(model); }
+        }
+
         [Test]
         public void ControllerUsesOneSpeedBlendTreeWithIdleWalkRunThresholds()
         {
